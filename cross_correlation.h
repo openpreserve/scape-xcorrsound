@@ -17,9 +17,10 @@ struct proxyFFT {
     template<typename T>
     proxyFFT(std::vector<T> &array) : _array(array), _computed(false) {};
 
-    // proxyFFT(std::InputIterator start, std::InputIterator end) : _computed(false) {
-    // 	_array.insert(_array.begin(), start, end);
-    // }
+    proxyFFT(typename std::vector<T1>::iterator begin, typename std::vector<T1>::iterator end) : _computed(false) {
+	_array.clear();
+	_array.insert(_array.begin(), begin, end);
+    };
 
     void transform() {
 	if (_computed) return;
@@ -53,6 +54,25 @@ struct proxyFFT {
 
 };
 
+/**
+ * @param b is 'shifted' along @param a. That is, sample b[0] is always 
+ * part of the product and a[n] is also always part of the product.
+ *
+ * first round:
+ * a [ 0 1 2 ... n ]
+ * b [ 0 1 2 ... n ]
+ *
+ * second round:
+ * a [ 0 1 2 ... n ]
+ * b   [ 0 1 2 ... n ]
+ *
+ * third round:
+ * a [ 0 1 2 ... n ]
+ * b     [ 0 1 2 ... n ]
+ *
+ * etc..
+ */
+
 template<typename T1, typename T2>
 void cross_correlation(proxyFFT<T1, T2> &a, proxyFFT<T1, T2> &b, std::vector<std::complex<T2> > &out) {
     std::vector<std::complex<T2> > out2 = a.getTransform();
@@ -62,11 +82,11 @@ void cross_correlation(proxyFFT<T1, T2> &a, proxyFFT<T1, T2> &b, std::vector<std
     fftw_complex *invprod = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * prodSize);
 
     for (size_t i = 0 ; i < prodSize; ++i) {
-	prod[i][0] = out1[i][0] * out2[i][0] + out1[i][1] * out2[i][1];
-	prod[i][1] = -out1[i][0] * out2[i][1] + out1[i][1] * out2[i][0];
+	prod[i][0] = out1[i].real() * out2[i].real() + out1[i].imag() * out2[i].imag();
+	prod[i][1] = -out1[i].real() * out2[i].imag() + out1[i].imag() * out2[i].real();
     }
 
-    fftw_plan plan = fftw_plan(prodSize, prod, invprod, FFTW_FORWARD, FFTW_ESTIMATE);
+    fftw_plan plan= fftw_plan_dft_1d(prodSize, prod, invprod, FFTW_FORWARD, FFTW_ESTIMATE);
     fftw_execute(plan);
     
     out.resize(prodSize);
