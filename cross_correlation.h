@@ -77,19 +77,23 @@ template<typename T1, typename T2>
 void cross_correlation(proxyFFT<T1, T2> &a, proxyFFT<T1, T2> &b, std::vector<std::complex<T2> > &out) {
     std::vector<std::complex<T2> > out2 = a.getTransform();
     std::vector<std::complex<T2> > out1 = b.getTransform();
-    size_t prodSize = std::min(out2.size(), out1.size());
+    size_t prodSize = std::min(out2.size(), out1.size())*2;
     fftw_complex *prod = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * prodSize);
     fftw_complex *invprod = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * prodSize);
 
-    for (size_t i = 0 ; i < prodSize; ++i) {
-	prod[i][0] = out1[i].real() * out2[i].real() + out1[i].imag() * out2[i].imag();
-	prod[i][1] = -out1[i].real() * out2[i].imag() + out1[i].imag() * out2[i].real();
+    for (size_t i = 0 ; i < prodSize/2; ++i) {
+	prod[i][0] = out1[i].real() * out2[i].real() - out1[i].imag() * out2[i].imag();
+	prod[i][1] = out1[i].real() * out2[i].imag() + out1[i].imag() * out2[i].real();
+    }
+    for (size_t i = prodSize/2; i < prodSize; ++i) {
+	prod[i][0] = 0;
+	prod[i][1] = 0;
     }
 
     fftw_plan plan= fftw_plan_dft_1d(prodSize, prod, invprod, FFTW_FORWARD, FFTW_ESTIMATE);
     fftw_execute(plan);
     
-    out.resize(prodSize);
+    out.resize(prodSize/2);
     for (size_t i = 0; i < out.size(); ++i) {
 	out[i] = std::complex<T2>(invprod[i][0]/2/out.size(), invprod[i][1]);
     }

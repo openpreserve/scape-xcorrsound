@@ -193,7 +193,7 @@ void match(vector<T> &small, vector<T> &large, vector<size_t> results) {
 		maxNormFactorReverse = normFactor;
 	    }
 	}
-	cout << outNormal[maxSample].real()/maxNormFactorNormal << '\t' << outReverse[maxSampleReverse].real()/maxNormFactorReverse << "\t|\t" << maxNormFactorNormal << '\t' << maxNormFactorReverse<< endl;
+	//cout << outNormal[maxSample].real()/maxNormFactorNormal << '\t' << outReverse[maxSampleReverse].real()/maxNormFactorReverse << "\t|\t" << maxNormFactorNormal << '\t' << maxNormFactorReverse<< endl;
 
 	maxSamples[ii/small.size()] = small.size() - maxSample;
 	maxSamplesReverse[ii/small.size()] = small.size() - maxSampleReverse;
@@ -204,7 +204,7 @@ void match(vector<T> &small, vector<T> &large, vector<size_t> results) {
     // fix this.
 
     for (size_t i = 0 ; i < maxSamples.size()-1;  ++i) {
-	cout << i << '\t' << maxSamples[i] << '\t' << maxSamplesReverse[i] << endl;
+	//cout << i << '\t' << maxSamples[i] << '\t' << maxSamplesReverse[i] << endl;
 	if (maxSamples[i+1] + maxSamplesReverse[i] < small.size() &&
 	    (maxSamples[i+1] + maxSamplesReverse[i]) >= 0.95*small.size()) {
 	    
