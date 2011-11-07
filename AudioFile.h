@@ -3,6 +3,7 @@
 
 #include <cstdio>
 #include <vector>
+#include "stdint.h"
 
 class AudioFile {
 private:
@@ -22,7 +23,7 @@ public:
     ~AudioFile();
 
     size_t getNumberOfChannels();
-    size_t getSampleRate();
+    uint32_t getSampleRate();
     size_t getNumberOfSamplesPrChannel();
     void getSamplesForChannel(size_t channel, std::vector<short>&);
 

@@ -6,6 +6,7 @@
 #include <vector>
 #include <iterator>
 #include <complex>
+#include <iostream>
 
 template<typename T1, typename T2>
 struct proxyFFT {
@@ -19,7 +20,7 @@ struct proxyFFT {
 
     proxyFFT(typename std::vector<T1>::iterator begin, typename std::vector<T1>::iterator end) : _computed(false) {
 	_array.clear();
-	_array.insert(_array.begin(), begin, end);
+	_array.insert(_array.end(), begin, end);
     };
 
     void transform() {
@@ -39,12 +40,12 @@ struct proxyFFT {
 	plan = fftw_plan_dft_1d(_array.size()*2, t, o, FFTW_FORWARD, FFTW_ESTIMATE);
 	fftw_execute(plan);
 	fftw_free(t);
-	_transform.resize(_array.size());
-	for (size_t i = 0; i < _array.size(); ++i) {
-	    _transform[i] = std::complex<T2>(o[i][0],o[i][1]);		
+	_transform.resize(_array.size()*2);
+	for (size_t i = 0; i < _array.size()*2; ++i) {
+	    _transform[i] = std::complex<T2>(o[i][0],o[i][1]);
 	}
-	fftw_free(o);
-	_computed = true;
+
+ 	_computed = true;
     }
 
     std::vector<std::complex<T2> >& getTransform() {
@@ -76,20 +77,15 @@ struct proxyFFT {
 template<typename T1, typename T2>
 void cross_correlation(proxyFFT<T1, T2> &a, proxyFFT<T1, T2> &b, std::vector<std::complex<T2> > &out) {
     std::vector<std::complex<T2> > out2 = a.getTransform();
-    std::vector<std::complex<T2> > out1 = b.getTransform();
-    size_t prodSize = std::min(out2.size(), out1.size())*2;
+    std::vector<std::complex<T2> > out1 = b.getTransform(); 
+    size_t prodSize = out1.size(); // requre a.size() = b.size()
     fftw_complex *prod = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * prodSize);
     fftw_complex *invprod = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * prodSize);
 
-    for (size_t i = 0 ; i < prodSize/2; ++i) {
-	prod[i][0] = out1[i].real() * out2[i].real() - out1[i].imag() * out2[i].imag();
-	prod[i][1] = out1[i].real() * out2[i].imag() + out1[i].imag() * out2[i].real();
+    for (size_t i = 0 ; i < prodSize; ++i) {
+	prod[i][0] = out1[i].real() * out2[i].real() + out1[i].imag() * out2[i].imag();
+	prod[i][1] = -out1[i].real() * out2[i].imag() + out1[i].imag() * out2[i].real();
     }
-    for (size_t i = prodSize/2; i < prodSize; ++i) {
-	prod[i][0] = 0;
-	prod[i][1] = 0;
-    }
-
     fftw_plan plan= fftw_plan_dft_1d(prodSize, prod, invprod, FFTW_FORWARD, FFTW_ESTIMATE);
     fftw_execute(plan);
     
@@ -100,6 +96,11 @@ void cross_correlation(proxyFFT<T1, T2> &a, proxyFFT<T1, T2> &b, std::vector<std
     fftw_free(prod); fftw_free(invprod);
 }
 
+
+/**
+ * @Deprecated.  Use void cross_correlation(proxyFFT<T1, T2>,
+ * proxyFFT<T1, T2>, std::vector<std::complex<T2> >) instead.
+ */
 template<typename in_type, typename out_type>
 void cross_correlation(in_type *a1, in_type *a2, size_t a1_size, size_t a2_size, std::vector<out_type> &out) {
     fftw_complex *in1,*in2, *in3, *out1, *out2, *out3;

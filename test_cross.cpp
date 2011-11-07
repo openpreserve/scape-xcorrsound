@@ -13,8 +13,8 @@ int main() {
     vector<int> b(arr2, arr2+6);
     vector<complex<double> > out;
 
-    proxyFFT<int, double> ap(a);
-    proxyFFT<int, double> bp(b);
+    proxyFFT<int, double> ap(a.begin(), a.end());
+    proxyFFT<int, double> bp(b.begin(), b.end());
 
     cross_correlation(ap, bp, out);
 

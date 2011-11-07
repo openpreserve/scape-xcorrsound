@@ -32,10 +32,12 @@ int logstreambuffer::overflow(int c) {
     flush();
     *pptr() = c;
     pbump(1);
+    return 0;
 }
 
 int logstreambuffer::sync() {
     flush();
+    return 0;
 }
 
 void logstreambuffer::set_level(int32_t level) {

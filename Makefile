@@ -1,34 +1,42 @@
+fftw_includedir = fftw-3.2.2/api
+fftw_libdir = fftw-3.2.2/.libs
+
+CPPFLAGS = -I$(fftw_includedir)
+CXXFLAGS = -Wall -O2
+LDFLAGS = -L$(fftw_libdir)
+FFTW3_LIBS = -lfftw3
+CXX=g++
+
 OBJECT_FILES := my_utils.o
-CPP_FLAGS = -Wall -O2
-CC=g++
+
 all: xcorrSound
 
 clean:
-	rm -rf *.o xcorrSound
+	rm -rf *.o xcorrSound test_cross soundMatch
 
-$(OBJECTS_FILES): %.o : %.cpp
-	$(CC) -c $(CPP_FLAGS) $< -o $@
+$(OBJECT_FILES): %.o : %.cpp
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $< -o $@
 
 cross_correlation: cross_correlation.h
-	$(CC) $(CPP_FLAGS) cross_correlation_test.cpp -o cross_correlation_test -L. -lfftw3
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) cross_correlation_test.cpp -o cross_correlation_test $(LDFLAGS) $(FFTW3_LIBS)
 
 xcorrSound.o: xcorrSound.cpp
-	$(CC) -c xcorrSound.cpp -L. -lfftw3 $(CPP_FLAGS) -o xcorrSound.o
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c xcorrSound.cpp -o xcorrSound.o
 
 logstream.o: logstream.h logstream.cpp
-	$(CC) -c logstream.cpp -o logstream.o
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c logstream.cpp -o logstream.o
 
 xcorrSound: $(OBJECT_FILES) xcorrSound.o logstream.o
-	$(CC) $(CPP_FLAGS) logstream.o my_utils.o xcorrSound.o -o xcorrSound -L. -lfftw3
+	$(CXX) $(CXXFLAGS) logstream.o my_utils.o xcorrSound.o -o xcorrSound $(LDFLAGS) $(FFTW3_LIBS)
 
 AudioFile: AudioFile.h AudioFile.cpp
-	$(CC) $(CPP_FLAGS) -c AudioFile.cpp -o AudioFile.o
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c AudioFile.cpp -o AudioFile.o
 
 soundMatch: AudioFile sound_match.cpp
-	$(CC) $(CPP_FLAGS) AudioFile.o sound_match.cpp -o soundMatch -L . -lfftw3
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) AudioFile.o sound_match.cpp -o soundMatch $(LDFLAGS) $(FFTW3_LIBS)
 
 test_cross: test_cross.cpp
-	$(CC) $(CPP_FLAGS) test_cross.cpp -o test_cross -L . -lfftw3
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) test_cross.cpp -o test_cross $(LDFLAGS) $(FFTW3_LIBS)
 
 
 .PHONY: all clean

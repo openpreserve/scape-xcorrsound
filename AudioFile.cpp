@@ -25,8 +25,8 @@ size_t AudioFile::getNumberOfChannels() {
     return _channels;
 }
 
-size_t AudioFile::getSampleRate() {
-    return 0;
+uint32_t AudioFile::getSampleRate() {
+    return this->_sampleRate;
 }
 
 size_t AudioFile::getNumberOfSamplesPrChannel() {
@@ -37,6 +37,18 @@ int16_t getIntFromChars(uint8_t a, uint8_t b) {
     int16_t res = b;
     res = res << 8;
     res += a;
+    return res;
+}
+
+int32_t getIntFromChars(uint8_t a, uint8_t b, uint8_t c, uint8_t d) {
+    int32_t res = 0;
+    res = res | d;
+    res = res << 8;
+    res = res | c;
+    res = res << 8;
+    res = res | b;
+    res = res << 8;
+    res = res | a;
     return res;
 }
 
@@ -75,4 +87,5 @@ void AudioFile::populateFieldVariables() {
 
     this->_audioFormat = getIntFromChars(buf[20], buf[21]);
     this->_channels = getIntFromChars(buf[22], buf[23]);
+    this->_sampleRate = getIntFromChars(buf[24], buf[25], buf[26], buf[27]);
 }

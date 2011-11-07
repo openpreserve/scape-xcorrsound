@@ -38,6 +38,11 @@ double computeNormFactor(vector<int64_t> &prefixSquareSmall, vector<int64_t> &pr
 			 vector<int64_t>::iterator smallBegin, vector<int64_t>::iterator smallEnd,
 			 vector<int64_t>::iterator largeBegin, vector<int64_t>::iterator largeEnd) {
 
+
+
+    
+    if (smallEnd != prefixSquareSmall.begin()) --smallEnd;
+
     int64_t smallVal = *smallEnd;
 
     if (smallBegin != prefixSquareSmall.begin()) {
@@ -45,8 +50,10 @@ double computeNormFactor(vector<int64_t> &prefixSquareSmall, vector<int64_t> &pr
 	smallVal -= *smallBegin;
     }
 
-    int64_t largeVal = *largeEnd;
-    
+    if (largeEnd != prefixSquareLarge.begin()) --largeEnd;
+
+    int64_t largeVal = *largeEnd;    
+
     if (largeBegin != prefixSquareLarge.begin()) {
 	--largeBegin;
 	largeVal -= *largeBegin;
@@ -104,7 +111,7 @@ void match(T *s, T *l, size_t m, size_t n, std::vector<size_t> &res, int64_t *sp
 		    res.push_back(i-prev);
 		} 
 	    }
-
+	    std::cout << lengthOfOverlap << std::endl;
 	    if (lengthOfOverlap >= THRESHHOLD*m) {
 		res.push_back(i+maxSample+m-end);
 	    }
@@ -125,14 +132,12 @@ void match(T *s, T *l, size_t m, size_t n, std::vector<size_t> &res, int64_t *sp
 	    }
 	}
 	
+
+	
 	maxSample = m - maxSample;
+	std::cout << i/m << ": \t" << maxSample << " ";
 
-	//std::cout << "lengthA: " << maxSample << std::endl;
-
-	//std::cout << crossOut << std::endl;
 	prev = maxSample; // length
-	//std::cout << "prev: " << prev << std::endl;
-	//std::cout << " ---- " << std::endl;
 
 	if (maxSample >= ((double) m)*0.9) {
 	    std::cout << "maxsample==0.9m, match..: " << i << std::endl;
@@ -142,8 +147,7 @@ void match(T *s, T *l, size_t m, size_t n, std::vector<size_t> &res, int64_t *sp
 }
 
 template<typename T>
-void match(vector<T> &small, vector<T> &large, vector<size_t> results) {
-    
+void match(vector<T> &small, vector<T> &large, vector<size_t> &results) {
     vector<int64_t> smallPrefixSum, largePrefixSum;
     prefixSquareSum(small, smallPrefixSum);
     prefixSquareSum(large, largePrefixSum);
@@ -152,67 +156,63 @@ void match(vector<T> &small, vector<T> &large, vector<size_t> results) {
     
     proxyFFT<T, double> smallFFT(small);
 
-    vector<int64_t> maxSamples(numberOfParts);
-    vector<int64_t> maxSamplesReverse(numberOfParts);
+    vector<int64_t> maxSamplesBegin(numberOfParts);
+    vector<int64_t> maxSamplesEnd(numberOfParts);
 
     for (size_t ii = 0; ii < numberOfParts*small.size(); ii+=small.size()) {
 	proxyFFT<T, double> largeFFT(large.begin()+ii, large.begin()+ii+small.size());
-	vector<complex<double> > outNormal;
-	vector<complex<double> > outReverse;
+	vector<complex<double> > outBegin;
+	vector<complex<double> > outEnd;
 	
-	cross_correlation(smallFFT, largeFFT, outNormal);
-	cross_correlation(largeFFT, smallFFT, outReverse);
+	cross_correlation(largeFFT, smallFFT, outBegin);
+	cross_correlation(smallFFT, largeFFT, outEnd);
 
-	size_t maxSample = 0;
-	double maxNormFactorNormal = computeNormFactor(smallPrefixSum, largePrefixSum,
-						       smallPrefixSum.begin(), smallPrefixSum.end(),
-						       largePrefixSum.begin()+ii, largePrefixSum.begin()+small.size()+ii);
-	for (size_t i = 0 ; i < outNormal.size(); ++i) {
-	    double normFactor = computeNormFactor(smallPrefixSum, largePrefixSum,
-						  smallPrefixSum.begin()+i, smallPrefixSum.end(),
-						  largePrefixSum.begin()+ii, largePrefixSum.begin()-i+ii+small.size());
-	    if (outNormal[maxSample].real()/maxNormFactorNormal < outNormal[i].real()/normFactor) {
-		maxSample = i;
-		maxNormFactorNormal = normFactor;
-	    }
-	}
+	size_t maxSampleBegin = 0;
+	double maxNormFactorBegin = computeNormFactor(smallPrefixSum, largePrefixSum,
+						      smallPrefixSum.begin(), smallPrefixSum.end(),
+						      largePrefixSum.begin()+ii, largePrefixSum.begin()+small.size()+ii);
 
-
-	size_t maxSampleReverse = 0;
-	double maxNormFactorReverse = computeNormFactor(smallPrefixSum, largePrefixSum,
-						       smallPrefixSum.begin(), smallPrefixSum.end(),
-							largePrefixSum.begin()+ii, largePrefixSum.begin()+small.size()+ii);
-
-	for (size_t i = 0 ; i < outReverse.size(); ++i) {
+	for (size_t i = 0 ; i < outBegin.size(); ++i) {
 	    double normFactor = computeNormFactor(smallPrefixSum, largePrefixSum,
 						  smallPrefixSum.begin(), smallPrefixSum.end()-i,
 						  largePrefixSum.begin()+i+ii, largePrefixSum.begin()+ii+small.size());
 	
-	    if (outReverse[maxSampleReverse].real()/maxNormFactorReverse < outReverse[i].real()/normFactor) {
-		maxSampleReverse = i;
-		maxNormFactorReverse = normFactor;
+	    if (outBegin[maxSampleBegin].real()/maxNormFactorBegin < outBegin[i].real()/normFactor) {
+		maxSampleBegin = i;
+		maxNormFactorBegin = normFactor;
 	    }
 	}
-	//cout << outNormal[maxSample].real()/maxNormFactorNormal << '\t' << outReverse[maxSampleReverse].real()/maxNormFactorReverse << "\t|\t" << maxNormFactorNormal << '\t' << maxNormFactorReverse<< endl;
 
-	maxSamples[ii/small.size()] = small.size() - maxSample;
-	maxSamplesReverse[ii/small.size()] = small.size() - maxSampleReverse;
+	size_t maxSampleEnd = 0;
+	double maxNormFactorEnd = computeNormFactor(smallPrefixSum, largePrefixSum,
+						    smallPrefixSum.begin(), smallPrefixSum.end(),
+						    largePrefixSum.begin()+ii, largePrefixSum.begin()+small.size()+ii);
+	for (size_t i = 0 ; i < outEnd.size(); ++i) {
+	    double normFactor = computeNormFactor(smallPrefixSum, largePrefixSum,
+						  smallPrefixSum.begin()+i, smallPrefixSum.end(),
+						  largePrefixSum.begin()+ii, largePrefixSum.begin()-i+ii+small.size());
+
+	    if (outEnd[maxSampleEnd].real()/maxNormFactorEnd < outEnd[i].real()/normFactor) {
+		maxSampleEnd = i;
+		maxNormFactorEnd = normFactor;
+	    }
+	}
+
+	maxSamplesBegin[ii/small.size()] = small.size() - maxSampleBegin;
+	maxSamplesEnd[ii/small.size()] = small.size() - maxSampleEnd;
     }
 
     // FIXME: special case.
     // small size does not divide large size
     // fix this.
 
-    for (size_t i = 0 ; i < maxSamples.size()-1;  ++i) {
-	//cout << i << '\t' << maxSamples[i] << '\t' << maxSamplesReverse[i] << endl;
-	if (maxSamples[i+1] + maxSamplesReverse[i] < small.size() &&
-	    (maxSamples[i+1] + maxSamplesReverse[i]) >= 0.95*small.size()) {
-	    
-	    std::cout << "fisk" << std::endl;
+    for (size_t i = 0; i < maxSamplesBegin.size()-1; ++i) {
+	if (maxSamplesBegin[i] + maxSamplesEnd[i+1] <= small.size() &&
+	    (maxSamplesBegin[i] + maxSamplesEnd[i+1] >= 0.90*small.size())) {
+	    results.push_back((i+1)*small.size()-maxSamplesBegin[i]);
 	}
     }
 }
-
 
 void printUsage() {
     std::cout << "Usage: ./soundMatch <needle.wav> <haystack.wav>" << std::endl;
@@ -255,12 +255,31 @@ int main(int argc, char **argv) {
     a1in.clear();
     a2in.clear();
 
-
     //match(a1Arr, a2Arr, a1Sz, a2Sz, res, spa1, spa2);
     if (res.size() == 0) {
 	std::cout << "no matches found" << std::endl;
     } else {
-	std::cout << "matches found starting at sample: " << res << std::endl;
+	std::vector<std::string> resStr(res.size());
+	for (size_t i = 0; i < res.size(); ++i) {
+	    uint64_t second = res[i] / a1.getSampleRate();
+
+	    size_t secs = second % 60;
+	    size_t mins = (second/60) % 60;
+	    size_t hrs = second/3600;
+
+	    std::stringstream ss;
+	    if (hrs < 10)
+		ss << "0";
+	    ss << hrs << ":";
+	    if (mins < 10)
+		ss << "0";
+	    ss << mins << ":";
+	    if (secs < 10)
+		ss << "0";
+	    ss << secs;
+	    resStr[i] = ss.str();
+	}
+	std::cout << "matches found starting at time [hh:mm:ss]: " << resStr << std::endl;
     }
     // delete[] a1Arr;
     // delete[] a2Arr;
