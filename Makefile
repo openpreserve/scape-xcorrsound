@@ -1,5 +1,5 @@
 fftw_includedir = fftw-3.2.2/api
-fftw_libdir = fftw-3.2.2/.libs
+fftw_libdir = fftw/lib
 
 CPPFLAGS = -I$(fftw_includedir)
 CXXFLAGS = -Wall -O2
