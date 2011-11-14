@@ -1,4 +1,4 @@
-fftw_includedir = fftw-3.2.2/api
+fftw_includedir = fftw/include
 fftw_libdir = fftw/lib
 
 CPPFLAGS = -I$(fftw_includedir)
