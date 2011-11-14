@@ -304,6 +304,11 @@ void doFromFile(int argc, char *argv[]) {
 	printUsage();
 	return;
     }
+
+    time_t tmp = time(NULL);
+
+    ls << log_information() << "run started at: " << ctime(&tmp) << endl;
+
     string file1(argv[1]), file2(argv[2]);
 
     if (argc >= 4 && argv[3][0] == 'v' && argv[3][1] != '\0') {
@@ -360,20 +365,18 @@ void doFromFile(int argc, char *argv[]) {
     delete[] buffer;
 
     doWork(a1,a2,sz,sz, sz/4, a1Size/4-sz/4);
+
+    tmp = time(NULL);
+    ls << log_information() << "run finished at: " << ctime(&tmp) << endl;
+
 }
 
 int main(int argc, char *argv[]) {
 
     // read two files from stdin and output to file their 
     // normalized cross correlation as a function of lag.
-    time_t tmp = time(NULL);
-
-    ls << log_information() << "run started at: " << ctime(&tmp) << endl;
 
     doFromFile(argc, argv);
     
-    tmp = time(NULL);
-    ls << log_information() << "run finished at: " << ctime(&tmp) << endl;
-
     return 0;
 }
