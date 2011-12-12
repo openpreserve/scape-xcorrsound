@@ -11,6 +11,25 @@
 
 using namespace std;
 
+int16_t getIntFromChars(uint8_t a, uint8_t b) {
+    int16_t res = b;
+    res = res << 8;
+    res += a;
+    return res;
+}
+
+int32_t getIntFromChars(uint8_t a, uint8_t b, uint8_t c, uint8_t d) {
+    int32_t res = 0;
+    res = res | d;
+    res = res << 8;
+    res = res | c;
+    res = res << 8;
+    res = res | b;
+    res = res << 8;
+    res = res | a;
+    return res;
+}
+
 int getFilesize(string filename) {
     struct stat filestatus;
     stat(filename.c_str(), &filestatus);

@@ -9,13 +9,14 @@
 #include "AudioFile.h"
 #include "stdint.h"
 #include <iomanip>
+#include "my_utils.h"
+#include "AudioStream.h"
 
 static const double THRESHHOLD = 0.98;
 
 using std::vector; using std::complex; using std::cout; using std::endl;
 
-template<typename T>
-void prefixSquareSum(vector<T> &a, vector<int64_t> &res) {
+void prefixSquareSum(vector<short> &a, vector<int64_t> &res) {
     res.resize(a.size());
     res[0] = a[0] * a[0];
     for (size_t i = 1; i < res.size(); ++i) {
@@ -49,6 +50,7 @@ double computeNormFactor(vector<int64_t> &prefixSquareSmall, vector<int64_t> &pr
 
 }
 
+
 template<typename T>
 std::ostream& operator<<(std::ostream &os, std::vector<T> &l) {
     for (size_t i = 0; i < l.size(); ++i) {
@@ -57,75 +59,99 @@ std::ostream& operator<<(std::ostream &os, std::vector<T> &l) {
     return os;
 }
 
+
 template<typename T>
 std::ostream& operator<<(std::ostream &os, std::complex<T> &c) {
     os << "(" << c.real() << " , " << c.imag() << "i)";
     return os;
 }
 
-template<typename T>
-void match(vector<T> &small, vector<T> &large, vector<size_t> &results) {
-    vector<int64_t> smallPrefixSum, largePrefixSum;
+
+void match(AudioFile &needle, AudioFile &haystack, std::vector<size_t> &results) {
+    std::vector<short> small; std::vector<short> large;
+    std::vector<int64_t> smallPrefixSum; std::vector<int64_t> largePrefixSum;
+    needle.getSamplesForChannel(0, small);
     prefixSquareSum(small, smallPrefixSum);
-    prefixSquareSum(large, largePrefixSum);
 
-    size_t numberOfParts = large.size()/small.size();
+    proxyFFT<short, double> smallFFT(small);
+    smallFFT.transform();
     
-    proxyFFT<T, double> smallFFT(small);
+    size_t largeTotalSize = haystack.getNumberOfSamplesPrChannel();
+    vector<int64_t> maxSamplesBegin(largeTotalSize/small.size());
+    vector<int64_t> maxSamplesEnd(largeTotalSize/small.size());
+    size_t stillToRead = largeTotalSize;
 
-    vector<int64_t> maxSamplesBegin(numberOfParts);
-    vector<int64_t> maxSamplesEnd(numberOfParts);
+    AudioStream hayStream = haystack.getStream(0);
+    size_t pieces = 10;
+    for (int j = 0; ; ++j) {
+	hayStream.read(pieces*small.size(), large);
+	prefixSquareSum(large, largePrefixSum);
+	size_t numberOfParts = large.size()/small.size();
+	size_t idxAdd = j*pieces;
 
-    for (size_t ii = 0; ii < numberOfParts*small.size(); ii+=small.size()) {
-	proxyFFT<T, double> largeFFT(large.begin()+ii, large.begin()+ii+small.size());
-	vector<complex<double> > outBegin;
-	vector<complex<double> > outEnd;
+	std::cout << ((largeTotalSize-stillToRead)+0.0)/largeTotalSize*100 << "%" << std::endl;
+	stillToRead -= large.size();
+
+	for (size_t ii = 0; ii < numberOfParts*small.size(); ii += small.size()) {
+	    //do stuff..
+	    proxyFFT<short, double> largeFFT(large.begin()+ii, large.begin()+ii+small.size());
+	    
+	    vector<complex<double> > outBegin;
+	    vector<complex<double> > outEnd;
+	    //std::cout << "TEST1" << std::endl;
+	    cross_correlation(largeFFT, smallFFT, outBegin);
+	    cross_correlation(smallFFT, largeFFT, outEnd);
+
+	    size_t maxSampleBegin = 0;
+	    double maxNormFactorBegin = computeNormFactor(smallPrefixSum, largePrefixSum,
+							  smallPrefixSum.begin(), smallPrefixSum.end(),
+							  largePrefixSum.begin()+ii, largePrefixSum.begin()+small.size()+ii);
+
+	    for (size_t i = 0 ; i < outBegin.size(); ++i) {
+		double normFactor = computeNormFactor(smallPrefixSum, largePrefixSum,
+						      smallPrefixSum.begin(), smallPrefixSum.end()-i,
+						      largePrefixSum.begin()+i+ii, largePrefixSum.begin()+ii+small.size());
 	
-	cross_correlation(largeFFT, smallFFT, outBegin);
-	cross_correlation(smallFFT, largeFFT, outEnd);
-
-	size_t maxSampleBegin = 0;
-	double maxNormFactorBegin = computeNormFactor(smallPrefixSum, largePrefixSum,
-						      smallPrefixSum.begin(), smallPrefixSum.end(),
-						      largePrefixSum.begin()+ii, largePrefixSum.begin()+small.size()+ii);
-
-	for (size_t i = 0 ; i < outBegin.size(); ++i) {
-	    double normFactor = computeNormFactor(smallPrefixSum, largePrefixSum,
-						  smallPrefixSum.begin(), smallPrefixSum.end()-i,
-						  largePrefixSum.begin()+i+ii, largePrefixSum.begin()+ii+small.size());
-	
-	    if (outBegin[maxSampleBegin].real()/maxNormFactorBegin < outBegin[i].real()/normFactor) {
-		maxSampleBegin = i;
-		maxNormFactorBegin = normFactor;
+		if (outBegin[maxSampleBegin].real()/maxNormFactorBegin < outBegin[i].real()/normFactor) {
+		    maxSampleBegin = i;
+		    maxNormFactorBegin = normFactor;
+		}
 	    }
+	    //std::cout << "TEST2" << std::endl;
+	    size_t maxSampleEnd = 0;
+	    double maxNormFactorEnd = computeNormFactor(smallPrefixSum, largePrefixSum,
+							smallPrefixSum.begin(), smallPrefixSum.end(),
+							largePrefixSum.begin()+ii, largePrefixSum.begin()+small.size()+ii);
+	    for (size_t i = 0 ; i < outEnd.size(); ++i) {
+		double normFactor = computeNormFactor(smallPrefixSum, largePrefixSum,
+						      smallPrefixSum.begin()+i, smallPrefixSum.end(),
+						      largePrefixSum.begin()+ii, largePrefixSum.begin()-i+ii+small.size());
+
+		if (outEnd[maxSampleEnd].real()/maxNormFactorEnd < outEnd[i].real()/normFactor) {
+		    maxSampleEnd = i;
+		    maxNormFactorEnd = normFactor;
+		}
+	    }
+	    maxSamplesBegin[ii/small.size()+idxAdd] = small.size() - maxSampleBegin;
+	    maxSamplesEnd[ii/small.size()+idxAdd] = small.size() - maxSampleEnd;
 	}
 
-	size_t maxSampleEnd = 0;
-	double maxNormFactorEnd = computeNormFactor(smallPrefixSum, largePrefixSum,
-						    smallPrefixSum.begin(), smallPrefixSum.end(),
-						    largePrefixSum.begin()+ii, largePrefixSum.begin()+small.size()+ii);
-	for (size_t i = 0 ; i < outEnd.size(); ++i) {
-	    double normFactor = computeNormFactor(smallPrefixSum, largePrefixSum,
-						  smallPrefixSum.begin()+i, smallPrefixSum.end(),
-						  largePrefixSum.begin()+ii, largePrefixSum.begin()-i+ii+small.size());
+	if (numberOfParts != pieces) break;
 
-	    if (outEnd[maxSampleEnd].real()/maxNormFactorEnd < outEnd[i].real()/normFactor) {
-		maxSampleEnd = i;
-		maxNormFactorEnd = normFactor;
-	    }
-	}
-
-	maxSamplesBegin[ii/small.size()] = small.size() - maxSampleBegin;
-	maxSamplesEnd[ii/small.size()] = small.size() - maxSampleEnd;
     }
-
-    // FIXME: special case.
-    // small size does not divide large size
-    // fix this.
+    std::cout << "100%" << std::endl;
+// #pragma omp parallel shared(small, large, maxSamplesBegin, maxSamplesEnd)
+//     {
+// #pragma omp for
+//     }
+//     // FIXME: special case.
+//     // small size does not divide large size
+//     // => last piece is not analysed.
+//     // fix this.
 
     for (size_t i = 0; i < maxSamplesBegin.size()-1; ++i) {
 	if (maxSamplesBegin[i] + maxSamplesEnd[i+1] <= small.size() &&
-	    (maxSamplesBegin[i] + maxSamplesEnd[i+1] >= 0.90*small.size())) {
+	    (maxSamplesBegin[i] + maxSamplesEnd[i+1] >= THRESHHOLD*small.size())) {
 	    results.push_back((i+1)*small.size()-maxSamplesBegin[i]);
 	}
     }
@@ -135,27 +161,36 @@ void printUsage() {
     std::cout << "Usage: ./soundMatch <needle.wav> <haystack.wav>" << std::endl;
 }
 
+/**
+ * @param channel. Channel 0 is left, 1 is right.
+ *
+ */
+inline void read(vector<int16_t> &res, size_t channel, FILE *fp, size_t sz) {
+    uint8_t *buf = new uint8_t[sz*4];
+    size_t read = fread(buf, 1, sz*4, fp);
+    res.resize(sz);
+    for (size_t i = 0; i < read; i+= 4) { //4 = 2bytes+2bytes, 2bytes pr channel and 2 channels.
+	res[i/4] = getIntFromChars(buf[i+channel*2], buf[i+1+channel*2]);
+    }
+}
+
+
 int main(int argc, char **argv) {
 
     std::vector<size_t> res;
     
     if (argc != 3) {printUsage(); return 1;}
  
-    AudioFile a1(argv[1]);
-    AudioFile a2(argv[2]);
+    AudioFile needle(argv[1]);
+    AudioFile haystack(argv[2]);
 
-    std::vector<short> a1in;
-    std::vector<short> a2in;
-    a1.getSamplesForChannel(0, a1in);
-    a2.getSamplesForChannel(0, a2in);
+    //a1.getSamplesForChannel(0, a1in);
+    //a2.getSamplesForChannel(0, a2in);
 
-    prefixSum(a1Arr, a1Sz, spa1);
-    prefixSum(a2Arr, a2Sz, spa2);
+    match(needle, haystack, res);
 
-    match(a1in, a2in, res);
-
-    a1in.clear();
-    a2in.clear();
+    //a1in.clear();
+    //a2in.clear();
 
     //match(a1Arr, a2Arr, a1Sz, a2Sz, res, spa1, spa2);
     if (res.size() == 0) {
@@ -163,7 +198,7 @@ int main(int argc, char **argv) {
     } else {
 	std::vector<std::string> resStr(res.size());
 	for (size_t i = 0; i < res.size(); ++i) {
-	    uint64_t second = res[i] / a1.getSampleRate();
+	    uint64_t second = res[i] / haystack.getSampleRate();
 
 	    size_t secs = second % 60;
 	    size_t mins = (second/60) % 60;
@@ -183,10 +218,6 @@ int main(int argc, char **argv) {
 	}
 	std::cout << "matches found starting at time [hh:mm:ss]: " << resStr << std::endl;
     }
-    // delete[] a1Arr;
-    // delete[] a2Arr;
-    // delete[] spa1;
-    // delete[] spa2;
 }
 
 #endif

@@ -1,9 +1,11 @@
 #ifndef AUDIO_FILE_GUARD
 #define AUDIO_FILE_GUARD
 
-#include <cstdio>
 #include <vector>
-#include "stdint.h"
+#include <cstdio>
+#include <stdint.h>
+#include <string>
+#include "AudioStream.h"
 
 class AudioFile {
 private:
@@ -16,7 +18,7 @@ private:
     size_t _byteRate;
     size_t _blockAlign;
     size_t _bitsPrSample;
-
+    std::string _filename;
     void populateFieldVariables();
 public:
     AudioFile(const char *path);
@@ -26,7 +28,7 @@ public:
     uint32_t getSampleRate();
     size_t getNumberOfSamplesPrChannel();
     void getSamplesForChannel(size_t channel, std::vector<short>&);
-
+    AudioStream getStream(size_t channel);
 };
 
 #endif

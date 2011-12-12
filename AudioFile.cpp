@@ -4,6 +4,7 @@
 #include <vector>
 #include <stdint.h>
 #include <iostream>
+#include "my_utils.h"
 
 typedef long long ll;
 
@@ -11,7 +12,7 @@ using namespace std;
 
 AudioFile::AudioFile(const char *path) : fd(fopen(path,"r")), _channels(0), _sampleRate(0),
 					 _samplesPrChannel(0), _fileSize(0), _audioFormat(0),
-					 _byteRate(0), _blockAlign(0), _bitsPrSample(0) {
+					 _byteRate(0), _blockAlign(0), _bitsPrSample(0), _filename(path) {
     populateFieldVariables();
 }
 
@@ -30,26 +31,7 @@ uint32_t AudioFile::getSampleRate() {
 }
 
 size_t AudioFile::getNumberOfSamplesPrChannel() {
-    return 0;
-}
-
-int16_t getIntFromChars(uint8_t a, uint8_t b) {
-    int16_t res = b;
-    res = res << 8;
-    res += a;
-    return res;
-}
-
-int32_t getIntFromChars(uint8_t a, uint8_t b, uint8_t c, uint8_t d) {
-    int32_t res = 0;
-    res = res | d;
-    res = res << 8;
-    res = res | c;
-    res = res << 8;
-    res = res | b;
-    res = res << 8;
-    res = res | a;
-    return res;
+    return this->_samplesPrChannel;
 }
 
 void AudioFile::getSamplesForChannel(size_t channel, std::vector<short> &out) {
@@ -75,7 +57,6 @@ void AudioFile::populateFieldVariables() {
 
     fseek(fd, 0, SEEK_END);
     this->_fileSize = ftell(fd);
-
     if (!(this->_fileSize)) return;
 
     uint8_t buf[44];
@@ -88,4 +69,9 @@ void AudioFile::populateFieldVariables() {
     this->_audioFormat = getIntFromChars(buf[20], buf[21]);
     this->_channels = getIntFromChars(buf[22], buf[23]);
     this->_sampleRate = getIntFromChars(buf[24], buf[25], buf[26], buf[27]);
+    this->_samplesPrChannel = (this->_fileSize - 44)/this->_channels/2; //2 bytes pr sample.
+}
+
+AudioStream AudioFile::getStream(size_t channel) {
+    return AudioStream(channel, this->_channels, this->_filename);
 }

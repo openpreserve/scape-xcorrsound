@@ -15,8 +15,7 @@ struct proxyFFT {
     std::vector<std::complex<T2> > _transform;
     bool _computed;
     
-    template<typename T>
-    proxyFFT(std::vector<T> &array) : _array(array), _computed(false) {};
+    proxyFFT(std::vector<T1> &array) : _array(array), _computed(false) {};
 
     proxyFFT(typename std::vector<T1>::iterator begin, typename std::vector<T1>::iterator end) : _computed(false) {
 	_array.clear();
@@ -44,7 +43,7 @@ struct proxyFFT {
 	for (size_t i = 0; i < _array.size()*2; ++i) {
 	    _transform[i] = std::complex<T2>(o[i][0],o[i][1]);
 	}
-
+	fftw_free(o);
  	_computed = true;
     }
 
