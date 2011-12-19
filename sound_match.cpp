@@ -16,41 +16,6 @@ static const double THRESHHOLD = 0.98;
 
 using std::vector; using std::complex; using std::cout; using std::endl;
 
-void prefixSquareSum(vector<short> &a, vector<int64_t> &res) {
-    res.resize(a.size());
-    res[0] = a[0] * a[0];
-    for (size_t i = 1; i < res.size(); ++i) {
-	res[i] = res[i-1] + a[i] * a[i];
-    }
-}
-
-double computeNormFactor(vector<int64_t> &prefixSquareSmall, vector<int64_t> &prefixSquareLarge, 
-			 vector<int64_t>::iterator smallBegin, vector<int64_t>::iterator smallEnd,
-			 vector<int64_t>::iterator largeBegin, vector<int64_t>::iterator largeEnd) {
-    
-    if (smallEnd != prefixSquareSmall.begin()) --smallEnd;
-
-    int64_t smallVal = *smallEnd;
-
-    if (smallBegin != prefixSquareSmall.begin()) {
-	--smallBegin;
-	smallVal -= *smallBegin;
-    }
-
-    if (largeEnd != prefixSquareLarge.begin()) --largeEnd;
-
-    int64_t largeVal = *largeEnd;    
-
-    if (largeBegin != prefixSquareLarge.begin()) {
-	--largeBegin;
-	largeVal -= *largeBegin;
-    }
-
-    return 0.5 * (smallVal + largeVal);
-
-}
-
-
 template<typename T>
 std::ostream& operator<<(std::ostream &os, std::vector<T> &l) {
     for (size_t i = 0; i < l.size(); ++i) {

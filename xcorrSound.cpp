@@ -29,7 +29,7 @@ using namespace std;
 
 int hz, channels;
 
-logstream ls(3);
+logstream ls(3, "xcorrSound.log");
 
 struct wav_header {
     unsigned char ChunkID[4];

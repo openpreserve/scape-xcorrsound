@@ -9,10 +9,10 @@ using namespace std;
  * logstream buffer start
  */
 
-logstreambuffer::logstreambuffer(int32_t _level) {
+logstreambuffer::logstreambuffer(int32_t _level, const char *filename) {
     setp(buf, buf+buf_sz);
     this->print_level = _level;
-    logfile = fopen("xcorr.log","a");
+    logfile = fopen(filename, "a");
 }
 
 logstreambuffer::~logstreambuffer() {

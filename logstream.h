@@ -13,7 +13,7 @@ private:
     FILE * logfile;
 
 public:
-    logstreambuffer(int32_t level);
+    logstreambuffer(int32_t level, const char *filename);
     ~logstreambuffer();
     
     void flush();
@@ -28,7 +28,7 @@ class logstream : public std::ostream {
 private:
     logstreambuffer buffer;
 public:
-    logstream(int32_t level) : std::ostream(&buffer), buffer(level) {};
+    logstream(int32_t level, const char *filename) : std::ostream(&buffer), buffer(level, filename) {};
     void set_level(int32_t _level);
     void set_print_level(int32_t level);
     static const int32_t FATAL = 1;
