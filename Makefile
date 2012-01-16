@@ -9,7 +9,7 @@ CXXFLAGS = -Wall $(DEBUG_FLAGS)
 LDFLAGS = -L$(fftw_libdir) -L$(BOOST_LIB)
 FFTW3_LIBS = -lfftw3
 BOOST_LIBS = -lboost_program_options
-STATIC = -static-libgcc -static-libstdc++
+STATIC = -static-libgcc -static-libstdc++ -static
 CXX=g++
 
 OBJECT_FILES := my_utils.o
@@ -44,6 +44,6 @@ test_cross : test_cross.cpp
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) test_cross.cpp -o test_cross $(LDFLAGS) $(FFTW3_LIBS)
 
 migrationQA : migrationQA.cpp cross_correlation.h AudioFile.o my_utils.o logstream.o
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) logstream.o my_utils.o AudioFile.o migrationQA.cpp -o migrationQA $(LDFLAGS) $(FFTW3_LIBS) $(BOOST_LIBS)
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(STATIC) logstream.o my_utils.o AudioFile.o migrationQA.cpp -o migrationQA $(LDFLAGS) $(FFTW3_LIBS) $(BOOST_LIBS)
 
-.PHONY : all clean
+.PHONY : all clean fftw

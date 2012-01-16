@@ -11,7 +11,8 @@ void convertCharArrayToShort(char* arr, short* arr2, int arraySize);
 int16_t getIntFromChars(uint8_t a, uint8_t b);
 int32_t getIntFromChars(uint8_t a, uint8_t b, uint8_t c, uint8_t d);
 
-template<typename T1, typename T2> inline
+template<typename T1, typename T2> 
+inline
 void prefixSquareSum(std::vector<T1> &a, std::vector<T2> &res) {
     res.resize(a.size());
     res[0] = a[0] * a[0];
@@ -42,8 +43,9 @@ double computeNormFactor(std::vector<T1> &prefixSquareSmall, std::vector<T1> &pr
 	--largeBegin;
 	largeVal -= *largeBegin;
     }
-
-    return 0.5 * (smallVal + largeVal);
+    double val = ((smallVal+0.0) + (largeVal+0.0));
+    if (val < 1) return 1;
+    return 0.5 * val;
 
 }
 
