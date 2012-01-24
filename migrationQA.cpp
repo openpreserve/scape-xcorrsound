@@ -32,6 +32,35 @@ void printInfo() {
     cout << "Output:" << endl;
     cout << "block i: <match value> <off-set>" << endl << endl;
 
+    cout << "Explanation of 'offset':" << endl;
+    cout << "Denote the first input file as A[0...n-1]," << endl;
+    cout << "and the second input file as B[0...n-1]." << endl;
+    cout << "Let the output be positive and denote it k" << endl;
+    cout << "This means the best match is when we overlay the two files such that" << endl;
+    cout << "A[k] = B[0], A[k+1] = B[1] ..." << endl;
+    cout << "If the offset was negative (-k) the best match would be when" << endl;
+    cout << "A[0] = B[k], A[1] = B[k+1] ..." << endl << endl;
+
+    cout << "Pictures to describe the two situations. First k >= 0, second k < 0:" << endl << endl;
+    cout << "Picture 1:" << endl;
+    cout << " 0 1 ... k ... n-1" << endl;
+    cout << "+-----------------+" << endl;
+    cout << "|                 |          A" << endl;
+    cout << "+-----------------+" << endl << endl;
+    cout << "        +-----------------+ " << endl;
+    cout << "        |                 |  B" << endl;
+    cout << "        +-----------------+" << endl;
+    cout << "         0 1 .. .. ... n-1" << endl << endl;
+    cout << "Picture 2:" << endl;
+    cout << "         0 1 .. .. ... n-1" << endl;
+    cout << "        +-----------------+ " << endl;
+    cout << "        |                 |  A" << endl;
+    cout << "        +-----------------+ " << endl;
+    cout << " 0 1 ... k ... n-1" << endl;
+    cout << "+-----------------+" << endl;
+    cout << "|                 |          B" << endl;
+    cout << "+-----------------+" << endl << endl;
+
     cout << "One way to use these numbers is to verify that all chunks have the same off-set" << endl;
     cout << "and that all chunks have a good match value (close to 1)" << endl << endl;
 }
@@ -105,7 +134,7 @@ int main(int argc, char *argv[]) {
     bool done = false;
     bool first = true;
     double firstMaxVal = 0.0;
-    size_t firstMaxIdx = -1;
+    int64_t firstOffset = 0;
     for (int block = 1; !done; ++block) {
 	vector<short> aSamples, bSamples;
 	vector<uint64_t> aSquarePrefixSum, bSquarePrefixSum;
@@ -123,7 +152,7 @@ int main(int argc, char *argv[]) {
 	cross_correlation(aFFT, bFFT, result);
 
 	double maxVal = 0.0;
-	size_t maxIdx = -1;
+	int64_t maxIdx = -1;
 	for (size_t i = 0; i < result.size(); ++i) {
 	    double val = result[i].real();
 	    double norm = computeNormFactor(aSquarePrefixSum, bSquarePrefixSum, 
@@ -137,17 +166,34 @@ int main(int argc, char *argv[]) {
 	    }
 	}
 
+	cross_correlation(bFFT, aFFT, result);
+	
+	for (size_t i = 1; i < result.size(); ++i) {
+	    double val = result[i].real();
+	    double norm = computeNormFactor(bSquarePrefixSum, aSquarePrefixSum,
+					    bSquarePrefixSum.begin()+i, bSquarePrefixSum.end(),
+					    aSquarePrefixSum.begin(), aSquarePrefixSum.end() - i);
+
+	    
+	    val /= norm;
+	    if (val > maxVal + 1e-6) {
+		maxVal = val;
+		maxIdx = -static_cast<int64_t>(i);
+	    }
+
+	}
+
 	if (first) {
 	    first = false;
 	    firstMaxVal = maxVal;
-	    firstMaxIdx = maxIdx;
+	    firstOffset = maxIdx;
 	} else {
-	    if (maxIdx - firstMaxIdx > 100 || firstMaxIdx - maxIdx > 100) {
-		//done = true;
+	    if (maxIdx - firstOffset > 500 || firstOffset - maxIdx > 500) { // check to see that the offset between blocks is not too large.
+		done = true;
 	    }
 	}
 
-	if (aSamples.size() < samplesPr5Seconds || bSamples.size() < samplesPr5Seconds) {
+	if (aSamples.size() < samplesPr5Seconds || bSamples.size() < samplesPr5Seconds) { // we don't check the last block. This should be fixed somehow.
 	    done = true;
 	}
 	cout << "block " << block << ": " << maxVal << " " << maxIdx << endl;
