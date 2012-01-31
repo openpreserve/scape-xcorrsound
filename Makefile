@@ -46,4 +46,7 @@ test_cross : test_cross.cpp
 migrationQA : migrationQA.cpp cross_correlation.h AudioFile.o my_utils.o logstream.o
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(STATIC) logstream.o my_utils.o AudioFile.o migrationQA.cpp -o migrationQA $(LDFLAGS) $(FFTW3_LIBS) $(BOOST_LIBS)
 
+spectrum: spectrum.cpp cross_correlation.h AudioFile.o my_utils.o logstream.o
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(STATIC) logstream.o my_utils.o AudioFile.o spectrum.cpp -o spectrum $(LDFLAGS) $(FFTW3_LIBS) $(BOOST_LIBS)
+
 .PHONY : all clean fftw
