@@ -12,12 +12,14 @@ BOOST_LIBS = -lboost_program_options
 STATIC = -static-libgcc -static-libstdc++ -static
 CXX=g++
 
+OBJECT_FILES = ../my_utils.o ../AudioFile.o
+
 all : testfingerprint
 
 clean :
 	rm -rf *.o testfingerprint
 
 testfingerprint : testfingerprint.cpp fingerprint.h ../AudioFile.o ../my_utils.o
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(FFTW3_LIBS) $(LDFLAGS) ../my_utils.o ../AudioFile.o testfingerprint.cpp -o testfingerprint
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) testfingerprint.cpp -o testfingerprint $(FFTW3_LIBS) $(LDFLAGS)
 
 .PHONY : clean
