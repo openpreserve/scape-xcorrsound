@@ -1,87 +1,76 @@
 !!!WORK IN PROGRESS!!!
 
-The xcorrSound tool compares soundwaves using cross correlation and finds the best overlap.
+This package contains several tools.
+ - xcorrSound is a tool to find the overlap between two audio files.
+ - soundMatch is a tool to find all occurences of a shorter wav within a larger wav
+ - migrationQA is a tool that splits two audio files into equal sized blocks and outputs the correlation for each block (a_i,b_i), if a and b was the input.
+
+The tools all make use of cross correlation, which can be computed through the fourier transform.
+
+Note that all the tools will need access to write to a file called <tool>.log where various information about a run will be stored.
 
 INSTALL
 
-    Kør
-
-    ./createtarball.sh
-
-    Nu kan tjærebolden (xcorrSound.tar) distribueres.
-
-Beskrivelse af hvordan man bygger og installerer programmet på en given maskine.
-
-    Export XcorrSound
-
-    svn export https://merkur.statsbiblioteket.dk/svn/scape-xcorrsound/tags/xcorrSound_v1.01
-
-    Go to the 'xcorrSound/fftw-3-2-2' folder.
-
-    Run the following
-
-    ./configure --prefix=<fftw>
-    make
-    make install
-
-where <fftw> is the subfolder fftw where xcorrSound_v1.01 was checked out. fx /home/larm/jsn/xcorrSound_v1.01/fftw
-
-    go to the 'xcorrSound' folder.
-
     Run
 
-    make xcorrSound
+    ./install.sh
 
-    Test that it works: (should print out how to use this tool)
+    This will install the fftw3 library.
 
-    ./xcorrSound
+    Depending on which tool is needed, run
+    make <tool>
+    where <tool> is either "xcorrSound", "soundMatch" or "migrationQA" (quotes for clarity)
+
 
 USE
 
+Example: xcorrSound
+
 Syntax:
 
-xcorrSound <<EOF
-ANALYSIS_FILE_1.wav
-ANALYSIS_FILE_2.wav
-EOF
+xcorrSound ANALYSIS_FILE_1.wav ANALYSIS_FILE_2.wav
 
 Output example:
 
------------------------ wav header start -----------------------
-ChunkID: RIFF$ËnWAVE
-ChunkSize: 57600036
-Format: WAVE
------------------------ wav header end -----------------------
------------------------ wav subchunk start -----------------------
-Subchunk1ID: fmt 
-Subchunk1Size: 16
-AudioFormat: 1
-NumChannels: 2
-SampleRate: 48000
-ByteRate: 192000
-BlockAlign: 4
-BitsPerSample: 16
-Subchunk2ID: data
-Subchunk2Size: 57600000
------------------------ wav subchunk end -----------------------
------------------------ wav header start -----------------------
-ChunkID: RIFF$ËnWAVE
-ChunkSize: 57600036
-Format: WAVE
------------------------ wav header end -----------------------
------------------------ wav subchunk start -----------------------
-Subchunk1ID: fmt 
-Subchunk1Size: 16
-AudioFormat: 1
-NumChannels: 2
-SampleRate: 48000
-ByteRate: 192000
-BlockAlign: 4
-BitsPerSample: 16
-Subchunk2ID: data
-Subchunk2Size: 57600000
------------------------ wav subchunk end -----------------------
 The best match was below the threshold of 0.2
 Best at sample number: 11520000
 Best at second: 240
 Value of match was: 0.132016
+
+In the log various information relating to the wav files can be found,
+such as samplerate, number of channels and so on.
+
+----------------------- wav header start -----------------------
+ChunkID: RIFF$ËnWAVE
+ChunkSize: 57600036
+Format: WAVE
+----------------------- wav header end -----------------------
+----------------------- wav subchunk start -----------------------
+Subchunk1ID: fmt 
+Subchunk1Size: 16
+AudioFormat: 1
+NumChannels: 2
+SampleRate: 48000
+ByteRate: 192000
+BlockAlign: 4
+BitsPerSample: 16
+Subchunk2ID: data
+Subchunk2Size: 57600000
+----------------------- wav subchunk end -----------------------
+----------------------- wav header start -----------------------
+ChunkID: RIFF$ËnWAVE
+ChunkSize: 57600036
+Format: WAVE
+----------------------- wav header end -----------------------
+----------------------- wav subchunk start -----------------------
+Subchunk1ID: fmt 
+Subchunk1Size: 16
+AudioFormat: 1
+NumChannels: 2
+SampleRate: 48000
+ByteRate: 192000
+BlockAlign: 4
+BitsPerSample: 16
+Subchunk2ID: data
+Subchunk2Size: 57600000
+----------------------- wav subchunk end -----------------------

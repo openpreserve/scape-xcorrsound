@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
     //std::cout << "done reading" << std::endl;
     map<uint32_t, vector<uint32_t> > hashes;
     //const size_t SKIP = 16384;
-    const size_t SKIP = 32768;
+    const size_t SKIP = 16384;//65536;//32768;
     size_t prevWrite = 0;
     for (size_t i = 0; i < samples.size()/SKIP; ++i) {
 	vector<complex<double> > transformed;

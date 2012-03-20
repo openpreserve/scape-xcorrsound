@@ -14,7 +14,3 @@ make
 make install
 cd ..
 echo "cd " $(pwd)
-echo "compiling xcorrSound.."
-make xcorrSound
-echo "creating tarball.."
-tar -cf xcorrSound.tar xcorrSound
