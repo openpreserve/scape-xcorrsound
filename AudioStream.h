@@ -10,7 +10,7 @@
 
 class AudioStream {
 private:
-    const static size_t _bufferSize = 2048;
+    const static size_t _bufferSize = 4096;
     char _buf[_bufferSize];
 
     FILE *_file;
@@ -42,12 +42,14 @@ private:
 
 public:
     
-    AudioStream(size_t channel, size_t channels, std::string filename) : _file(fopen(filename.c_str(), "r")),
-									 _channel(channel),
-									 _channels(channels),
-									 _pos(0),
-									 _end(0) {	
-	fseek(_file, 44, SEEK_SET);
+    AudioStream(size_t channel, size_t channels, std::string filename, size_t startOfData) 
+	: _file(fopen(filename.c_str(), "r")),
+	  _channel(channel),
+	  _channels(channels),
+	  _pos(0),
+	  _end(0) {	
+
+	fseek(_file, startOfData, SEEK_SET);
     }
 
     ~AudioStream() {

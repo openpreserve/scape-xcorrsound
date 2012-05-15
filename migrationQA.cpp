@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
 
     string input1, input2;
 
-    po::options_description generic("Generic options");
+    po::options_description generic("Program options");
     generic.add_options()
 	("help,h", "Print help message")
 	("version,v", "Print version")

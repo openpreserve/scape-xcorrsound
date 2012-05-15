@@ -34,6 +34,9 @@ size_t AudioFile::getNumberOfSamplesPrChannel() {
     return this->_samplesPrChannel;
 }
 
+/**
+ * @Deprecated. Use AudioStream instead.
+ */
 void AudioFile::getSamplesForChannel(size_t channel, std::vector<short> &out) {
     // do something.
     fseek(fd, 0, SEEK_END);
@@ -53,25 +56,54 @@ void AudioFile::getSamplesForChannel(size_t channel, std::vector<short> &out) {
 }
 
 void AudioFile::populateFieldVariables() {
-    ll currentPos = ftell(fd);
+    // find filesize.
 
     fseek(fd, 0, SEEK_END);
     this->_fileSize = ftell(fd);
     if (!(this->_fileSize)) return;
 
-    uint8_t buf[44];
-    fseek(fd, 0, SEEK_SET);
-    size_t read = fread(buf, 1, 44, fd);
-    if (read < 44) return; // error..
-    fseek(fd,currentPos, SEEK_SET);
-    // populate field variables now...
+    // read first subchunk
 
-    this->_audioFormat = getIntFromChars(buf[20], buf[21]);
-    this->_channels = getIntFromChars(buf[22], buf[23]);
-    this->_sampleRate = getIntFromChars(buf[24], buf[25], buf[26], buf[27]);
-    this->_samplesPrChannel = (this->_fileSize - 44)/this->_channels/2; //2 bytes pr sample.
+    uint8_t buf[1024];
+    fseek(fd, 0, SEEK_SET);
+    size_t read = fread(buf, 1, 12, fd);    
+    if (read < 12) return; // error.. should probably throw exception.
+    size_t chunkSize = getIntFromChars(buf[4], buf[5], buf[6], buf[7]);
+    if (chunkSize != _fileSize - 8) return; // error.. chunkSize is the byte size minus 8 of the file.
+    
+    // read start of next chunk to get size.
+    read = fread(buf, 1, 8, fd);
+    if (read < 8) return; // error..
+    // size of rest of current subchunk. hopefully this is less than 100 bytes.
+    size_t subChunk1Size = getIntFromChars(buf[4], buf[5], buf[6], buf[7]);
+    
+    read = fread(buf, 1, subChunk1Size, fd);
+    if (read < subChunk1Size || read < 16) return; // error..
+
+    this->_audioFormat = getIntFromChars(buf[0], buf[1]);
+    this->_channels = getIntFromChars(buf[2], buf[3]);
+    this->_sampleRate = getIntFromChars(buf[4], buf[5], buf[6], buf[7]);
+    this->_byteRate = getIntFromChars(buf[8], buf[9], buf[10], buf[11]);
+    this->_blockAlign = getIntFromChars(buf[12], buf[13]);
+    this->_bitsPrSample = getIntFromChars(buf[14], buf[15]);
+
+    read = fread(buf, 1, 8, fd);
+    if (read < 8) return; // error..
+    size_t subChunk2Size = getIntFromChars(buf[4], buf[5], buf[6], buf[7]);
+    
+    this->_samplesPrChannel = subChunk2Size * 8;
+    this->_samplesPrChannel /= this->_bitsPrSample;
+    this->_samplesPrChannel /= this->_channels;  
+
+    this->_startOfData = 12+8+subChunk1Size+8;  
+    // 12 bytes first subchunk. 8 is first part of second subchunk
+    // subChunk1Size is the rest of second subchunk. 8 is first part
+    // of last subchunk
+
 }
 
 AudioStream AudioFile::getStream(size_t channel) {
-    return AudioStream(channel, this->_channels, this->_filename);
+    if (!(this->_startOfData))
+	populateFieldVariables();
+    return AudioStream(channel, this->_channels, this->_filename, this->_startOfData);
 }

@@ -18,6 +18,7 @@ private:
     size_t _byteRate;
     size_t _blockAlign;
     size_t _bitsPrSample;
+    size_t _startOfData;
     std::string _filename;
     void populateFieldVariables();
 public:
