@@ -6,6 +6,7 @@
 #include "my_utils.h"
 #include <fstream>
 #include <sstream>
+#include <cstdlib>
 
 #include "cross_correlation.h"
 #include "AudioFile.h"
@@ -17,6 +18,10 @@ using namespace std;
 namespace po = boost::program_options;
 
 logstream ls(5, "migrationQA.log");
+
+string input1, input2;
+bool verbose;
+
 
 void printUsage() {
     cout << "Usage: ./migrationQA <first.wav> <second.wav>" << endl << endl;
@@ -75,10 +80,8 @@ void printInfo() {
     cout << "did not line up." << endl << endl;
 }
 
-int main(int argc, char *argv[]) {
+void init(int argc, char *argv[]) {
 
-    string input1, input2;
-    bool verbose = false;
 
     po::options_description generic("Program options");
     generic.add_options()
@@ -109,33 +112,73 @@ int main(int argc, char *argv[]) {
     if (vm.count("help")) {
 	std::cout << generic << std::endl;
 	printUsage();
-	return 0;
+	exit(0);
     }
     if (vm.count("version")) {
 	//printVersion();
-	return 0;
+	exit(0);
     }
     if (vm.count("info")) {
 	printInfo();
-	return 0;
+	exit(0);
     }
 
     if (vm.count("verbose")) {
 	verbose = true;
+    } else {
+	verbose = false;
     }
 
     if (vm.count("input-files")) {
 	vector<string> f = vm["input-files"].as<vector<string> >();
 	if (f.size() != 2) {
 	    std::cout << generic << std::endl;
-	    return 1;
+	    exit(1);
 	}
 	input1 = f[0];
 	input2 = f[1];
     } else {
 	std::cout << generic << std::endl;
-	return 1;
+	exit(1);
     }
+
+}
+
+pair<int64_t, double> 
+compareBlock(proxyFFT<short, double> &aFFT, proxyFFT<short, double> &bFFT,
+	     vector<uint64_t> &aSquarePrefixSum, vector<uint64_t> &bSquarePrefixSum) {
+
+    vector<complex<double> > result;
+    pair<int64_t, double> res = make_pair(-1,0.0);
+
+    cross_correlation(aFFT, bFFT, result);
+
+    double maxVal = 0.0;
+    int64_t maxIdx = -1;
+
+    // results are unreliable if there are not enough 'overlap', hence -100.
+    for (size_t i = 0; i < result.size()-100; ++i) {
+	double val = result[i].real();
+	double norm = computeNormFactor(aSquarePrefixSum, bSquarePrefixSum, 
+					aSquarePrefixSum.begin() + i, aSquarePrefixSum.end(),
+					bSquarePrefixSum.begin(), bSquarePrefixSum.end() - i);
+
+	val /= norm;
+	if (val > maxVal + 1e-6) {
+	    maxVal = val;
+	    maxIdx = i;
+	}
+    }
+
+    res.first = maxIdx;
+    res.second = maxVal;
+    return res;
+
+}
+
+int main(int argc, char *argv[]) {
+
+    init(argc, argv);
 
     AudioFile a(input1.c_str());
     AudioFile b(input2.c_str());
@@ -175,49 +218,16 @@ int main(int argc, char *argv[]) {
 	proxyFFT<short, double> aFFT(aSamples);
 	proxyFFT<short, double> bFFT(bSamples);
 
-	cross_correlation(aFFT, bFFT, result);
+	pair<int64_t, double> tmp = compareBlock(aFFT, bFFT, aSquarePrefixSum, bSquarePrefixSum);
 
-	double maxVal = 0.0;
-	int64_t maxIdx = -1;
+	int64_t maxIdx = tmp.first;
+	double maxVal = tmp.second;
 
-	// results are unreliable if there are not enough 'overlap', hence -100.
-	for (size_t i = 0; i < result.size()-100; ++i) {
-	    double val = result[i].real();
-	    double norm = computeNormFactor(aSquarePrefixSum, bSquarePrefixSum, 
-				     aSquarePrefixSum.begin() + i, aSquarePrefixSum.end(),
-				     bSquarePrefixSum.begin(), bSquarePrefixSum.end() - i);
-
-	    val /= norm;
-	    if (val > maxVal + 1e-6) {
-		maxVal = val;
-		maxIdx = i;
-	    }
-
-
-	}
-
-	cross_correlation(bFFT, aFFT, result);
-
-	// results are unreliable if there are not enough 'overlap', hence -100.	
-	for (size_t i = 1; i < result.size()-100; ++i) {
-	    double val = result[i].real();
-	    double norm = computeNormFactor(bSquarePrefixSum, aSquarePrefixSum,
-					    bSquarePrefixSum.begin()+i, bSquarePrefixSum.end(),
-					    aSquarePrefixSum.begin(), aSquarePrefixSum.end() - i);
-
-	    if (norm != norm) {
-		ls << log_debug() << "norm is NaN" << endl;
-	    }
-	    if (norm < 1e-6) {
-		ls << log_debug() << "norm is 0" << endl;
-	    }
-	    
-	    val /= norm;
-	    if (val > maxVal + 1e-6) {
-		maxVal = val;
-		maxIdx = -static_cast<int64_t>(i);
-	    }
-
+	tmp = compareBlock(bFFT, aFFT, bSquarePrefixSum, aSquarePrefixSum);
+	
+	if (tmp.second > maxVal + 1e-6) {
+	    maxIdx = -tmp.first;
+	    maxVal = tmp.second;
 	}
 
 	if (first) {
