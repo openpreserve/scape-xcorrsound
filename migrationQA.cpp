@@ -3,6 +3,9 @@
 #include "stdint.h"
 #include <iostream>
 #include "logstream.h"
+#include "my_utils.h"
+#include <fstream>
+#include <sstream>
 
 #include "cross_correlation.h"
 #include "AudioFile.h"
@@ -26,8 +29,9 @@ void printVersion() {
 void printInfo() {
     cout << "=== Info ===" << endl << endl;
     cout << "This program produces output that can be used to do quality assurance." << endl;
-    cout << "The program outputs an off-set value and a match value for each 'chunk'" << endl;
-    cout << "where the two audio files by default are split into 5 seconds chunks." << endl << endl;
+    cout << "If the verbose flag is set the program outputs an off-set value and a" << endl;
+    cout << "match value for each 'chunk' where the two audio files by default are" << endl;
+    cout << "split into 5 seconds chunks." << endl << endl;
 
     cout << "Output:" << endl;
     cout << "block i: <match value> <off-set>" << endl << endl;
@@ -63,17 +67,25 @@ void printInfo() {
 
     cout << "One way to use these numbers is to verify that all chunks have the same off-set" << endl;
     cout << "and that all chunks have a good match value (close to 1)" << endl << endl;
+
+
+    cout << "The program outputs either 'success' or 'failure' followed by an explanation" << endl;
+    cout << "Success is when all blocks matched within 500 samples of the first block's offset" << endl;
+    cout << "On failure there will be a message saying during which timestamp the offset" << endl;
+    cout << "did not line up." << endl << endl;
 }
 
 int main(int argc, char *argv[]) {
 
     string input1, input2;
+    bool verbose = false;
 
     po::options_description generic("Program options");
     generic.add_options()
 	("help,h", "Print help message")
 	("version,v", "Print version")
 	("info", "Print info")
+	("verbose", "Verbose output")
 	;
 
     po::options_description hidden("Hidden options");
@@ -107,6 +119,11 @@ int main(int argc, char *argv[]) {
 	printInfo();
 	return 0;
     }
+
+    if (vm.count("verbose")) {
+	verbose = true;
+    }
+
     if (vm.count("input-files")) {
 	vector<string> f = vm["input-files"].as<vector<string> >();
 	if (f.size() != 2) {
@@ -133,8 +150,12 @@ int main(int argc, char *argv[]) {
 
     bool done = false;
     bool first = true;
+    bool success = true;
+    size_t blockFailure = 0;
+
     double firstMaxVal = 0.0;
     int64_t firstOffset = 0;
+    
     for (int block = 1; !done; ++block) {
 	vector<short> aSamples, bSamples;
 	vector<uint64_t> aSquarePrefixSum, bSquarePrefixSum;
@@ -142,6 +163,11 @@ int main(int argc, char *argv[]) {
 
 	aStream.read(samplesPr5Seconds, aSamples);
 	bStream.read(samplesPr5Seconds, bSamples);
+
+	if (aSamples.size() < samplesPr5Seconds/2 || bSamples.size() < samplesPr5Seconds/2) {
+	    // not enough samples for another reliable check.
+	    break;
+	}
 
 	prefixSquareSum(aSamples, aSquarePrefixSum);
 	prefixSquareSum(bSamples, bSquarePrefixSum);
@@ -153,7 +179,9 @@ int main(int argc, char *argv[]) {
 
 	double maxVal = 0.0;
 	int64_t maxIdx = -1;
-	for (size_t i = 0; i < result.size(); ++i) {
+
+	// results are unreliable if there are not enough 'overlap', hence -100.
+	for (size_t i = 0; i < result.size()-100; ++i) {
 	    double val = result[i].real();
 	    double norm = computeNormFactor(aSquarePrefixSum, bSquarePrefixSum, 
 				     aSquarePrefixSum.begin() + i, aSquarePrefixSum.end(),
@@ -164,16 +192,25 @@ int main(int argc, char *argv[]) {
 		maxVal = val;
 		maxIdx = i;
 	    }
+
+
 	}
 
 	cross_correlation(bFFT, aFFT, result);
-	
-	for (size_t i = 1; i < result.size(); ++i) {
+
+	// results are unreliable if there are not enough 'overlap', hence -100.	
+	for (size_t i = 1; i < result.size()-100; ++i) {
 	    double val = result[i].real();
 	    double norm = computeNormFactor(bSquarePrefixSum, aSquarePrefixSum,
 					    bSquarePrefixSum.begin()+i, bSquarePrefixSum.end(),
 					    aSquarePrefixSum.begin(), aSquarePrefixSum.end() - i);
 
+	    if (norm != norm) {
+		ls << log_debug() << "norm is NaN" << endl;
+	    }
+	    if (norm < 1e-6) {
+		ls << log_debug() << "norm is 0" << endl;
+	    }
 	    
 	    val /= norm;
 	    if (val > maxVal + 1e-6) {
@@ -190,13 +227,28 @@ int main(int argc, char *argv[]) {
 	} else {
 	    if (maxIdx - firstOffset > 500 || firstOffset - maxIdx > 500) { // check to see that the offset between blocks is not too large.
 		done = true;
+		success = false;
+		blockFailure = block;
 	    }
 	}
 
 	if (aSamples.size() < samplesPr5Seconds || bSamples.size() < samplesPr5Seconds) { // we don't check the last block. This should be fixed somehow.
 	    done = true;
 	}
-	cout << "block " << block << ": " << maxVal << " " << maxIdx << endl;
-
+	if (verbose) {
+	    cout << "block " << block << ": " << maxVal << " " << maxIdx << endl;
+	}
     }
+
+    if (success) {
+	cout << "Success" << endl;
+    } else {
+	cout << "Failure" << endl;
+
+
+	cout << "block " << blockFailure << ":" << endl;
+	cout << "Time: " << getTimestampFromSeconds(blockFailure*5-5) << " - " 
+	     << getTimestampFromSeconds(blockFailure*5) << " did not match properly" << endl;
+    }
+
 }

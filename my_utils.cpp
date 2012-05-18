@@ -1,6 +1,7 @@
 #include "my_utils.h"
 
 #include <string>
+#include <sstream>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -89,4 +90,20 @@ void convertCharArrayToShort(char* arr, short* arr2, int arraySize) {
 	arr2[i/2] = convertTwoBytesToShort(arr[i],arr[i+1]);
 	arr2[i/2+1] = convertTwoBytesToShort(arr[i+2],arr[i+3]);
     }
+}
+
+string getTimestampFromSeconds(size_t seconds) {
+    size_t hours = seconds/3600;
+    size_t minutes = (seconds - 3600*hours)/60;
+    seconds = seconds - 3600*hours - 60*minutes;
+
+    stringstream tstmp;
+    if (hours < 10) tstmp << '0';
+    tstmp << hours << ":";
+    if (minutes < 10) tstmp << '0';
+    tstmp << minutes << ":";
+    if (seconds < 10) tstmp << '0';
+    tstmp << seconds;
+
+    return tstmp.str();
 }

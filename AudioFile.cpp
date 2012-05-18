@@ -6,8 +6,6 @@
 #include <iostream>
 #include "my_utils.h"
 
-typedef long long ll;
-
 using namespace std;
 
 AudioFile::AudioFile(const char *path) : fd(fopen(path,"r")), _channels(0), _sampleRate(0),
