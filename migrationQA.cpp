@@ -156,8 +156,8 @@ compareBlock(proxyFFT<short, double> &aFFT, proxyFFT<short, double> &bFFT,
     double maxVal = 0.0;
     int64_t maxIdx = -1;
 
-    // results are unreliable if there are not enough 'overlap', hence -100.
-    for (size_t i = 0; i < result.size()-100; ++i) {
+    // results are unreliable if there is not enough 'overlap', hence -1000.
+    for (size_t i = 0; i < result.size()-1000; ++i) {
 	double val = result[i].real();
 	double norm = computeNormFactor(aSquarePrefixSum, bSquarePrefixSum, 
 					aSquarePrefixSum.begin() + i, aSquarePrefixSum.end(),
@@ -198,7 +198,7 @@ int main(int argc, char *argv[]) {
 
     double firstMaxVal = 0.0;
     int64_t firstOffset = 0;
-    
+
     for (int block = 1; !done; ++block) {
 	vector<short> aSamples, bSamples;
 	vector<uint64_t> aSquarePrefixSum, bSquarePrefixSum;
@@ -207,45 +207,72 @@ int main(int argc, char *argv[]) {
 	aStream.read(samplesPr5Seconds, aSamples);
 	bStream.read(samplesPr5Seconds, bSamples);
 
-	if (aSamples.size() < samplesPr5Seconds/2 || bSamples.size() < samplesPr5Seconds/2) {
+	if (aSamples.size() < samplesPr5Seconds/2 || bSamples.size() < samplesPr5Seconds) {
 	    // not enough samples for another reliable check.
 	    break;
 	}
 
+
 	prefixSquareSum(aSamples, aSquarePrefixSum);
 	prefixSquareSum(bSamples, bSquarePrefixSum);
 
-	proxyFFT<short, double> aFFT(aSamples);
-	proxyFFT<short, double> bFFT(bSamples);
-
-	pair<int64_t, double> tmp = compareBlock(aFFT, bFFT, aSquarePrefixSum, bSquarePrefixSum);
-
-	int64_t maxIdx = tmp.first;
-	double maxVal = tmp.second;
-
-	tmp = compareBlock(bFFT, aFFT, bSquarePrefixSum, aSquarePrefixSum);
-	
-	if (tmp.second > maxVal + 1e-6) {
-	    maxIdx = -tmp.first;
-	    maxVal = tmp.second;
+	size_t zeroSamplesA = 0; size_t zeroSamplesB = 0;
+	for (size_t i = 0; i < aSamples.size(); ++i) {
+	    if (aSamples[i] == 0) {
+		++zeroSamplesA;
+	    }
+	}
+	for (size_t i = 0; i < bSamples.size(); ++i) {
+	    if (bSamples[i] == 0) {
+		++zeroSamplesB;
+	    }
 	}
 
-	if (first) {
-	    first = false;
-	    firstMaxVal = maxVal;
-	    firstOffset = maxIdx;
-	} else {
-	    if (maxIdx - firstOffset > 500 || firstOffset - maxIdx > 500) { // check to see that the offset between blocks is not too large.
-		done = true;
-		success = false;
-		blockFailure = block;
+	bool compare = true;
+	double ratioA = (zeroSamplesA+0.0)/(aSamples.size()+0.0);
+	double ratioB = (zeroSamplesB+0.0)/(bSamples.size()+0.0);
+	
+	if ((ratioA > 0.3) && (ratioB > 0.3)) { // if more than 30% of
+						// both of them is
+						// zero, it is silence
+						// - dont compare
+	    compare = false;
+	}
+	int64_t maxIdx = -1; double maxVal = -1.0;
+
+	if (compare) {
+	    proxyFFT<short, double> aFFT(aSamples);
+	    proxyFFT<short, double> bFFT(bSamples);
+
+	    pair<int64_t, double> tmp = compareBlock(aFFT, bFFT, aSquarePrefixSum, bSquarePrefixSum);
+
+	    maxIdx = tmp.first;
+	    maxVal = tmp.second;
+
+	    tmp = compareBlock(bFFT, aFFT, bSquarePrefixSum, aSquarePrefixSum);
+	
+	    if (tmp.second > maxVal + 1e-6) {
+		maxIdx = -tmp.first;
+		maxVal = tmp.second;
+	    }
+
+	    if (first) {
+		first = false;
+		firstMaxVal = maxVal;
+		firstOffset = maxIdx;
+	    } else {
+		if (maxIdx - firstOffset > 500 || firstOffset - maxIdx > 500) { // check to see that the offset between blocks is not too large.
+		    //done = true;
+		    success = false;
+		    blockFailure = block;
+		}
 	    }
 	}
 
 	if (aSamples.size() < samplesPr5Seconds || bSamples.size() < samplesPr5Seconds) { // we don't check the last block. This should be fixed somehow.
 	    done = true;
 	}
-	if (verbose) {
+	if (verbose && compare) {
 	    cout << "block " << block << ": " << maxVal << " " << maxIdx << endl;
 	}
     }
@@ -254,11 +281,12 @@ int main(int argc, char *argv[]) {
 	cout << "Success" << endl;
     } else {
 	cout << "Failure" << endl;
-
-
+	
+	/*
 	cout << "block " << blockFailure << ":" << endl;
 	cout << "Time: " << getTimestampFromSeconds(blockFailure*5-5) << " - " 
 	     << getTimestampFromSeconds(blockFailure*5) << " did not match properly" << endl;
+	*/
     }
 
 }

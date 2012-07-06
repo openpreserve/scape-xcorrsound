@@ -32,10 +32,31 @@ size_t AudioFile::getNumberOfSamplesPrChannel() {
     return this->_samplesPrChannel;
 }
 
+void AudioFile::getSamplesForChannelInRange(size_t begin, size_t end, vector<int16_t> &samples) {
+    if (!(this->_startOfData))
+	populateFieldVariables();
+
+    samples.resize(end-begin);
+
+    size_t toRead = (end-begin)*2*_channels;
+    uint8_t *buf = new uint8_t[toRead]; 
+
+    fseek(fd, _startOfData + begin * _channels * 2, SEEK_SET); // 2 bytes pr sample pr channel
+    if (fread(buf, 1, toRead, fd) != toRead) {
+	// error
+	return;
+    }
+
+    for (size_t i = 0; i < toRead; i+=4) {
+	samples[i/4] = getIntFromChars(buf[i], buf[i+1]);
+    }
+
+}
+
 /**
  * @Deprecated. Use AudioStream instead.
  */
-void AudioFile::getSamplesForChannel(size_t channel, std::vector<short> &out) {
+void AudioFile::getSamplesForChannel(size_t channel, std::vector<int16_t> &out) {
     // do something.
     fseek(fd, 0, SEEK_END);
     fseek(fd, 44, SEEK_SET);

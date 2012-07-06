@@ -4,7 +4,7 @@
 #include <map>
 #include <sstream>
 #include <cstdlib>
-
+#include "sys/time.h"
 #include "stdint.h"
 
 #include "fingerprint.h"
@@ -18,12 +18,14 @@ int main(int argc, char* argv[]) {
 
     vector<short> samples;
     afDB.getSamplesForChannel(0, samples);
-    //std::cout << "done reading" << std::endl;
+    std::cout << "done reading" << std::endl;
     map<uint32_t, vector<uint32_t> > hashes;
     //const size_t SKIP = 16384;
-    const size_t SKIP = 16384;//65536;//32768;
+    const size_t SKIP = 18368;//65536;//32768;
     size_t prevWrite = 0;
+
     for (size_t i = 0; i < samples.size()/SKIP; ++i) {
+
 	vector<complex<double> > transformed;
 	vector<short>::iterator begin, end;
 	begin = samples.begin()+i*SKIP;
@@ -33,7 +35,9 @@ int main(int argc, char* argv[]) {
 
 	Fingerprint FP(input);
 
-
+	if (!(i % 50)) {
+	    std::cout << "i: " << i << std::endl;
+	} 
 
 	for (size_t j = 0; j < 256; ++j) {
 	    vector<uint32_t> F(FP.getFingerprint());
@@ -59,6 +63,7 @@ int main(int argc, char* argv[]) {
 	} else {
 	    //cout << "0%" << endl;
 	}
+
     }
 
     typedef map<uint32_t, vector<uint32_t> >::iterator myit;

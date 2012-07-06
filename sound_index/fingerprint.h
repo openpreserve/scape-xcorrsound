@@ -4,7 +4,7 @@
 #include <vector>
 #include <cmath>
 #include <complex>
-
+#include "sys/time.h"
 #include "stdint.h"
 
 #include <fftw3.h>
@@ -14,7 +14,7 @@ static const double PI = 3.14159265;
 using std::vector; using std::complex;
 
 template<typename T1, typename T2>
-void computeFFT(vector<T1> &input, vector<complex<T2> > &output) {
+void computeFFT(const vector<T1> &input, vector<complex<T2> > &output) {
 
     fftw_plan plan;
     fftw_complex *t = (fftw_complex*) fftw_malloc(sizeof(fftw_complex)*input.size());
@@ -35,11 +35,13 @@ void computeFFT(vector<T1> &input, vector<complex<T2> > &output) {
     fftw_free(o);
 }
 
-template<typename T1, typename T2>
-void computeEnergySpectrum(vector<T1> &sample, vector<std::complex<T2> > &output) {
-    computeFFT(sample, output);
-    for (size_t i = 0; i < output.size(); ++i) {
-	output[i] = complex<double>(output[i].real()*output[i].real() + output[i].imag() * output[i].imag(), 0.0);
+template<typename T1>
+void computePowerSpectrum(vector<T1> &sample, vector<T1> &output) {
+    vector<std::complex<double> > tmp(sample.size());
+    computeFFT(sample, tmp);
+    output.resize(sample.size());
+    for (size_t i = 0; i < tmp.size(); ++i) {
+	output[i] = tmp[i].real()*tmp[i].real() + tmp[i].imag() * tmp[i].imag();
     }
 }
 
@@ -51,7 +53,7 @@ void computeEnergySpectrum(vector<T1> &sample, vector<std::complex<T2> > &output
  * transform, using the above assumptions.
  */
 double convertToHertz(size_t index, size_t sampleSize) {
-    double sampleRate = 10000.0;
+    double sampleRate = 5000.0;
 
     double T = (0.0+sampleSize) / sampleRate;
 	
@@ -88,7 +90,7 @@ double hannWeight(size_t start, size_t end, size_t index) {
 /**
  * This class represents the fingerprint used in
  * "A Highly Robust Audio Fingerprinting System" by
- * Jaap Haitsma and Ton Kalker (2002, ishmir conference).
+ * Jaap Haitsma and Ton Kalker (2002, ismir conference).
  */
 class Fingerprint {
 private:
@@ -100,13 +102,63 @@ public:
     }
 
     Fingerprint(vector<int16_t> &sample) : F(256) {
+	
+	if (sample.size() != 18368) {
+	    // error
+	}
+
+	vector<vector<int16_t> > frames(256);
+	// The following can surely be done better.
+	for (size_t frame = 0; frame < 256; ++frame) {
+	    for (size_t j = frame*64; j < frame*64+2048; ++j) {
+		frames[frame].push_back(sample[j]);
+	    }
+	}
+
+
+
+
+	for (size_t f = 0; f < 256; ++f) {
+
+	    F[f] = 0;
+	    computePowerSpectrum(frames[f], frames[f]);
+	    double prev = 0.0;
+	    double melInc = 160.0;
+	    size_t prevIdx = 0;
+	    for (size_t bit = 0; bit < 33; ++bit) {
+//	timeval before, after;
+//	gettimeofday(&before, NULL);
+
+		// compute band and sum.
+		double curr = 0;
+		for (; convertHertzToMel(convertToHertz(prevIdx, 2048)) < (bit+1)*melInc; ++prevIdx) {
+		    curr += frames[f][prevIdx];
+		}
+//	gettimeofday(&after, NULL);
+//	uint64_t timeSpent = after.tv_sec * 1000000 + after.tv_usec - (before.tv_sec*1000000 + before.tv_usec);
+//	std::cout << "time : " << timeSpent << std::endl;
+		
+		if (bit > 0) {
+		    double res = prev - curr;
+		    if (res > 0) {
+			uint32_t bitmask = (1<<(bit-1));
+			F[f] = F[f] | bitmask;
+		    }
+		}
+		prev = curr;
+	    }
+
+	}
+    }
+/*
+    Fingerprint(vector<int16_t> &sample) : F(256) {
 	// Use mel-scale to create logarithmic spacing.
 	// 5000hz ~= 2360 mel
 	// dividing into 33 bands between 0~5000
 	// #frames = 256
 
 	vector<vector<double> >  E(257, vector<double>(33, 0.0));
-
+	
 	//                               <start position of last frame>
 	// sample.size() = frameLength + overlapFactor*frameLength*256 = frameLength(1+overlapFactor*256)
 	// => frameLength = sample.size() / (1+overlapFactor*256)
@@ -125,7 +177,7 @@ public:
 
 	    vector<int16_t> input(sample.begin()+start, sample.begin()+end);
 	    vector<std::complex<double> > output(input.size(), 0.0);
-	    computeEnergySpectrum(input, output);
+	    computePowerSpectrum(input, output);
 
 	    double melIncrease = 2300.0/33.0;
 	    double melLo = 0;
@@ -176,6 +228,7 @@ public:
 	}
 
     }
+*/
 };
 
 struct bitstring {

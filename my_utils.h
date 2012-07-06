@@ -1,5 +1,6 @@
 #ifndef MY_UTILS_GUARD
 #define MY_UTILS_GUARD
+
 #include "stdint.h"
 #include <string>
 #include <vector>
@@ -19,6 +20,21 @@ void prefixSquareSum(std::vector<T1> &a, std::vector<T2> &res) {
     res[0] = a[0] * a[0];
     for (size_t i = 1; i < res.size(); ++i) {
 	res[i] = res[i-1] + a[i] * a[i];
+    }
+}
+
+template<typename T1, typename T2>
+inline
+void prefixSquareSum(typename std::vector<T1>::iterator &begin, 
+		     typename std::vector<T1>::iterator &end,
+		     std::vector<T2> &res) {
+
+    res.resize(end-begin);
+    res[0] = *(begin) * (*begin);
+    size_t i = 0;
+    for (typename std::vector<T1>::iterator it = begin; it != end; ++it) {
+	res[i] = res[i-1] + (*it) * (*it);
+	++i;
     }
 }
 

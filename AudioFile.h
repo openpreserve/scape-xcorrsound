@@ -3,13 +3,13 @@
 
 #include <vector>
 #include <cstdio>
-#include <stdint.h>
+#include "stdint.h"
 #include <string>
 #include "AudioStream.h"
 
 class AudioFile {
 private:
-    std::FILE *fd;
+    FILE *fd;
     size_t _channels;
     size_t _sampleRate;
     size_t _samplesPrChannel;
@@ -25,10 +25,12 @@ public:
     AudioFile(const char *path);
     ~AudioFile();
 
+    // end is one past the last sample.
+    void getSamplesForChannelInRange(size_t begin, size_t end, std::vector<int16_t>&);
     size_t getNumberOfChannels();
     uint32_t getSampleRate();
     size_t getNumberOfSamplesPrChannel();
-    void getSamplesForChannel(size_t channel, std::vector<short>&);
+    void getSamplesForChannel(size_t channel, std::vector<int16_t>&);
     AudioStream getStream(size_t channel);
 };
 
