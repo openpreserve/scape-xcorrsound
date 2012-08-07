@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cstdio>
 #include <string.h>
+#include <memory>
 
 #include "my_database.h"
 #include "my_fingerprint.h"
@@ -61,14 +62,23 @@ void my_database::insert_file(const char *fileName) {
     vector<int16_t> samples;
     a.getSamplesForChannel(0, samples);
 
-    for (size_t i = 0; i+2048 < samples.size(); i+= 200) {
+    size_t jump = 150;
+    // if (string(fileName) == "/home/jsn/Desktop/mp3test/P3_20_22.wav") {
+    // 	std::cout << "20-22 on following lines" << std::endl;
+    // }
+
+    for (size_t i = 0; i+2048 < samples.size(); i+= jump) {
 
 	bool flag = false;
-	if (i+200+2048 >= samples.size()) flag = true;
+	if (i+jump+2048 >= samples.size()) flag = true;
 
 	my_fingerprint myf(samples.begin() + i, samples.begin() + i + 2048, flag);
 	    
 	size_t index = (files.size() << 40) + i;
+
+	// if (string(fileName) == "/home/jsn/Desktop/mp3test/P3_20_22.wav" && i >= 5512*3662 && i < 5512*3664) {
+	//     std::cout << myf.getPrint() << std::endl;
+	// }
 
 	this->insert(myf, index);
     }
@@ -192,12 +202,48 @@ my_database::writeToDisk(const char * filename) {
 void
 my_database::loadFromDisk(const char * filename) {
 
-    size_t sizeOfElmts = sizeof(my_fingerprint) + sizeof(size_t);
-    char * buffer = new char[1024*1024*sizeOfElmts];
-    size_t pos = 0;
     FILE *f = fopen(filename, "r");
 
-    size_t read;
+    size_t read = 0;
+
+    // first we parse the header information.
+    // read first 4 bytes to get the length of the header.
+    uint32_t headerLength = 0;
+    read = fread(&headerLength, 4, 1, f);
+    if (read < 4) {
+	// error handling.
+    }
+
+    char * header = new char[headerLength];
+    size_t headerPos = 0;
+    read = fread(header, 1, headerLength, f);
+    if (read < headerLength) {
+	// error handling. File is not in correct format or missing pieces.
+    }
+
+    uint32_t numberOfFiles;
+    memcpy(&numberOfFiles, header, sizeof(uint32_t));
+    headerPos += sizeof(uint32_t);
+
+    for (size_t i = 0; i < numberOfFiles; ++i) {
+	uint32_t filenameLength = 0;
+	memcpy(&filenameLength, header + headerPos, sizeof(uint32_t));
+	headerPos += sizeof(uint32_t);
+	auto_ptr<char> aFilename(new char[filenameLength]);
+	char * filename = aFilename.get();
+	memcpy(filename, header + headerPos, filenameLength);
+	headerPos += filenameLength;
+	files.push_back(std::string(filename));
+
+    }
+
+    delete[] header;
+
+    size_t sizeOfElmts = sizeof(my_fingerprint) + sizeof(size_t);
+
+    char * buffer = new char[1024*1024*sizeOfElmts];
+    size_t pos = 0;
+
     do {
 	read = fread(buffer, sizeOfElmts, 1024*1024, f);
 	for (size_t i = 0; i < read; ++i) {
@@ -210,6 +256,6 @@ my_database::loadFromDisk(const char * filename) {
 	}
     } while (read == 1024*1024);
 
-    files.push_back("/home/jasn/Desktop/mp3test/P3_18_20.wav");
     fclose(f);
+    delete[] buffer;
 }

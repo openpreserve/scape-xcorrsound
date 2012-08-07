@@ -26,9 +26,12 @@ void computeFFT(std::vector<T1> &input, std::vector<std::complex<T2> > &output) 
     fftw_free(t);
     output.resize(input.size());
     for (size_t i = 0; i < input.size(); ++i) {
-	output[i] = std::complex<T2>(o[i][0], o[i][1]);
+    	output[i] = std::complex<T2>(o[i][0], o[i][1]);
     }
+
+    fftw_destroy_plan(plan);
     fftw_free(o);
+
 }
 
 #endif

@@ -13,7 +13,15 @@
 #include "my_query.h"
 #include "my_database.h"
 
+#include <sys/time.h>
+
 using std::vector;
+
+uint64_t timeDiff(timeval &start, timeval &end) {
+    uint64_t elapsed = end.tv_sec*1000000 + end.tv_usec - 
+	(start.tv_sec*1000000 + start.tv_usec);
+    return elapsed;
+}
 
 void printInt(size_t input) {
     for (size_t i = 0; i < 36; ++i) {
@@ -87,37 +95,70 @@ int oldTest(int argc, char *argv[]) {
 
 }
 
+void printUsage() {
+    std::cout << "Usage: ./test_my_fingerprint #db_files #query_files <db file 1> <...> <db file n> <query file 1> <...> <query file n>" << std::endl;
+	
+}
+
+void printResult(vector<size_t> &results, size_t i, char * argv[]) {
+    size_t mask = (1ULL<<36)-1;
+    size_t seconds = (results[i] & mask)/5512;
+    std::cout << argv[3+(results[i]>>40)] << " " << getTimestampFromSeconds(seconds) << std::endl;
+}
+
 int main(int argc, char * argv[]) {
 //this program will be thrown away.
     my_database db;
     if (argc < 2) {
-	std::cout << "Wrong number of arguments, expected at least 1" << std::endl;
+	//std::cout << "Wrong number of arguments, expected at least 1" << std::endl;
+	printUsage();
 	return 1;
     }
 
     int numDBFiles = atoi(argv[1]);
     int numQueryFiles = atoi(argv[2]);
 
-    my_database db2;
-    db2.loadFromDisk("tmp.out");
-    db2.printStatistics();
+    timeval dbBuildStart, dbBuildEnd, queryStart, queryEnd;
+    gettimeofday(&dbBuildStart, NULL);
+    std::cout << "lige før" << std::endl;
+    //db.loadFromDisk("24hours.out");
+    std::cout << "lige efter" << std::endl;
+    for (size_t arg = 3; arg < numDBFiles+3; ++arg) {
+    	db.insert_file(argv[arg]);
+    }
+    gettimeofday(&dbBuildEnd, NULL);
+    db.printStatistics();
+    
+    uint64_t elapsed = timeDiff(dbBuildStart, dbBuildEnd)/1000000;
 
-    // for (size_t arg = 3; arg < numDBFiles+3; ++arg) {
-    // 	db.insert_file(argv[arg]);
-    // }
+    std::cout << "Time to build database: " << elapsed << " seconds" << std::endl;
 
-    // db.printStatistics();
-    // db.writeToDisk("tmp.out");
-
+    //db.writeToDisk("24hours.out");
+    
     for (size_t arg = 3+numDBFiles; arg < 3+numDBFiles+numQueryFiles; ++arg) {
     	std::string queryFile(argv[arg]);
+	gettimeofday(&queryStart, NULL);
     	my_query myq(queryFile, db);
     	vector<size_t> results = myq.execute();
     	for (size_t i = 0; i < results.size(); ++i) {
-    	    std::cout << results[i] << std::endl;
+    	    printResult(results, i, argv);
     	}
-    	std::cout << results.size() << std::endl;
+    	std::cout << "#results: " << results.size() << std::endl;
+	gettimeofday(&queryEnd, NULL);
+	elapsed = timeDiff(queryStart, queryEnd)/1000;
+	std::cout << "Time to query database: " << elapsed << "milliseconds" << std::endl;
     }
 
+    // while (true) {
+    // 	char query[2048];
+    // 	printf("Enter query: ");
+    // 	scanf("%s", query);
+    // 	my_query myq(query, db);
+    // 	vector<size_t> results = myq.execute();
+    // 	for (size_t i = 0; i < results.size(); ++i) {
+    // 	    std::cout << results[i] << std::endl;
+    // 	}
+    // 	std::cout << "#results: " << results.size() << std::endl;
+    // }
 
 }

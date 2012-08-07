@@ -26,13 +26,16 @@ my_database.o : my_database.h my_database.cpp my_fingerprint.h ../AudioFile.h
 my_fingerprint.o : my_fingerprint.cpp my_fingerprint.h
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c my_fingerprint.cpp $(FFTW3_LIBS) $(LDFLAGS)
 
-my_query.o : my_query.cpp my_query.h
+my_query.o : my_query.cpp my_query.h ../my_utils.h
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c my_query.cpp $(FFTW3_LIBS) $(LDFLAGS)
 
 testfingerprint : testfingerprint.cpp fingerprint.h ../AudioFile.o ../my_utils.o
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) testfingerprint.cpp -o testfingerprint $(FFTW3_LIBS) $(LDFLAGS)
 
-test_my_fingerprint : my_database.o my_fingerprint.o my_query.o test_my_fingerprint.cpp ../AudioFile.o ../my_utils.o my_fingerprint.o
+test_my_fingerprint : my_database.o my_fingerprint.o my_query.o test_my_fingerprint.cpp ../AudioFile.o ../my_utils.o my_fingerprint.o ../my_utils.h
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) test_my_fingerprint.cpp -o test_my_fingerprint $(FFTW3_LIBS) $(LDFLAGS)
+
+test : test.cc
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) test.cc -o test $(FFTW3_LIBS) $(LDFLAGS)
 
 .PHONY : clean

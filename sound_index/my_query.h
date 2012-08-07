@@ -13,8 +13,8 @@ private:
     
     std::string queryFile;
     my_database &db;
-    double find_peak(std::vector<int32_t> &prefixA, 
-		     std::vector<int32_t> &prefixB,
+    double find_peak(std::vector<int64_t> &prefixA, 
+		     std::vector<int64_t> &prefixB,
 		     std::vector<std::complex<double> > &output);
 	
     std::vector<int16_t> getSamplesFromIndex(index_t index);
