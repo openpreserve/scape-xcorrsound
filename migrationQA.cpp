@@ -216,28 +216,41 @@ int main(int argc, char *argv[]) {
 	prefixSquareSum(aSamples, aSquarePrefixSum);
 	prefixSquareSum(bSamples, bSquarePrefixSum);
 
-	size_t zeroSamplesA = 0; size_t zeroSamplesB = 0;
+	// we count the average of absolute values 
+	// if the average is close to 0, then we must have silence
+	//size_t zeroSamplesA = 0; size_t zeroSamplesB = 0;
+	size_t absSumA = 0; size_t absSumB = 0;
+	bool silence = false;
 	for (size_t i = 0; i < aSamples.size(); ++i) {
-	    if (aSamples[i] == 0) {
-		++zeroSamplesA;
-	    }
+	    absSumA += (aSamples[i]>=0)?aSamples[i]:-aSamples[i];
+	    // if (aSamples[i] == 0) {
+	    // 	++zeroSamplesA;
+	    // }
 	}
 	for (size_t i = 0; i < bSamples.size(); ++i) {
-	    if (bSamples[i] == 0) {
-		++zeroSamplesB;
-	    }
+	    absSumA += (aSamples[i]>=0)?aSamples[i]:-aSamples[i];
+	    // if (bSamples[i] == 0) {
+	    // 	++zeroSamplesB;
+	    // }
+
 	}
 
-	bool compare = true;
-	double ratioA = (zeroSamplesA+0.0)/(aSamples.size()+0.0);
-	double ratioB = (zeroSamplesB+0.0)/(bSamples.size()+0.0);
-	
-	if ((ratioA > 0.3) && (ratioB > 0.3)) { // if more than 30% of
-						// both of them is
-						// zero, it is silence
-						// - dont compare
-	    compare = false;
+	if (static_cast<double>(absSumA)/aSamples.size() <= 2.0 && static_cast<double>(absSumB)/bSamples.size() <= 2.0) {
+	    silence = true;
 	}
+
+	bool compare = !silence;
+
+
+	// double ratioA = (zeroSamplesA+0.0)/(aSamples.size()+0.0);
+	// double ratioB = (zeroSamplesB+0.0)/(bSamples.size()+0.0);
+	
+	// if ((ratioA > 0.3) && (ratioB > 0.3)) { // if more than 30% of
+	// 					// both of them is
+	// 					// zero, it is silence
+	// 					// - dont compare
+	//     compare = false;
+	// }
 	int64_t maxIdx = -1; double maxVal = -1.0;
 
 	if (compare) {
@@ -272,9 +285,13 @@ int main(int argc, char *argv[]) {
 	if (aSamples.size() < samplesPr5Seconds || bSamples.size() < samplesPr5Seconds) { // we don't check the last block. This should be fixed somehow.
 	    done = true;
 	}
-	if (verbose && compare) {
-	    cout << "block " << block << ": " << maxVal << " " << maxIdx << endl;
-	}
+	if (verbose) {
+	    if (compare) {
+		cout << "block " << block << ": " << maxVal << " " << maxIdx << endl;
+	    } else if (silence) {
+		cout << "block " << block << ": " << "silence" << endl;
+	    }
+	} 
     }
 
     if (success) {
