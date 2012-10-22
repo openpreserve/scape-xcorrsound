@@ -100,10 +100,11 @@ void printUsage() {
 	
 }
 
-void printResult(vector<size_t> &results, size_t i, char * argv[]) {
+void printResult(vector<std::pair<size_t,double> > &results, size_t i, char * argv[]) {
     size_t mask = (1ULL<<36)-1;
-    size_t seconds = (results[i] & mask)/5512;
-    std::cout << argv[3+(results[i]>>40)] << " " << getTimestampFromSeconds(seconds) << std::endl;
+    size_t seconds = (results[i].first & mask)/5512;
+    std::cout << argv[3+(results[i].first>>40)] << " " << getTimestampFromSeconds(seconds)
+	      << " " << results[i].second << std::endl;
 }
 
 int main(int argc, char * argv[]) {
@@ -120,26 +121,26 @@ int main(int argc, char * argv[]) {
 
     timeval dbBuildStart, dbBuildEnd, queryStart, queryEnd;
     gettimeofday(&dbBuildStart, NULL);
-    std::cout << "lige før" << std::endl;
-    //db.loadFromDisk("24hours.out");
-    std::cout << "lige efter" << std::endl;
+
+    //db.loadFromDisk("many_days.out");
+
     for (size_t arg = 3; arg < numDBFiles+3; ++arg) {
     	db.insert_file(argv[arg]);
     }
     gettimeofday(&dbBuildEnd, NULL);
     db.printStatistics();
-    
+
     uint64_t elapsed = timeDiff(dbBuildStart, dbBuildEnd)/1000000;
 
     std::cout << "Time to build database: " << elapsed << " seconds" << std::endl;
 
-    //db.writeToDisk("24hours.out");
+    db.writeToDisk("many_days.out");
     
     for (size_t arg = 3+numDBFiles; arg < 3+numDBFiles+numQueryFiles; ++arg) {
     	std::string queryFile(argv[arg]);
 	gettimeofday(&queryStart, NULL);
     	my_query myq(queryFile, db);
-    	vector<size_t> results = myq.execute();
+    	vector<std::pair<size_t,double> > results = myq.execute();
     	for (size_t i = 0; i < results.size(); ++i) {
     	    printResult(results, i, argv);
     	}

@@ -15,7 +15,7 @@
 using namespace std;
 
 double
-my_query::find_peak(vector<int64_t> &prefixA, vector<int64_t> &prefixB, vector<complex<double> > &output) {
+my_query::find_peak(vector<uint64_t> &prefixA, vector<uint64_t> &prefixB, vector<complex<double> > &output) {
     double maxVal = 0.0;
     size_t maxIdx = 0;
     bool flag = false;
@@ -83,10 +83,9 @@ my_query::cross_correlate(vector<int16_t>::iterator aBegin, vector<int16_t>::ite
 double
 my_query::cross_correlate(vector<int16_t>::iterator aBegin, vector<int16_t>::iterator aEnd,
 			  vector<int16_t>::iterator bBegin, vector<int16_t>::iterator bEnd) {
-
-    vector<int64_t> prefixA, prefixB;
-    prefixSquareSum<int16_t, int64_t>(aBegin, aEnd, prefixA);
-    prefixSquareSum<int16_t, int64_t>(bBegin, bEnd, prefixB);
+    vector<uint64_t> prefixA, prefixB;
+    prefixSquareSum<int16_t, uint64_t>(aBegin, aEnd, prefixA);
+    prefixSquareSum<int16_t, uint64_t>(bBegin, bEnd, prefixB);
     
     proxyFFT<int16_t, double> aProxy(aBegin, aEnd);
     proxyFFT<int16_t, double> bProxy(bBegin, bEnd);
@@ -101,6 +100,7 @@ my_query::cross_correlate(vector<int16_t>::iterator aBegin, vector<int16_t>::ite
 
     return max_val;
 
+
 }
 
 
@@ -112,7 +112,7 @@ my_query::retrieveIndices(const my_fingerprint &queryFingerprint) {
 my_query::my_query(std::string queryFile, my_database &db) : queryFile(queryFile), db(db) {
 }
 
-vector<size_t>
+vector<pair<size_t, double> > 
 my_query::execute() {
     AudioFile qaf(queryFile.c_str());
     AudioStream qas = qaf.getStream(0);
@@ -163,21 +163,27 @@ my_query::execute() {
     // 	}
     // }
 
-    vector<size_t> matches;
+    vector<pair<size_t, double> > matches;
     for (size_t i = 0; i < f1Results.size(); ++i) {
-
+	if (matches.size() > 0) {
+	    index_t prev = matches.back().first;
+	    index_t curr = f1Results[i];
+	    if (prev > curr) {std::swap(prev,curr);}
+	    
+	    if (curr - prev <= oneSecond+oneSecond) {
+		continue;
+	    }
+	}
 	vector<int16_t> possibleMatchSamples = getSamplesFromIndex(f1Results[i]);
 
-	if (possibleMatchSamples.size() != 2048) {
-	    // error handling.
-	}
+	if (possibleMatchSamples.size() == 0) continue;
 
 	double val = cross_correlate(possibleMatchSamples.begin(), possibleMatchSamples.end(),
 				     samples.begin()+offset, samples.begin() + offset + 2048);
 
 	//std::cout << "val: " << val << std::endl;
-	if (val > 0.7) {
-	    matches.push_back(f1Results[i]);
+	if (val > 0.94) {
+	    matches.push_back(make_pair(f1Results[i], val));
 	}
     }
     return matches;

@@ -38,4 +38,7 @@ test_my_fingerprint : my_database.o my_fingerprint.o my_query.o test_my_fingerpr
 test : test.cc
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) test.cc -o test $(FFTW3_LIBS) $(LDFLAGS)
 
+ismir_impl : ../AudioFile.o ../my_utils.o ../my_utils.h ismir_impl.cc
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) ismir_impl.cc -o ismir_impl $(FFTW3_LIBS) $(LDFLAGS)
+
 .PHONY : clean

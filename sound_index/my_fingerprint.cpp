@@ -28,12 +28,29 @@ namespace {
 
 my_fingerprint::my_fingerprint(it begin, it end, bool sorting) {
     fingerprint = 0;
-
+/*
+  this is for int16_t fingerprinting.
     double buckets[2][7] = {{4.82e07, 1.12e08, 6.57e08, 2.97e09, 6.53e09, 1.19e10, 2.39e10},
 			    {1,2,3,4,5,6,7}};
-
-    vector<int16_t> samples(begin, end);
-    vector<complex<double> > transform(samples.size());
+*/
+    double buckets[2][7] = {{117.768, 214.137, 314.336, 430.629, 573.994, 771.434, 1107.67},
+			    {1,2,3,4,5,6,7}};
+    
+    vector<float> samples(end-begin);
+    int16_t maximum = 1;
+    for (it iter = begin; iter != end; ++iter) {
+	int16_t tmp = *iter;
+	if (tmp < 0) {
+	    tmp = -tmp;
+	}
+	if (maximum < tmp) {
+	    maximum = tmp;
+	}
+    }
+    for (size_t i = 0; i < samples.size(); ++i) {
+	samples[i] = static_cast<float>((*(begin+i)))/maximum;
+    }
+    vector<complex<float> > transform(samples.size());
 
     computeFFT(samples, transform);
 
@@ -53,7 +70,7 @@ my_fingerprint::my_fingerprint(it begin, it end, bool sorting) {
 	}
 
 	avg /= items;
-	//if (currentMel == 200.0) blah.push_back(avg);
+	//if (currentMel == 220.0+181.67 && avg > 771.434) blah.push_back(avg);
 	//std::cout << avg << std::endl;
 	uint64_t bucket = 0;
 	for (size_t j = 0; j < 7; ++j) {
@@ -68,6 +85,7 @@ my_fingerprint::my_fingerprint(it begin, it end, bool sorting) {
 	fingerprint = fingerprint | bucket;
 	    
     }
+
     // if (sorting) {
     // 	sort(blah.begin(), blah.end());
     // 	std::cout << blah[blah.size()/2] << std::endl;

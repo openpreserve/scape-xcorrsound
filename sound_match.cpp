@@ -11,15 +11,52 @@
 #include <iomanip>
 #include "my_utils.h"
 #include "AudioStream.h"
+#include <iomanip>
+#include <utility>
 
-static const double THRESHHOLD = 0.98;
+static const double THRESHHOLD = 0.5;
 
-using std::vector; using std::complex; using std::cout; using std::endl;
+using namespace std;
+
+namespace {
+
+    struct Record {
+	typedef double normFactor;
+	typedef double crossValue;
+	typedef int64_t samples;
+
+	normFactor nf;
+	crossValue cv;
+	samples s;
+
+	Record() : nf(0), cv(0), s(0) {};
+
+	Record(normFactor nf, crossValue cv, samples s) : nf(nf), cv(cv), s(s) {}
+
+	Record(const Record &other) {
+	    nf = other.nf;
+	    cv = other.cv;
+	    s = other.s;
+	}
+
+	Record& operator=(const Record& other) {
+	    if (this != &other) {
+		nf = other.nf;
+		cv = other.cv;
+		s = other.s;
+	    }
+
+	    return *this;
+	}
+    
+    };
+
+}
 
 template<typename T>
 std::ostream& operator<<(std::ostream &os, std::vector<T> &l) {
     for (size_t i = 0; i < l.size(); ++i) {
-	os << l[i] << " ";
+	os << " " << l[i];
     }
     return os;
 }
@@ -32,7 +69,7 @@ std::ostream& operator<<(std::ostream &os, std::complex<T> &c) {
 }
 
 
-void match(AudioFile &needle, AudioFile &haystack, std::vector<size_t> &results) {
+void match(AudioFile &needle, AudioFile &haystack, std::vector<pair<size_t, double> > &results) {
     std::vector<short> small; std::vector<short> large;
     std::vector<int64_t> smallPrefixSum; std::vector<int64_t> largePrefixSum;
     needle.getSamplesForChannel(0, small);
@@ -42,19 +79,25 @@ void match(AudioFile &needle, AudioFile &haystack, std::vector<size_t> &results)
     smallFFT.transform();
     
     size_t largeTotalSize = haystack.getNumberOfSamplesPrChannel();
-    vector<int64_t> maxSamplesBegin(largeTotalSize/small.size());
-    vector<int64_t> maxSamplesEnd(largeTotalSize/small.size());
+    // vector<int64_t> maxSamplesBegin(largeTotalSize/small.size());
+    // vector<int64_t> maxSamplesEnd(largeTotalSize/small.size());
+    vector<Record> maxSamplesBegin(largeTotalSize/small.size());
+    vector<Record> maxSamplesEnd(largeTotalSize/small.size());
+
     size_t stillToRead = largeTotalSize;
 
     AudioStream hayStream = haystack.getStream(0);
-    size_t pieces = 10;
+    size_t pieces = 13;
     for (int j = 0; ; ++j) {
 	hayStream.read(pieces*small.size(), large);
 	prefixSquareSum(large, largePrefixSum);
 	size_t numberOfParts = large.size()/small.size();
 	size_t idxAdd = j*pieces;
 
-	std::cout << ((largeTotalSize-stillToRead)+0.0)/largeTotalSize*100 << "%" << std::endl;
+	// Progress information
+	std::cout << '\r' << setw(8) << ((largeTotalSize-stillToRead)+0.0)/largeTotalSize*100 << " %";
+	std::cout.flush();
+
 	stillToRead -= large.size();
 
 	for (size_t ii = 0; ii < numberOfParts*small.size(); ii += small.size()) {
@@ -97,27 +140,27 @@ void match(AudioFile &needle, AudioFile &haystack, std::vector<size_t> &results)
 		    maxNormFactorEnd = normFactor;
 		}
 	    }
-	    maxSamplesBegin[ii/small.size()+idxAdd] = small.size() - maxSampleBegin;
-	    maxSamplesEnd[ii/small.size()+idxAdd] = small.size() - maxSampleEnd;
+	    maxSamplesBegin[ii/small.size()+idxAdd] = Record(maxNormFactorBegin, outBegin[maxSampleBegin].real(), small.size() - maxSampleBegin);
+	    maxSamplesEnd[ii/small.size()+idxAdd] = Record(maxNormFactorEnd, outEnd[maxSampleEnd].real(), small.size() - maxSampleEnd);
 	}
 
 	if (numberOfParts != pieces) break;
 
     }
-    std::cout << "100%" << std::endl;
-// #pragma omp parallel shared(small, large, maxSamplesBegin, maxSamplesEnd)
-//     {
-// #pragma omp for
-//     }
+    std::cout << '\r' << setw(8) << 100 << "%" << std::endl;
+
 //     // FIXME: special case.
 //     // small size does not divide large size
 //     // => last piece is not analysed.
 //     // fix this.
 
     for (size_t i = 0; i < maxSamplesBegin.size()-1; ++i) {
-	if (maxSamplesBegin[i] + maxSamplesEnd[i+1] <= small.size() &&
-	    (maxSamplesBegin[i] + maxSamplesEnd[i+1] >= THRESHHOLD*small.size())) {
-	    results.push_back((i+1)*small.size()-maxSamplesBegin[i]);
+	double val = (maxSamplesBegin[i].cv + maxSamplesEnd[i+1].cv)/(maxSamplesBegin[i].nf + maxSamplesEnd[i+1].nf);
+	if (val > 0.3) { // arbitrary magic number. Seems to work well.
+	    size_t length = maxSamplesBegin[i].s + maxSamplesEnd[i+1].s;
+	    if (length <= small.size() && length >= THRESHHOLD*small.size()) { // length must be appropriate
+		results.push_back(make_pair((i+1)*small.size()-maxSamplesBegin[i].s, val));
+	    }
 	}
     }
 }
@@ -142,7 +185,7 @@ inline void read(vector<int16_t> &res, size_t channel, FILE *fp, size_t sz) {
 
 int main(int argc, char **argv) {
 
-    std::vector<size_t> res;
+    std::vector<pair<size_t, double> > res;
     
     if (argc != 3) {printUsage(); return 1;}
  
@@ -163,7 +206,7 @@ int main(int argc, char **argv) {
     } else {
 	std::vector<std::string> resStr(res.size());
 	for (size_t i = 0; i < res.size(); ++i) {
-	    uint64_t second = res[i] / haystack.getSampleRate();
+	    uint64_t second = res[i].first / haystack.getSampleRate();
 
 	    size_t secs = second % 60;
 	    size_t mins = (second/60) % 60;
@@ -179,9 +222,10 @@ int main(int argc, char **argv) {
 	    if (secs < 10)
 		ss << "0";
 	    ss << secs;
+	    ss << "    value: " << res[i].second << endl;
 	    resStr[i] = ss.str();
 	}
-	std::cout << "matches found starting at time [hh:mm:ss]: " << resStr << std::endl;
+	std::cout << "matches found starting at time [hh:mm:ss]: " << endl << resStr << std::endl;
     }
 }
 

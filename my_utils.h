@@ -4,6 +4,8 @@
 #include "stdint.h"
 #include <string>
 #include <vector>
+#include <iostream>
+#include "stdlib.h"
 
 int getFilesize(std::string filename);
 short convertTwoBytesToShort(char a, char b);
@@ -30,10 +32,17 @@ void prefixSquareSum(typename std::vector<T1>::iterator &begin,
 		     std::vector<T2> &res) {
 
     res.resize(end-begin);
-    res[0] = *(begin) * (*begin);
-    size_t i = 0;
-    for (typename std::vector<T1>::iterator it = begin; it != end; ++it) {
-	res[i] = res[i-1] + (*it) * (*it);
+    res[0] = (*begin) * (*begin);
+    assert(res[0] >= 0);
+    size_t i = 1;
+
+    for (typename std::vector<T1>::iterator it = begin+1; it != end; ++it) {
+	res[i] = res[i-1] + ((*it) * (*it));
+
+	assert(res[i] >= 0);
+	assert((*it) * (*it) >= 0);
+	assert(res[i] >= res[i-1]);
+
 	++i;
     }
 }
@@ -45,7 +54,7 @@ double computeNormFactor(std::vector<T1> &prefixSquareSmall, std::vector<T1> &pr
     
     if (smallEnd != prefixSquareSmall.begin()) --smallEnd;
 
-    int64_t smallVal = *smallEnd;
+    T1 smallVal = *smallEnd;
 
     if (smallBegin != prefixSquareSmall.begin()) {
 	--smallBegin;
@@ -54,14 +63,15 @@ double computeNormFactor(std::vector<T1> &prefixSquareSmall, std::vector<T1> &pr
 
     if (largeEnd != prefixSquareLarge.begin()) --largeEnd;
 
-    int64_t largeVal = *largeEnd;    
+    T1 largeVal = *largeEnd;    
 
     if (largeBegin != prefixSquareLarge.begin()) {
 	--largeBegin;
 	largeVal -= *largeBegin;
     }
+
     double val = ((smallVal+0.0) + (largeVal+0.0));
-    if (val < 1) return 1;
+    //if (val < 1) return 1;
     return 0.5 * val;
 
 }

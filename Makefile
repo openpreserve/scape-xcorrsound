@@ -20,7 +20,7 @@ all: xcorrSound
 clean:
 	rm -rf *.o xcorrSound test_cross soundMatch
 
-my_utils.o :
+my_utils.o : my_utils.cpp my_utils.h
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c my_utils.cpp -o my_utils.o
 
 cross_correlation : cross_correlation.h
@@ -38,8 +38,8 @@ xcorrSound : $(OBJECT_FILES) xcorrSound.o logstream.o
 AudioFile.o : AudioFile.h AudioFile.cpp AudioStream.h my_utils.o
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c AudioFile.cpp -o AudioFile.o
 
-soundMatch : AudioStream.h AudioFile.o sound_match.cpp my_utils.o
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) AudioFile.o sound_match.cpp -o soundMatch $(LDFLAGS) $(FFTW3_LIBS)
+sound_match : AudioStream.h AudioFile.o sound_match.cpp my_utils.o
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) AudioFile.o sound_match.cpp -o sound_match $(LDFLAGS) $(FFTW3_LIBS)
 
 test_cross : test_cross.cpp
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) test_cross.cpp -o test_cross $(LDFLAGS) $(FFTW3_LIBS)

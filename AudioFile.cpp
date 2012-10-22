@@ -4,6 +4,8 @@
 #include <vector>
 #include <stdint.h>
 #include <iostream>
+#include <memory>
+
 #include "my_utils.h"
 
 using namespace std;
@@ -15,7 +17,9 @@ AudioFile::AudioFile(const char *path) : fd(fopen(path,"r")), _channels(0), _sam
 }
 
 AudioFile::~AudioFile() {
-    fclose(fd);
+    if (fd)
+	fclose(fd);
+    fd = NULL;
 }
 
 size_t AudioFile::getNumberOfChannels() {
@@ -39,18 +43,20 @@ void AudioFile::getSamplesForChannelInRange(size_t begin, size_t end, vector<int
     samples.resize(end-begin);
 
     size_t toRead = (end-begin)*2*_channels;
-    uint8_t *buf = new uint8_t[toRead]; 
+    uint8_t *buf = new uint8_t[toRead];
 
     fseek(fd, _startOfData + begin * _channels * 2, SEEK_SET); // 2 bytes pr sample pr channel
     if (fread(buf, 1, toRead, fd) != toRead) {
 	// error
+	delete[] buf;
 	return;
     }
 
     for (size_t i = 0; i < toRead; i+=4) {
 	samples[i/4] = getIntFromChars(buf[i], buf[i+1]);
     }
-
+    
+    delete[] buf;
 }
 
 /**
@@ -60,8 +66,7 @@ void AudioFile::getSamplesForChannel(size_t channel, std::vector<int16_t> &out) 
     // do something.
     fseek(fd, 0, SEEK_END);
     fseek(fd, 44, SEEK_SET);
-
-    uint8_t buf[2048];
+    uint8_t *buf = new uint8_t[2048];
     size_t currPos = 44;
     size_t read = 0;
     while (!feof(fd)) {
@@ -72,6 +77,7 @@ void AudioFile::getSamplesForChannel(size_t channel, std::vector<int16_t> &out) 
 	}
 	currPos += read;
     }
+    delete[] buf;
 }
 
 void AudioFile::populateFieldVariables() {

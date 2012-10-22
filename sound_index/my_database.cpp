@@ -76,11 +76,8 @@ void my_database::insert_file(const char *fileName) {
 	    
 	size_t index = (files.size() << 40) + i;
 
-	// if (string(fileName) == "/home/jsn/Desktop/mp3test/P3_20_22.wav" && i >= 5512*3662 && i < 5512*3664) {
-	//     std::cout << myf.getPrint() << std::endl;
-	// }
-
 	this->insert(myf, index);
+
     }
 
     files.push_back(string(fileName));
@@ -116,11 +113,11 @@ vector<int16_t> my_database::getSamplesFromIndex(index_t index) {
     vector<int16_t> res;
 
     size_t fileIdx = index >> 40;
-    size_t offsetBegin = index - (fileIdx<<40);
+    int64_t offsetBegin = index - (fileIdx<<40);
 
     AudioFile a(files[fileIdx].c_str());
     
-    a.getSamplesForChannelInRange(offsetBegin, offsetBegin+2048, res);
+    a.getSamplesForChannelInRange(offsetBegin, offsetBegin + 2048, res);
 
     return res;
 }
