@@ -20,7 +20,7 @@
 static const double THRESHOLD = 0.2;
 static const double EPS = 1e-6;
 
-typedef long long ll;
+typedef int64_t ll;
 
 typedef long double float_type;
 typedef std::complex<float_type> complex_type;
