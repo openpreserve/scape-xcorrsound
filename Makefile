@@ -21,6 +21,7 @@ clean:
 	rm -rf *.o xcorrSound test_cross soundMatch
 
 my_utils.o : my_utils.cpp my_utils.h
+	$(CXX) -v
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c my_utils.cpp -o my_utils.o
 
 cross_correlation : cross_correlation.h
