@@ -10,7 +10,7 @@ LDFLAGS = -L$(fftw_libdir) -L$(BOOST_LIB)
 FFTW3_LIBS = -lfftw3
 BOOST_LIBS = -lboost_program_options
 STATIC = -static-libgcc -static-libstdc++ -static
-CXX=g++
+CXX = /usr/bin/g++
 #CXX=~/third_party/llvm-build/Release+Asserts/bin/clang++ $(SAN)
 #SAN=-faddress-sanitizer -fno-omit-frame-pointer 
 OBJECT_FILES := my_utils.o
@@ -21,7 +21,6 @@ clean:
 	rm -rf *.o xcorrSound test_cross soundMatch
 
 my_utils.o : my_utils.cpp my_utils.h
-	ls /usr/bin
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c my_utils.cpp -o my_utils.o
 
 cross_correlation : cross_correlation.h
