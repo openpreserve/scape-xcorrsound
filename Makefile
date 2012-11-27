@@ -6,7 +6,7 @@ DEBUG_FLAGS = -ggdb
 PRODUCTION_FLAGS = -O2
 CPPFLAGS = -I$(fftw_includedir) -I $(BOOST_DIR)
 CXXFLAGS = -Wall -pedantic $(PRODUCTION_FLAGS)
-LDFLAGS = -L$(fftw_libdir) -L$(BOOST_LIB)
+LDFLAGS = -L$(fftw_libdir) 
 FFTW3_LIBS = -lfftw3
 BOOST_LIBS = -lboost_program_options
 #STATIC = -static-libgcc -static-libstdc++ -static
@@ -19,7 +19,7 @@ OBJECT_FILES := my_utils.o
 all: xcorrSound
 
 clean:
-	rm -rf *.o xcorrSound test_cross soundMatch
+	rm -rf *.o xcorrSound test_cross soundMatch migrationQA
 
 my_utils.o : my_utils.cpp my_utils.h
 	$(CXX) -v
