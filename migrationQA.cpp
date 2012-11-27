@@ -296,9 +296,10 @@ int main(int argc, char *argv[]) {
 
     if (success) {
 	cout << "Success" << endl;
+	return 0;
     } else {
 	cout << "Failure" << endl;
-	
+	return 1;
 	/*
 	cout << "block " << blockFailure << ":" << endl;
 	cout << "Time: " << getTimestampFromSeconds(blockFailure*5-5) << " - " 
