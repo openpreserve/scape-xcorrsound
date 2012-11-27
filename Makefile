@@ -38,7 +38,7 @@ xcorrSound : $(OBJECT_FILES) xcorrSound.o logstream.o
 AudioFile.o : AudioFile.h AudioFile.cpp AudioStream.h my_utils.o
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c AudioFile.cpp -o AudioFile.o
 
-sound_match : AudioStream.h AudioFile.o sound_match.cpp my_utils.o
+soundMatch : AudioStream.h AudioFile.o sound_match.cpp my_utils.o
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) AudioFile.o sound_match.cpp -o sound_match $(LDFLAGS) $(FFTW3_LIBS)
 
 test_cross : test_cross.cpp
