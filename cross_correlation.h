@@ -7,6 +7,7 @@
 #include <iterator>
 #include <complex>
 #include <iostream>
+#include <boost/type_traits.hpp>
 
 template<typename T1, typename T2>
 struct proxyFFT {
@@ -17,10 +18,20 @@ struct proxyFFT {
     
     proxyFFT(std::vector<T1> &array) : _array(array), _computed(false) {};
 
-    proxyFFT(typename std::vector<T1>::iterator begin, typename std::vector<T1>::iterator end) : _computed(false) {
-	_array.clear();
-	_array.insert(_array.end(), begin, end);
-    };
+    // proxyFFT(typename std::vector<T1>::iterator begin, typename std::vector<T1>::iterator end) : _computed(false) {
+    // 	_array.clear();
+    // 	_array.insert(_array.end(), begin, end);
+    // };
+    template<typename iter>
+    proxyFFT(iter begin, iter end) : _computed(false) {
+	typedef typename std::iterator_traits<iter>::value_type vt;
+	if (boost::is_same<vt, T1>::value) { // not strictly necessary
+	    _array.clear();
+	    _array.insert(_array.end(), begin, end);
+	} else {
+	    // report an error..
+	}
+    }
 
     void transform() {
 	if (_computed) return;
@@ -84,6 +95,7 @@ void cross_correlation(proxyFFT<T1, T2> &a, proxyFFT<T1, T2> &b, std::vector<std
     for (size_t i = 0 ; i < prodSize; ++i) {
 	prod[i][0] = out1[i].real() * out2[i].real() + out1[i].imag() * out2[i].imag();
 	prod[i][1] = -out1[i].real() * out2[i].imag() + out1[i].imag() * out2[i].real();
+	//prod[i][1] = out1[i].real() * out2[i].imag() - out1[i].imag() * out2[i].real();
     }
     fftw_plan plan= fftw_plan_dft_1d(prodSize, prod, invprod, FFTW_FORWARD, FFTW_ESTIMATE);
     fftw_execute(plan);

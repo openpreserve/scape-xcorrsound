@@ -5,7 +5,7 @@ BOOST_LIB = /usr/lib/
 DEBUG_FLAGS = -ggdb
 PRODUCTION_FLAGS = -O2
 CPPFLAGS = -I$(fftw_includedir) -I $(BOOST_DIR)
-CXXFLAGS = -Wall -pedantic $(PRODUCTION_FLAGS)
+CXXFLAGS = -Wall -pedantic $(PRODUCTION_FLAGS) --std=c++98 -pedantic
 LDFLAGS = -L$(fftw_libdir) -L$(BOOST_LIB)
 FFTW3_LIBS = -lfftw3
 BOOST_LIBS = -lboost_program_options
@@ -40,7 +40,7 @@ xcorrSound : $(OBJECT_FILES) xcorrSound.o logstream.o
 AudioFile.o : AudioFile.h AudioFile.cpp AudioStream.h my_utils.o
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c AudioFile.cpp -o AudioFile.o
 
-soundMatch : AudioStream.h AudioFile.o sound_match.cpp my_utils.o
+sound_match : AudioStream.h AudioFile.o sound_match.cpp my_utils.o
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) AudioFile.o sound_match.cpp -o sound_match $(LDFLAGS) $(FFTW3_LIBS)
 
 test_cross : test_cross.cpp
