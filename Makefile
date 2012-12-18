@@ -1,5 +1,5 @@
-fftw_includedir = fftw/include
-fftw_libdir = fftw/lib
+fftw_includedir = /usr/include
+fftw_libdir = /usr/lib
 BOOST_DIR = /usr/include/boost
 BOOST_LIB = /usr/lib/
 DEBUG_FLAGS = -ggdb
