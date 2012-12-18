@@ -19,7 +19,7 @@ OBJECT_FILES := my_utils.o
 all: xcorrSound
 
 clean:
-	rm -rf *.o xcorrSound test_cross soundMatch migrationQA
+	rm -rf *.o xcorrSound test_cross soundMatch migrationQA data
 
 my_utils.o : my_utils.cpp my_utils.h
 	$(CXX) -v
