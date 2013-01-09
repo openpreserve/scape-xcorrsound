@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <cstdio>
-#include "stdint.h"
+#include <stdint.h>
 #include <string>
 #include "AudioStream.h"
 

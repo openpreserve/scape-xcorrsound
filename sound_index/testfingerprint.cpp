@@ -4,8 +4,8 @@
 #include <map>
 #include <sstream>
 #include <cstdlib>
-#include "sys/time.h"
-#include "stdint.h"
+#include <sys/time.h>
+#include <stdint.h>
 
 #include "fingerprint.h"
 #include "../AudioFile.h"

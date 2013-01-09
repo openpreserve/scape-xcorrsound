@@ -8,7 +8,7 @@
 
 #include <stdlib.h>
 
-#include "stdint.h"
+#include <stdint.h>
 
 #include <fftw3.h>
 

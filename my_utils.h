@@ -1,11 +1,11 @@
 #ifndef MY_UTILS_GUARD
 #define MY_UTILS_GUARD
 
-#include "stdint.h"
+#include <stdint.h>
 #include <string>
 #include <vector>
 #include <iostream>
-#include "stdlib.h"
+#include <stdlib.h>
 
 int getFilesize(std::string filename);
 short convertTwoBytesToShort(char a, char b);

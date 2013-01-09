@@ -4,7 +4,7 @@
 #include <cmath>
 #include <algorithm>
 
-#include "stdint.h"
+#include <stdint.h>
 
 #include "computeFFT.h"
 #include "../AudioFile.h"
