@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <complex>
-#include "stdint.h"
+#include <stdint.h>
 #include "my_database.h"
 #include "../my_utils.h"
 #include "../cross_correlation.h"

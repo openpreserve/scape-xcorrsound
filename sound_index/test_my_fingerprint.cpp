@@ -4,7 +4,7 @@
 #include <map>
 #include <string>
 
-#include "stdint.h"
+#include <stdint.h>
 
 #include "../AudioFile.h"
 #include "../AudioStream.h"

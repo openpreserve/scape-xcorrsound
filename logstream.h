@@ -1,7 +1,7 @@
 #ifndef LOGSTREAM_H
 #define LOGSTREAM_H
 
-#include "stdint.h"
+#include <stdint.h>
 #include <iostream>
 
 class logstreambuffer : public std::basic_streambuf<char, std::char_traits<char> > {

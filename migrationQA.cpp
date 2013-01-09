@@ -1,6 +1,6 @@
 #include <vector>
 #include <complex>
-#include "stdint.h"
+#include <stdint.h>
 #include <iostream>
 #include "logstream.h"
 #include "my_utils.h"
@@ -11,7 +11,7 @@
 #include "cross_correlation.h"
 #include "AudioFile.h"
 
-#include "boost/program_options.hpp"
+#include <boost/program_options.hpp>
 
 using namespace std;
 

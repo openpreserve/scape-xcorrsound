@@ -3,7 +3,7 @@
 #include <iostream>
 #include <complex>
 #include <cassert>
-#include "stdint.h"
+#include <stdint.h>
 
 #include "my_query.h"
 #include "../AudioFile.h"

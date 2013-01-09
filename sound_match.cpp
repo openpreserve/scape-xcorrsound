@@ -7,7 +7,7 @@
 #include <algorithm>
 #include "cross_correlation.h"
 #include "AudioFile.h"
-#include "stdint.h"
+#include <stdint.h>
 #include <iomanip>
 #include "my_utils.h"
 #include "AudioStream.h"
