@@ -49,8 +49,10 @@ soundMatch : AudioStream.h AudioFile.o sound_match.cpp my_utils.o
 test_cross : test_cross.cpp
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) test_cross.cpp -o test_cross $(LDFLAGS) $(FFTW3_LIBS)
 
-migrationQA : migrationQA.cpp cross_correlation.h AudioFile.o my_utils.o logstream.o migration-qa_$(VERSION) man/migrationQA.8
+migrationQA : migrationQA.cpp cross_correlation.h AudioFile.o my_utils.o logstream.o 
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(STATIC) logstream.o my_utils.o AudioFile.o migrationQA.cpp -o migrationQA $(LDFLAGS) $(FFTW3_LIBS) $(BOOST_LIBS)
+
+migrationQA.deb : migrationQA migration-qa_$(VERSION) man/migrationQA.8
 	strip migrationQA
 	gzip --best -c man/migrationQA.8 > migrationQA.8.gz
 	equivs-build migration-qa_$(VERSION)
