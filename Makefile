@@ -2,7 +2,8 @@ fftw_includedir = /usr/include
 fftw_libdir = /usr/lib
 BOOST_DIR = /usr/include/boost
 BOOST_LIB = /usr/lib/
-DEBUG_FLAGS = -ggdb
+#DEBUG_FLAGS = -ggdb
+DEBUG_FLAGS = 
 PRODUCTION_FLAGS = -O2
 CPPFLAGS = -I$(fftw_includedir) -I $(BOOST_DIR)
 CXXFLAGS = -Wall -pedantic $(PRODUCTION_FLAGS)
@@ -15,11 +16,13 @@ CXX = /usr/bin/g++
 #CXX=~/third_party/llvm-build/Release+Asserts/bin/clang++ $(SAN)
 #SAN=-faddress-sanitizer -fno-omit-frame-pointer 
 OBJECT_FILES := my_utils.o
+VERSION = 0.9
+
 
 all: xcorrSound
 
 clean:
-	rm -rf *.o xcorrSound test_cross soundMatch migrationQA data
+	rm -rf *.o xcorrSound test_cross soundMatch migrationQA data *.deb *.gz
 
 my_utils.o : my_utils.cpp my_utils.h
 	$(CXX) -v
@@ -46,8 +49,12 @@ soundMatch : AudioStream.h AudioFile.o sound_match.cpp my_utils.o
 test_cross : test_cross.cpp
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) test_cross.cpp -o test_cross $(LDFLAGS) $(FFTW3_LIBS)
 
-migrationQA : migrationQA.cpp cross_correlation.h AudioFile.o my_utils.o logstream.o
+migrationQA : migrationQA.cpp cross_correlation.h AudioFile.o my_utils.o logstream.o migration-qa_$(VERSION) man/migrationQA.8
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(STATIC) logstream.o my_utils.o AudioFile.o migrationQA.cpp -o migrationQA $(LDFLAGS) $(FFTW3_LIBS) $(BOOST_LIBS)
+	strip migrationQA
+	gzip --best -c man/migrationQA.8 > migrationQA.8.gz
+	equivs-build migration-qa_$(VERSION)
+	lintian migration-qa_$(VERSION)_amd64.deb
 
 #spectrum: spectrum.cpp cross_correlation.h AudioFile.o my_utils.o logstream.o
 #	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(STATIC) logstream.o my_utils.o AudioFile.o spectrum.cpp -o spectrum $(LDFLAGS) $(FFTW3_LIBS) $(BOOST_LIBS)
