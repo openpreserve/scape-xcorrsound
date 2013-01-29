@@ -1,17 +1,17 @@
-#include <vector>
 #include <complex>
-#include "stdint.h"
-#include <iostream>
-#include "logstream.h"
-#include "my_utils.h"
-#include <fstream>
-#include <sstream>
 #include <cstdlib>
-
-#include "cross_correlation.h"
-#include "AudioFile.h"
+#include <fstream>
+#include <iostream>
+#include "stdint.h"
+#include <sstream>
+#include <vector>
 
 #include "boost/program_options.hpp"
+
+#include "AudioFile.h"
+#include "cross_correlation.h"
+#include "logstream.h"
+#include "my_utils.h"
 
 using namespace std;
 
@@ -115,7 +115,7 @@ void init(int argc, char *argv[]) {
 	exit(0);
     }
     if (vm.count("version")) {
-	//printVersion();
+	printVersion();
 	exit(0);
     }
     if (vm.count("info")) {
@@ -145,7 +145,7 @@ void init(int argc, char *argv[]) {
 }
 
 pair<int64_t, double> 
-compareBlock(proxyFFT<short, double> &aFFT, proxyFFT<short, double> &bFFT,
+compareBlock(proxyFFT<int16_t, double> &aFFT, proxyFFT<int16_t, double> &bFFT,
 	     vector<uint64_t> &aSquarePrefixSum, vector<uint64_t> &bSquarePrefixSum) {
 
     vector<complex<double> > result;
@@ -199,8 +199,8 @@ int main(int argc, char *argv[]) {
     double firstMaxVal = 0.0;
     int64_t firstOffset = 0;
 
-    for (int block = 1; !done; ++block) {
-	vector<short> aSamples, bSamples;
+    for (size_t block = 1; !done; ++block) {
+	vector<int16_t> aSamples, bSamples;
 	vector<uint64_t> aSquarePrefixSum, bSquarePrefixSum;
 	vector<complex<double> > result;
 
@@ -212,50 +212,34 @@ int main(int argc, char *argv[]) {
 	    break;
 	}
 
-
 	prefixSquareSum(aSamples, aSquarePrefixSum);
 	prefixSquareSum(bSamples, bSquarePrefixSum);
 
 	// we count the average of absolute values 
-	// if the average is close to 0, then we must have silence
-	//size_t zeroSamplesA = 0; size_t zeroSamplesB = 0;
+	// if the average is close to 0, then we decide it is silence
+
 	size_t absSumA = 0; size_t absSumB = 0;
 	bool silence = false;
 	for (size_t i = 0; i < aSamples.size(); ++i) {
 	    absSumA += (aSamples[i]>=0)?aSamples[i]:-aSamples[i];
-	    // if (aSamples[i] == 0) {
-	    // 	++zeroSamplesA;
-	    // }
 	}
 	for (size_t i = 0; i < bSamples.size(); ++i) {
 	    absSumA += (aSamples[i]>=0)?aSamples[i]:-aSamples[i];
-	    // if (bSamples[i] == 0) {
-	    // 	++zeroSamplesB;
-	    // }
-
 	}
-
-	if (static_cast<double>(absSumA)/aSamples.size() <= 2.0 && static_cast<double>(absSumB)/bSamples.size() <= 2.0) {
+	
+	double avgA = static_cast<double>(absSumA)/aSamples.size();
+	double avgB = static_cast<double>(absSumB)/bSamples.size();
+	if (avgA <= 2.0 && avgB <= 2.0) {
 	    silence = true;
 	}
 
 	bool compare = !silence;
 
-
-	// double ratioA = (zeroSamplesA+0.0)/(aSamples.size()+0.0);
-	// double ratioB = (zeroSamplesB+0.0)/(bSamples.size()+0.0);
-	
-	// if ((ratioA > 0.3) && (ratioB > 0.3)) { // if more than 30% of
-	// 					// both of them is
-	// 					// zero, it is silence
-	// 					// - dont compare
-	//     compare = false;
-	// }
 	int64_t maxIdx = -1; double maxVal = -1.0;
 
 	if (compare) {
-	    proxyFFT<short, double> aFFT(aSamples);
-	    proxyFFT<short, double> bFFT(bSamples);
+	    proxyFFT<int16_t, double> aFFT(aSamples);
+	    proxyFFT<int16_t, double> bFFT(bSamples);
 
 	    pair<int64_t, double> tmp = compareBlock(aFFT, bFFT, aSquarePrefixSum, bSquarePrefixSum);
 
@@ -274,15 +258,16 @@ int main(int argc, char *argv[]) {
 		firstMaxVal = maxVal;
 		firstOffset = maxIdx;
 	    } else {
-		if (maxIdx - firstOffset > 500 || firstOffset - maxIdx > 500) { // check to see that the offset between blocks is not too large.
-		    //done = true;
+		if (maxIdx - firstOffset > 500 || firstOffset - maxIdx > 500) {
+		    // check to see that the offset between blocks is not too large.
 		    success = false;
 		    blockFailure = block;
 		}
 	    }
 	}
 
-	if (aSamples.size() < samplesPr5Seconds || bSamples.size() < samplesPr5Seconds) { // we don't check the last block. This should be fixed somehow.
+	if (aSamples.size() < samplesPr5Seconds || bSamples.size() < samplesPr5Seconds) { 
+	    // we don't check the last block. Is this ok?
 	    done = true;
 	}
 	if (verbose) {
