@@ -1,4 +1,4 @@
-.TH migrationQA 1  "January 9, 2013" "version 0.9" "USER COMMANDS"
+.TH migrationQA 8  "January 9, 2013" "version 0.9" "USER COMMANDS"
 .SH NAME
 migrationQA \- A tool to identify duplicate audio files at the waveform level
 .SH SYNOPSIS
