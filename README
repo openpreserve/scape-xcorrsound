@@ -2,12 +2,11 @@
 
 This package contains several tools.
  - xcorrSound is a tool to find the overlap between two audio files.
- - soundMatch is a tool to find all occurences of a shorter wav within a larger wav
  - migrationQA is a tool that splits two audio files into equal sized blocks and outputs the correlation for each block (a_i,b_i), if a and b was the input.
 
 The tools all make use of cross correlation, which can be computed through the fourier transform.
 
-Note that all the tools will need access to write to a file called <tool>.log where various information about a run will be stored.
+Note that all the tools will need write access to a file called <tool>.log where various information about a run will be stored.
 
 INSTALL
 
@@ -15,11 +14,11 @@ INSTALL
 
     ./install.sh
 
-    This will install the fftw3 library.
+    This will install the fftw3 library and other dependencies
 
     Depending on which tool is needed, run
     make <tool>
-    where <tool> is either "xcorrSound", "soundMatch" or "migrationQA" (quotes for clarity)
+    where <tool> is either "xcorrSound" or "migrationQA" (quotes for clarity)
 
 
 USE
