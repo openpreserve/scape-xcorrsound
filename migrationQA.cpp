@@ -28,7 +28,7 @@ void printUsage() {
 }
 
 void printVersion() {
-
+    cout << "migrationQA version 0.1.0" << endl;
 }
 
 void printInfo() {
