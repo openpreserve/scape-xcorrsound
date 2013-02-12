@@ -38,6 +38,9 @@ test_my_fingerprint : my_database.o my_fingerprint.o my_query.o test_my_fingerpr
 most_significant : most_significant.cpp ../AudioFile.o ../my_utils.o ../my_utils.h
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) most_significant.cpp -o ms $(FFTW3_LIBS) $(LDFLAGS) -std=c++0x
 
+another : lets_try_again.cpp ../AudioFile.o ../my_utils.o ../my_utils.h
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) lets_try_again.cpp -o another $(FFTW3_LIBS) $(LDFLAGS) -std=c++0x
+
 test : test.cc
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) test.cc -o test $(FFTW3_LIBS) $(LDFLAGS)
 
