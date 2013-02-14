@@ -1,0 +1,20 @@
+Source: scape-xcorrsound
+Section: unknown
+Priority: extra
+Maintainer: Asger Askov Blekinge <abr@statsbiblioteket.dk>
+Build-Depends: debhelper (>= 8.0.0), libc6, libboost-program-options-dev, libfftw3-dev
+Standards-Version: 3.9.3
+Homepage: https://github.com/openplanets/scape-xcorrsound
+Vcs-Git: git://github.com/openplanets/scape-xcorrsound.git
+#Vcs-Browser: http://git.debian.org/?p=collab-maint/scape-xcorrsound.git;a=summary
+
+Package: scape-xcorrsound
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>
+
+Package: scape-xcorrsound-doc
+Architecture: all
+Description: documentation for scape-xcorrsound
+ <insert long description, indented with spaces>

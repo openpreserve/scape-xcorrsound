@@ -15,7 +15,7 @@ OBJECT_FILES := my_utils.o
 VERSION = 0.9
 
 
-all: xcorrSound
+all: sound-match xcorrSound waveform-compare 
 
 clean:
 	rm -rf *.o xcorrSound test_cross soundMatch waveform-compare data *.deb *.gz
@@ -48,9 +48,4 @@ test_cross : test_cross.cpp
 waveform-compare : waveform-compare.cpp cross_correlation.h AudioFile.o my_utils.o logstream.o 
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(STATIC) logstream.o my_utils.o AudioFile.o waveform-compare.cpp -o waveform-compare $(LDFLAGS)
 
-debian : scape-xcorrsound_$(VERSION) sound-match xcorrSound waveform-compare man/waveform-compare.1
-	gzip --best -c man/waveform-compare.1 > waveform-compare.1.gz
-	equivs-build  scape-xcorrsound_$(VERSION)
-	lintian scape-xcorrsound_$(VERSION)_*.deb
-
-.PHONY : all clean fftw
+.PHONY : all clean
