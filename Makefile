@@ -50,7 +50,7 @@ migrationQA : migrationQA.cpp cross_correlation.h AudioFile.o my_utils.o logstre
 
 migrationQA.deb : migrationQA migration-qa_$(VERSION) man/migrationQA.8
 	gzip --best -c man/migrationQA.8 > migrationQA.8.gz
-	equivs-build migration-qa_$(VERSION)
+	equivs-build -f migration-qa_$(VERSION)
 	lintian migration-qa_$(VERSION)_*.deb
 
 #spectrum: spectrum.cpp cross_correlation.h AudioFile.o my_utils.o logstream.o
