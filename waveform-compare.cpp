@@ -17,18 +17,18 @@ using namespace std;
 
 namespace po = boost::program_options;
 
-logstream ls(5, "migrationQA.log");
+logstream ls(5, "waveform-compare.log");
 
 string input1, input2;
 bool verbose;
 
 
 void printUsage() {
-    cout << "Usage: ./migrationQA <first.wav> <second.wav>" << endl << endl;
+    cout << "Usage: waveform-compare <first.wav> <second.wav>" << endl << endl;
 }
 
 void printVersion() {
-    cout << "migrationQA version 0.1.0" << endl;
+    cout << "waveform-compare version 0.1.0" << endl;
 }
 
 void printInfo() {

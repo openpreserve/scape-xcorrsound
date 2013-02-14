@@ -18,7 +18,7 @@ VERSION = 0.9
 all: xcorrSound
 
 clean:
-	rm -rf *.o xcorrSound test_cross soundMatch migrationQA data *.deb *.gz
+	rm -rf *.o xcorrSound test_cross soundMatch waveform-compare data *.deb *.gz
 
 my_utils.o : my_utils.cpp my_utils.h
 	$(CXX) -v
@@ -39,18 +39,18 @@ xcorrSound : $(OBJECT_FILES) xcorrSound.o logstream.o
 AudioFile.o : AudioFile.h AudioFile.cpp AudioStream.h my_utils.o
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(STATIC) -c AudioFile.cpp -o AudioFile.o
 
-soundMatch : AudioStream.h AudioFile.o sound_match.cpp my_utils.o
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) $(STATIC) AudioFile.o sound_match.cpp -o sound_match $(LDFLAGS)
+sound-match : AudioStream.h AudioFile.o sound_match.cpp my_utils.o
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) $(STATIC) AudioFile.o sound_match.cpp -o sound-match $(LDFLAGS)
 
 test_cross : test_cross.cpp
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(STATIC) test_cross.cpp -o test_cross $(LDFLAGS)
 
-migrationQA : migrationQA.cpp cross_correlation.h AudioFile.o my_utils.o logstream.o 
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(STATIC) logstream.o my_utils.o AudioFile.o migrationQA.cpp -o migrationQA $(LDFLAGS)
+waveform-compare : waveform-compare.cpp cross_correlation.h AudioFile.o my_utils.o logstream.o 
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(STATIC) logstream.o my_utils.o AudioFile.o waveform-compare.cpp -o waveform-compare $(LDFLAGS)
 
-migrationQA.deb : migrationQA migration-qa_$(VERSION) man/migrationQA.8
-	gzip --best -c man/migrationQA.8 > migrationQA.8.gz
-	equivs-build -f migration-qa_$(VERSION)
-	lintian migration-qa_$(VERSION)_*.deb
+debian : scape-xcorrsound_$(VERSION) sound-match xcorrSound waveform-compare man/waveform-compare.1
+	gzip --best -c man/waveform-compare.1 > waveform-compare.1.gz
+	equivs-build  scape-xcorrsound_$(VERSION)
+	lintian scape-xcorrsound_$(VERSION)_*.deb
 
 .PHONY : all clean fftw
