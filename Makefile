@@ -53,7 +53,4 @@ migrationQA.deb : migrationQA migration-qa_$(VERSION) man/migrationQA.8
 	equivs-build -f migration-qa_$(VERSION)
 	lintian migration-qa_$(VERSION)_*.deb
 
-#spectrum: spectrum.cpp cross_correlation.h AudioFile.o my_utils.o logstream.o
-#	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(STATIC) logstream.o my_utils.o AudioFile.o spectrum.cpp -o spectrum $(LDFLAGS) $(FFTW3_LIBS) $(BOOST_LIBS)
-
 .PHONY : all clean fftw

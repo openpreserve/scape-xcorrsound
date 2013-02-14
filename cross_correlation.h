@@ -2,11 +2,13 @@
 #define CROSS_CORRELATION_GUARD
 
 #include <algorithm>
-#include <fftw3.h>
-#include <vector>
-#include <iterator>
 #include <complex>
 #include <iostream>
+#include <iterator>
+#include <vector>
+
+#include <boost/type_traits.hpp>
+#include <fftw3.h>
 
 template<typename T1, typename T2>
 struct proxyFFT {
@@ -17,10 +19,16 @@ struct proxyFFT {
     
     proxyFFT(std::vector<T1> &array) : _array(array), _computed(false) {};
 
-    proxyFFT(typename std::vector<T1>::iterator begin, typename std::vector<T1>::iterator end) : _computed(false) {
-	_array.clear();
-	_array.insert(_array.end(), begin, end);
-    };
+    template<typename iter>
+    proxyFFT(iter begin, iter end) : _computed(false) {
+	typedef typename std::iterator_traits<iter>::value_type vt;
+	if (boost::is_same<vt, T1>::value) { // not strictly necessary
+	    _array.clear();
+	    _array.insert(_array.end(), begin, end);
+	} else {
+	    // report an error..
+	}
+    }
 
     void transform() {
 	if (_computed) return;
@@ -156,7 +164,6 @@ void cross_correlation(in_type *a1, in_type *a2, size_t a1_size, size_t a2_size,
 
     out.resize(std::min(a1_size,a2_size));
     for (size_t i = 0; i < out.size(); ++i) {
-	//out[i] = complex_type(out3[i][0]/out.size(),out3[i][1]);
 	out[i] = out_type(out3[i][0]/out.size()/2,out3[i][1]);
     }
     fftw_free(out3);
