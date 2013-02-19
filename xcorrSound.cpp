@@ -86,7 +86,7 @@ void printUsage() {
     cout << "3: information" << endl;
     cout << "4: warning" << endl;
     cout << "5: debug" << endl;
-    cout << "Logging information will be appended to the file xcorr.log" << endl;
+    cout << "Logging information will be appended to the file xcorrSound.log" << endl;
     exit(1);
 }
 
@@ -94,11 +94,11 @@ void read_header(wav_header &header, ifstream &f) {
     f.seekg(0);
     unsigned char *buffer = new unsigned char[12];
     f.read((char*)buffer,12);
-    for (int i = 0; i < 4; ++i) {
+    for (size_t i = 0; i < 4; ++i) {
 	header.ChunkID[i] = buffer[i];
     }
     header.ChunkSize = convertFourBytesToInt(buffer[4], buffer[5], buffer[6], buffer[7]);
-    for (int i = 8; i < 12; ++i) {
+    for (size_t i = 8; i < 12; ++i) {
 	header.Format[i-8] = buffer[i];
     }
     delete[] buffer;
@@ -109,7 +109,7 @@ void read_subchunk(wav_subchunk &subchunk, ifstream &f) {
     char *buffer = new char[32];
     f.read((char*)buffer,32);
 
-    for (int i = 0; i < 4; ++i) {
+    for (size_t i = 0; i < 4; ++i) {
 	subchunk.Subchunk1ID[i] = buffer[i];
     }
 
@@ -121,7 +121,7 @@ void read_subchunk(wav_subchunk &subchunk, ifstream &f) {
     subchunk.BlockAlign = convertTwoBytesToShort(buffer[20],buffer[21]);
     subchunk.BitsPerSample = convertTwoBytesToShort(buffer[22],buffer[23]);
 
-    for (int i = 24; i < 28; ++i) {
+    for (size_t i = 24; i < 28; ++i) {
 	subchunk.Subchunk2ID[i-24] = buffer[i];
     }
     
@@ -129,13 +129,13 @@ void read_subchunk(wav_subchunk &subchunk, ifstream &f) {
 
 }
 
-void readAudioFile(char *buffer, short* arr, ifstream &f, int size, int start) {
+void readAudioFile(char *buffer, int16_t* arr, ifstream &f, size_t size, size_t start) {
     f.seekg(start);
-    f.read(buffer,size); 
+    f.read(buffer,size);
     convertCharArrayToShort(buffer, arr, size);
 }
 
-void prefixSum(short * a, ll *spa, size_t size) {
+void prefixSum(int16_t * a, ll *spa, size_t size) {
     spa[0] = a[0]*a[0];
     spa[1] = a[1]*a[1];
     for (size_t i = 2; i < size; i += 2) {
@@ -147,7 +147,7 @@ void prefixSum(short * a, ll *spa, size_t size) {
 /**
  * ...
  */
-double computeNormFactor(ll *spa1, ll *spa2, int j, size_t a1Size, size_t a2Size) {
+double computeNormFactor(ll *spa1, ll *spa2, size_t j, size_t a1Size, size_t a2Size) {
     // still using left samples.
     ll a1End = spa1[a1Size-2];
     ll a1Start = 0;
@@ -170,7 +170,7 @@ double computeNormFactor(ll *spa1, ll *spa2, int j, size_t a1Size, size_t a2Size
     return ans;
 }
 
-void xcorr_new(short *a1, short *a2, size_t a1Size, size_t a2Size, vector<complex_type> &out) {
+void xcorr_new(int16_t *a1, int16_t *a2, size_t a1Size, size_t a2Size, vector<complex_type> &out) {
     fftw_complex *in1,*in2, *in3, *out1, *out2, *out3;
     fftw_plan p1,p2,p3;
 
@@ -213,7 +213,7 @@ void xcorr_new(short *a1, short *a2, size_t a1Size, size_t a2Size, vector<comple
 
     fftw_free(in2);
 
-    for (int i = 0; i < min(a1Size,a2Size)/2; ++i) {
+    for (size_t i = 0; i < min(a1Size,a2Size)/2; ++i) {
 	in3[i][0] = out1[i][0] * out2[i][0] + out1[i][1] * out2[i][1];
 	in3[i][1] = -out1[i][0] * out2[i][1] + out1[i][1] * out2[i][0];
     }
@@ -237,7 +237,7 @@ void xcorr_new(short *a1, short *a2, size_t a1Size, size_t a2Size, vector<comple
     fftw_free(out3);
 }
 
-void doWork(short *a1, short *a2, size_t a1Size, size_t a2Size, size_t a1PaddingSize, size_t toAdd, bool outputGraph = false) {
+void doWork(int16_t *a1, int16_t *a2, size_t a1Size, size_t a2Size, size_t a1PaddingSize, size_t toAdd, bool outputGraph = false) {
 
     vector<complex_type > cross(min(a1Size,a2Size)/2, complex_type(0.0,0.0));
 
@@ -322,34 +322,34 @@ void doFromFile(int argc, char *argv[]) {
     f1.open(file1.c_str(), ifstream::binary);
     f2.open(file2.c_str(), ifstream::binary);
 
-    wav_header *header1 = new wav_header, *header2 = new wav_header;
-    wav_subchunk *subchunk1 = new wav_subchunk, *subchunk2 = new wav_subchunk;
-    read_header(*header1,f1);
-    read_subchunk(*subchunk1,f1);
+    wav_header header1, header2;
+    wav_subchunk subchunk1, subchunk2;
+    read_header(header1,f1);
+    read_subchunk(subchunk1,f1);
 
-    read_header(*header2,f2);
-    read_subchunk(*subchunk2,f2);
+    read_header(header2,f2);
+    read_subchunk(subchunk2,f2);
 
-    header1->print();
-    subchunk1->print();
+    header1.print();
+    subchunk1.print();
 
-    header2->print();
-    subchunk2->print();
+    header2.print();
+    subchunk2.print();
 
-    if (subchunk1->SampleRate != subchunk2->SampleRate) {
+    if (subchunk1.SampleRate != subchunk2.SampleRate) {
 	ls << log_fatal() << "Sample rates differ, exiting." << endl;
 	exit(1);
     }
 
-    hz = subchunk1->SampleRate;
+    hz = subchunk1.SampleRate;
 
-    int a1Size = getFilesize(file1)-44;
-    int a2Size = getFilesize(file2)-44;
+    size_t a1Size = getFilesize(file1)-44; // assume file is more than 44 bytes
+    size_t a2Size = getFilesize(file2)-44;
 
-    int sz = min(a1Size,a2Size);
+    size_t sz = min(a1Size,a2Size);
 
     char *buffer = new char[sz];
-    short *a1 = new short[sz];
+    int16_t *a1 = new int16_t[sz];
 
     ls << log_debug() << "reading file 1" << endl;
 
@@ -357,7 +357,7 @@ void doFromFile(int argc, char *argv[]) {
     delete[] buffer;
 
     buffer = new char[sz];
-    short *a2 = new short[sz];
+    int16_t *a2 = new int16_t[sz];
 
     ls << log_debug() << "reading file 2" << endl;
 
