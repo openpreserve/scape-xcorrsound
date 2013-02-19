@@ -85,8 +85,8 @@ uint32_t convertFourBytesToInt(unsigned char a, unsigned char b, unsigned char c
     return res;
 }
 
-void convertCharArrayToShort(char* arr, short* arr2, int arraySize) {
-    for (int i = 0; i < arraySize; i += 4) {
+void convertCharArrayToShort(char* arr, short* arr2, size_t arraySize) {
+    for (size_t i = 0; i < arraySize; i += 4) {
 	arr2[i/2] = convertTwoBytesToShort(arr[i],arr[i+1]);
 	arr2[i/2+1] = convertTwoBytesToShort(arr[i+2],arr[i+3]);
     }
