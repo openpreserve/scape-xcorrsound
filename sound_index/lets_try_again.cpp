@@ -14,6 +14,8 @@
 
 #include "../AudioFile.h"
 #include "computeFFT.h"
+#include "db_wrapper.h"
+#include "FingerprintInfo.h"
 
 using namespace std;
 
@@ -29,15 +31,10 @@ size_t JUMP = 512;
 size_t FREQUENCY_RANGES[] = {512, 1024, 1536, 2048};
 //                        215   430  700  1076
 //                         344  689  1033  1378  
-struct FingerprintInfo {
-    size_t fileId;  // always fits in 32 bits
-    int64_t offset; // always fits in 32 bits.
 
-    FingerprintInfo(size_t fileId, int64_t offset) : fileId(fileId), offset(offset) {};
-
-};
-
-map<size_t, vector<FingerprintInfo> > db;
+//map<size_t, vector<FingerprintInfo> > db;
+char dbFile[] = "/media/Big_disk/index_files/test.db";
+db_wrapper db(dbFile);
 
 size_t timeDiff(timeval &tvStart, timeval &tvEnd) {
     size_t elapsedMS = (tvEnd.tv_usec + tvEnd.tv_sec*1000000) - (tvStart.tv_usec + tvStart.tv_sec*1000000);
@@ -100,7 +97,7 @@ size_t computeFingerprint(vector<complex<double> > &spectrogram, size_t timeSlic
 vector<FingerprintInfo> query(const string filename) {
     AudioFile a(filename.c_str());
     vector<int16_t> samples;
-    a.getSamplesForChannel(0, samples);  
+    a.getSamplesForChannel(0, samples);
 
     //vector<vector<complex<double> > > spectrogram;
     //computeSpectrogram(samples, spectrogram);
@@ -110,12 +107,11 @@ vector<FingerprintInfo> query(const string filename) {
     for (size_t timeSlice = 0; timeSlice < samples.size() / JUMP; ++timeSlice) {
 	vector<complex<double> > spectrogram; computeSpectrogram(samples, spectrogram, timeSlice);
 	size_t fp = computeFingerprint(spectrogram, timeSlice);
-	if (db.count(fp)) {
-	    vector<FingerprintInfo> tmp(db[fp]);
-	    for (size_t i = 0; i < tmp.size(); ++i) {		
-		results.push_back(make_pair(tmp[i], timeSlice*JUMP));
-		fileIds.insert(tmp[i].fileId);
-	    }
+	vector<FingerprintInfo> tmp;
+	db.query(fp, tmp);
+	for (size_t i = 0; i < tmp.size(); ++i) {		
+	    results.push_back(make_pair(tmp[i], timeSlice*JUMP));
+	    fileIds.insert(tmp[i].fileId);
 	}
     }
 
@@ -168,161 +164,26 @@ void insert_file(const string filename, size_t fileId) {
     //vector<vector<complex<double> > > spectrogram;
     //computeSpectrogram(samples, spectrogram);
 
-    // compute most significant feature in 5 frequency ranges
+    // compute most significant feature in 4 frequency ranges
     // for all time slices.
-
+    
+    vector<pair<size_t, FingerprintInfo> > data;
+    fingerprintCounter += samples.size() / JUMP;
     for (size_t timeSlice = 0; timeSlice < samples.size()/JUMP; ++timeSlice) {
-
 	vector<complex<double> > spectrogram; computeSpectrogram(samples, spectrogram, timeSlice);
 	FingerprintInfo info(fileId, timeSlice * JUMP);
 	size_t fingerprint = computeFingerprint(spectrogram, timeSlice);
-	if (db.count(fingerprint) > 0) {
-	    db[fingerprint].push_back(info);
-	} else {
-	    db.insert(make_pair(fingerprint, vector<FingerprintInfo>(1, info)));
-	}
-	++fingerprintCounter;
+	data.push_back(make_pair(fingerprint, info));
     }
-}
-
-void writeDBToDisk(const char *filename) {
-    uint32_t headerLength = 4; // bytes
-    uint32_t numberOfFiles = static_cast<uint32_t>(files.size());
-    for (size_t i = 0; i < numberOfFiles; ++i) {
-	headerLength += files[i].size() + 4;
-    }
-
-    char buffer[1024*1024*2]; //2mb buffer for I/O
-    size_t pos = 0;
-    FILE * f = fopen(filename, "w");
-
-    // write header.
-    memcpy(buffer + pos, &headerLength, sizeof(uint32_t));
-    pos += sizeof(uint32_t);
-    memcpy(buffer + pos, &numberOfFiles, sizeof(uint32_t));
-    pos += sizeof(uint32_t);
-    for (size_t i = 0; i < numberOfFiles; ++i) {
-	if (pos + files[i].size() + 4 >= 1024*1024*2) {
-	    // flush
-	    fwrite(buffer, 1, pos, f);
-	    pos = 0;
-	}
-	uint32_t length = static_cast<uint32_t>(files[i].size());
-	memcpy(buffer + pos, &length, sizeof(uint32_t));
-	pos += sizeof(uint32_t);
-	const char *str = files[i].c_str();
-	memcpy(buffer + pos, str, length);
-	pos += length;
-    }
-
-    typedef map<size_t, vector<FingerprintInfo> >::iterator dbIter_t;
-
-    for (dbIter_t it = db.begin(); it != db.end(); ++it) {
-	for (size_t i = 0; i < it->second.size(); ++i) {
-	    // Fingerprintinfo requires 64 bits = 8 bytes
-	    // the fingerprint requires 32 bits = 4 bytes
-	    if (pos + 8 + 4 >= 1024*1024*2) {
-		// flush
-		fwrite(buffer, 1, pos, f);
-		pos = 0;
-	    }
-	    uint32_t fp = it->first;
-	    uint64_t info = it->second[i].fileId;
-
-	    info = info << 32;
-	    info += it->second[i].offset;
-	    memcpy(buffer + pos, &(fp), sizeof(fp));
-	    pos += sizeof(fp);
-	    memcpy(buffer + pos, &(info), sizeof(info));
-	    pos += sizeof(info);
-	}
-	
-    }
-
-    if (pos > 0) {
-	// flush
-	fwrite(buffer, 1, pos, f);
-    }
-
-    fclose(f);
-}
-
-void loadFromDisk(const char *filename) {
-    FILE *f = fopen(filename, "r");
-
-    size_t read = 0;
-
-    // first we parse the header information.
-    // read first 4 bytes to get the length of the header.
-    uint32_t headerLength = 0;
-    read = fread(&headerLength, 4, 1, f);
-    if (read < 4) {
-	// error handling.
-    }
-
-    char * header = new char[headerLength];
-    size_t headerPos = 0;
-    read = fread(header, 1, headerLength, f);
-    if (read < headerLength) {
-	// error handling. File is not in correct format or missing pieces.
-    }
-
-    uint32_t numberOfFiles;
-    memcpy(&numberOfFiles, header, sizeof(uint32_t));
-    headerPos += sizeof(uint32_t);
-
-    for (size_t i = 0; i < numberOfFiles; ++i) {
-	uint32_t filenameLength = 0;
-	memcpy(&filenameLength, header + headerPos, sizeof(uint32_t));
-	headerPos += sizeof(uint32_t);
-	auto_ptr<char> aFilename(new char[filenameLength]);
-	char * filename = aFilename.get();
-	memcpy(filename, header + headerPos, filenameLength);
-	headerPos += filenameLength;
-	files.push_back(std::string(filename));
-
-    }
-
-    delete[] header;
-
-    size_t sizeOfElmts = 4 + 8; // bytes: 4 for fingerprint, 8 for 'fileId+offset'.
-
-    char * buffer = new char[1024*1024*sizeOfElmts];
-    size_t pos = 0;
-
-    do {
-	read = fread(buffer, sizeOfElmts, 1024*1024, f);
-	for (size_t i = 0; i < read; ++i) {
-	    uint64_t fingerprint;
-	    size_t index;
-	    memcpy(&fingerprint, buffer + i*sizeOfElmts, 4);
-	    memcpy(&index, buffer + i*sizeOfElmts + 4, 8);
-	    size_t fileId = index >> 32;
-	    size_t offset = index & 0xFFFFFFFF;
-	    
-	    FingerprintInfo info(fileId, offset);
-
-	    if (db.count(fingerprint) > 0) {
-		db[fingerprint].push_back(info);
-	    } else {
-		db.insert(make_pair(fingerprint, vector<FingerprintInfo>(1, info)));
-	    }
-	    ++fingerprintCounter;
-
-	}
-    } while (read == 1024*1024);
-
-    fclose(f);
-    delete[] buffer;
-
+    db.bulk_insert(data);
 }
 
 int main(int argc, char *argv[]) {
     timeval dbBuildStart, dbBuildEnd, queryStart, queryEnd;
     size_t elapsedSeconds;
-/*
-    size_t numDBFiles = atoi(argv[1]);
 
+    size_t numDBFiles = atoi(argv[1]);
+/*
     gettimeofday(&dbBuildStart, NULL);
 
     for (size_t arg = 2; arg < numDBFiles+2; ++arg) {
@@ -334,16 +195,15 @@ int main(int argc, char *argv[]) {
     }
     gettimeofday(&dbBuildEnd, NULL);
     elapsedSeconds = timeDiff(dbBuildStart, dbBuildEnd) / 1000000;
-    double ratio = static_cast<double>(fingerprintCounter)/db.size();
+    //double ratio = static_cast<double>(fingerprintCounter)/db.size();
     cout << "Time to build db: " << elapsedSeconds << " seconds" << endl;
-    cout << "Unique fingerprints: " << db.size() << endl;
+    //cout << "Unique fingerprints: " << db.size() << endl;
     cout << "Total fingerprints: " << fingerprintCounter << endl;
-    cout << "Ratio: " << fingerprintCounter << " / " << db.size() << " = " << ratio << endl;
-    writeDBToDisk("test.out");
+    //cout << "Ratio: " << fingerprintCounter << " / " << db.size() << " = " << ratio << endl;
+    //writeDBToDisk("test.out");
+
 */
-    loadFromDisk("test.out");
-    //writeDBToDisk("test2.out");
-    cout << db.size() << endl;
+    //cout << db.size() << endl;
     // REPL
     while (1) {
 	string x;

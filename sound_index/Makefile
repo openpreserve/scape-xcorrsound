@@ -13,12 +13,24 @@ BOOST_LIBS = -lboost_program_options
 STATIC = -static-libgcc -static-libstdc++ -static
 CXX=g++
 
-OBJECT_FILES = ../my_utils.o ../AudioFile.o my_fingerprint.o my_database.o my_query.o
+OBJECT_FILES = ../my_utils.o ../AudioFile.o my_fingerprint.o my_database.o my_query.o db_wrapper_sqlite.o
 
 all : testfingerprint
 
+another : lets_try_again.cpp ../AudioFile.o ../my_utils.o ../my_utils.h db_wrapper.h db_wrapper_sqlite.o
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) sqlite/sqlite3.o lets_try_again.cpp -o another $(FFTW3_LIBS) $(LDFLAGS) -lpthread -ldl -std=c++0x
+
 clean :
 	rm -rf *.o testfingerprint test_my_fingerprint
+
+db_wrapper_sqlite.o : db_wrapper.h db_wrapper_sqlite.cpp sqlite/sqlite3.h
+	$(CXX) $(CXXFLAGS) -c db_wrapper_sqlite.cpp -o db_wrapper_sqlite.o
+
+ismir_impl : ../AudioFile.o ../my_utils.o ../my_utils.h ismir_impl.cc
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) ismir_impl.cc -o ismir_impl $(FFTW3_LIBS) $(LDFLAGS)
+
+most_significant : most_significant.cpp ../AudioFile.o ../my_utils.o ../my_utils.h
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) most_significant.cpp -o ms $(FFTW3_LIBS) $(LDFLAGS) -std=c++0x
 
 my_database.o : my_database.h my_database.cpp my_fingerprint.h ../AudioFile.h
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c my_database.cpp $(LDFLAGS)
@@ -29,22 +41,14 @@ my_fingerprint.o : my_fingerprint.cpp my_fingerprint.h
 my_query.o : my_query.cpp my_query.h ../my_utils.h
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c my_query.cpp $(FFTW3_LIBS) $(LDFLAGS)
 
-testfingerprint : testfingerprint.cpp fingerprint.h ../AudioFile.o ../my_utils.o
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) testfingerprint.cpp -o testfingerprint $(FFTW3_LIBS) $(LDFLAGS)
+test : test.cc
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) test.cc -o test $(FFTW3_LIBS) $(LDFLAGS)
 
 test_my_fingerprint : my_database.o my_fingerprint.o my_query.o test_my_fingerprint.cpp ../AudioFile.o ../my_utils.o ../my_utils.h
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) test_my_fingerprint.cpp -o test_my_fingerprint $(FFTW3_LIBS) $(LDFLAGS)
 
-most_significant : most_significant.cpp ../AudioFile.o ../my_utils.o ../my_utils.h
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) most_significant.cpp -o ms $(FFTW3_LIBS) $(LDFLAGS) -std=c++0x
+testfingerprint : testfingerprint.cpp fingerprint.h ../AudioFile.o ../my_utils.o
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) testfingerprint.cpp -o testfingerprint $(FFTW3_LIBS) $(LDFLAGS)
 
-another : lets_try_again.cpp ../AudioFile.o ../my_utils.o ../my_utils.h
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) lets_try_again.cpp -o another $(FFTW3_LIBS) $(LDFLAGS) -std=c++0x
-
-test : test.cc
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) test.cc -o test $(FFTW3_LIBS) $(LDFLAGS)
-
-ismir_impl : ../AudioFile.o ../my_utils.o ../my_utils.h ismir_impl.cc
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) ismir_impl.cc -o ismir_impl $(FFTW3_LIBS) $(LDFLAGS)
 
 .PHONY : clean
