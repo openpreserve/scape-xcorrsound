@@ -87,6 +87,7 @@ void printUsage() {
     cout << "4: warning" << endl;
     cout << "5: debug" << endl;
     cout << "Logging information will be appended to the file overlap-analysis.log" << endl;
+    cout << "Make sure the process has write access to that file." << endl;
     exit(1);
 }
 
@@ -135,6 +136,14 @@ void readAudioFile(char *buffer, int16_t* arr, ifstream &f, size_t size, size_t 
     convertCharArrayToShort(buffer, arr, size);
 }
 
+/**
+ * input a is dual channel array, every even entry is channel 0 and
+ * every odd entry is from channel 1
+ *
+ * Output is also a dual channel array where every even entry is the
+ * sum of the square of each previous even entry in a. Similarly for
+ * odd entries.
+ */
 void prefixSum(int16_t * a, ll *spa, size_t size) {
     spa[0] = a[0]*a[0];
     spa[1] = a[1]*a[1];
@@ -170,6 +179,10 @@ double computeNormFactor(ll *spa1, ll *spa2, size_t j, size_t a1Size, size_t a2S
     return ans;
 }
 
+/**
+ * Computes the cross correlation between a1 and a2 using fourier
+ * transformations.
+ */
 void xcorr_new(int16_t *a1, int16_t *a2, size_t a1Size, size_t a2Size, vector<complex_type> &out) {
     fftw_complex *in1,*in2, *in3, *out1, *out2, *out3;
     fftw_plan p1,p2,p3;
