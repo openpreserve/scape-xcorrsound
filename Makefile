@@ -15,10 +15,10 @@ OBJECT_FILES := my_utils.o
 VERSION = 0.9
 
 
-all: sound-match xcorrSound waveform-compare 
+all: sound-match overlap-analysis waveform-compare 
 
 clean:
-	rm -rf *.o xcorrSound test_cross soundMatch waveform-compare data *.deb *.gz
+	rm -rf *.o overlap-analysis test_cross soundMatch waveform-compare data *.deb *.gz
 
 my_utils.o : my_utils.cpp my_utils.h
 	$(CXX) -v
@@ -27,14 +27,14 @@ my_utils.o : my_utils.cpp my_utils.h
 cross_correlation : cross_correlation.h
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS)  $(STATIC) cross_correlation_test.cpp -o cross_correlation_test  $(LDFLAGS) 
 
-xcorrSound.o : xcorrSound.cpp
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(STATIC) -c xcorrSound.cpp -o xcorrSound.o
+overlap-analysis.o : overlap-analysis.cpp
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(STATIC) -c overlap-analysis.cpp -o overlap-analysis.o
 
 logstream.o : logstream.h logstream.cpp
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(STATIC) -c logstream.cpp -o logstream.o
 
-xcorrSound : $(OBJECT_FILES) xcorrSound.o logstream.o
-	$(CXX) $(CXXFLAGS) $(STATIC) -m64 logstream.o my_utils.o xcorrSound.o -o xcorrSound $(LDFLAGS) 
+overlap-analysis : $(OBJECT_FILES) overlap-analysis.o logstream.o
+	$(CXX) $(CXXFLAGS) $(STATIC) -m64 logstream.o my_utils.o overlap-analysis.o -o overlap-analysis $(LDFLAGS) 
 
 AudioFile.o : AudioFile.h AudioFile.cpp AudioStream.h my_utils.o
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(STATIC) -c AudioFile.cpp -o AudioFile.o

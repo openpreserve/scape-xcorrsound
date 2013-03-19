@@ -29,7 +29,7 @@ using namespace std;
 
 int hz, channels;
 
-logstream ls(3, "xcorrSound.log");
+logstream ls(3, "overlap-analysis.log");
 
 struct wav_header {
     unsigned char ChunkID[4];
@@ -79,14 +79,14 @@ struct wav_subchunk {
 
 void printUsage() {
     cout << "Usage:" << endl;
-    cout << "./xcorrSound <file1> <file2> [v<log level>]" << endl;
+    cout << "./overlap-analysis <file1> <file2> [v<log level>]" << endl;
     cout << "Log levels:" << endl;
     cout << "1: fatal" << endl;
     cout << "2: errors" << endl;
     cout << "3: information" << endl;
     cout << "4: warning" << endl;
     cout << "5: debug" << endl;
-    cout << "Logging information will be appended to the file xcorrSound.log" << endl;
+    cout << "Logging information will be appended to the file overlap-analysis.log" << endl;
     exit(1);
 }
 
