@@ -21,10 +21,11 @@ logstream ls(5, "waveform-compare.log");
 
 string input1, input2;
 bool verbose;
-
+uint32_t secondsPrBlock = 5;
 
 void printUsage() {
-    cout << "Usage: waveform-compare <first.wav> <second.wav>" << endl << endl;
+    cout << "Usage: waveform-compare <first.wav> <second.wav> [--block-size=N]" << endl;
+    cout << "Where N is the (integer) number of seconds pr block. By default N=5." << endl << endl;
 }
 
 void printVersion() {
@@ -82,7 +83,6 @@ void printInfo() {
 
 void init(int argc, char *argv[]) {
 
-
     po::options_description generic("Program options");
     generic.add_options()
 	("help,h", "Print help message")
@@ -94,6 +94,7 @@ void init(int argc, char *argv[]) {
     po::options_description hidden("Hidden options");
     hidden.add_options()
 	("input-files", po::value<vector<string> >(), "Input files, there must be exactly 2")
+	("block-size", po::value<int32_t>(), "block size in seconds (must be integer) when comparing, default is 5")
 	;
     
     po::positional_options_description positional;
@@ -127,6 +128,12 @@ void init(int argc, char *argv[]) {
 	verbose = true;
     } else {
 	verbose = false;
+    }
+
+    if (vm.count("block-size")) {
+	int32_t block_size = vm["block-size"].as<int32_t>();
+	secondsPrBlock = block_size;
+	cout << "TEST" << endl;
     }
 
     if (vm.count("input-files")) {
@@ -183,11 +190,11 @@ int main(int argc, char *argv[]) {
     AudioFile a(input1.c_str());
     AudioFile b(input2.c_str());
 
-    //cross correlate 5 seconds at a time.
-    
-    uint32_t samplesPr5Seconds = a.getSampleRate() * 5;
+    //cross correlate 2 seconds at a time.
+
+    uint32_t samplesPr5Seconds = a.getSampleRate() * secondsPrBlock;
     ls << log_debug() << "samples a: " << samplesPr5Seconds << endl;
-    ls << log_debug() << "samples b: " << b.getSampleRate() * 5 << endl;
+    ls << log_debug() << "samples b: " << b.getSampleRate() * secondsPrBlock << endl;
     AudioStream aStream = a.getStream(0);
     AudioStream bStream = b.getStream(0);
 
@@ -224,14 +231,17 @@ int main(int argc, char *argv[]) {
 	    absSumA += (aSamples[i]>=0)?aSamples[i]:-aSamples[i];
 	}
 	for (size_t i = 0; i < bSamples.size(); ++i) {
-	    absSumA += (aSamples[i]>=0)?aSamples[i]:-aSamples[i];
+	    absSumB += (bSamples[i]>=0)?bSamples[i]:-bSamples[i];
 	}
 	
 	double avgA = static_cast<double>(absSumA)/aSamples.size();
 	double avgB = static_cast<double>(absSumB)/bSamples.size();
-	if (avgA <= 2.0 && avgB <= 2.0) {
+
+	if (avgA <= 5.0 && avgB <= 5.0) {
 	    silence = true;
-	}
+	} else if (avgA <= 5.0 || avgB <= 5.0) {
+	    success = false;
+	} 
 
 	bool compare = !silence;
 
@@ -276,7 +286,7 @@ int main(int argc, char *argv[]) {
 	    } else if (silence) {
 		cout << "block " << block << ": " << "silence" << endl;
 	    }
-	} 
+	}
     }
 
     if (success) {
