@@ -19,13 +19,19 @@ namespace po = boost::program_options;
 
 logstream ls(5, "waveform-compare.log");
 
+// input parameters
 string input1, input2;
 bool verbose;
-uint32_t secondsPrBlock = 5;
+uint32_t secondsPrBlock = 1;
+uint32_t channel = 0;
+double threshold = 0.97;
 
 void printUsage() {
-    cout << "Usage: waveform-compare <first.wav> <second.wav> [--block-size=N]" << endl;
-    cout << "Where N is the (integer) number of seconds pr block. By default N=5." << endl << endl;
+    cout << "Usage: waveform-compare <first.wav> <second.wav> [--block-size=N] [--threshold=X]" << endl;
+    cout << "Where N is the (integer) number of seconds pr block and X is the threshold in" << endl;
+    cout << "[0,1]. By default N=5 and X=0.98. Optionally the channel to compare can be" << endl;
+    cout << "specified as --channel=k where k is the channel number (i.e. 0 would be the left channel)." << endl;
+    cout << "By default k=0" << endl << endl;
 }
 
 void printVersion() {
@@ -94,7 +100,9 @@ void init(int argc, char *argv[]) {
     po::options_description hidden("Hidden options");
     hidden.add_options()
 	("input-files", po::value<vector<string> >(), "Input files, there must be exactly 2")
-	("block-size", po::value<int32_t>(), "block size in seconds (must be integer) when comparing, default is 5")
+	("block-size", po::value<int32_t>(), "Block size in seconds (must be integer) when comparing, default is 5")
+	("threshold", po::value<double>(), "Threshold value, default 0.98")
+	("channel", po::value<int32_t>(), "Channel, default 0")
 	;
     
     po::positional_options_description positional;
@@ -133,7 +141,14 @@ void init(int argc, char *argv[]) {
     if (vm.count("block-size")) {
 	int32_t block_size = vm["block-size"].as<int32_t>();
 	secondsPrBlock = block_size;
-	cout << "TEST" << endl;
+    }
+
+    if (vm.count("threshold")) {
+	threshold = vm["threshold"].as<double>();
+    }
+
+    if (vm.count("channel")) {
+	channel = vm["channel"].as<int32_t>();
     }
 
     if (vm.count("input-files")) {
@@ -190,13 +205,18 @@ int main(int argc, char *argv[]) {
     AudioFile a(input1.c_str());
     AudioFile b(input2.c_str());
 
-    //cross correlate 2 seconds at a time.
+    if (channel >= a.getNumberOfChannels() || channel >= b.getNumberOfChannels()) {
+	ls << log_error() << "Error, channel not available" << endl;
+	return 1;
+    }
 
-    uint32_t samplesPr5Seconds = a.getSampleRate() * secondsPrBlock;
-    ls << log_debug() << "samples a: " << samplesPr5Seconds << endl;
+    //cross correlate x seconds at a time.
+
+    uint32_t samplesPrBlock = a.getSampleRate() * secondsPrBlock;
+    ls << log_debug() << "samples a: " << samplesPrBlock << endl;
     ls << log_debug() << "samples b: " << b.getSampleRate() * secondsPrBlock << endl;
-    AudioStream aStream = a.getStream(0);
-    AudioStream bStream = b.getStream(0);
+    AudioStream aStream = a.getStream(channel);
+    AudioStream bStream = b.getStream(channel);
 
     bool done = false;
     bool first = true;
@@ -211,10 +231,10 @@ int main(int argc, char *argv[]) {
 	vector<uint64_t> aSquarePrefixSum, bSquarePrefixSum;
 	vector<complex<double> > result;
 
-	aStream.read(samplesPr5Seconds, aSamples);
-	bStream.read(samplesPr5Seconds, bSamples);
+	aStream.read(samplesPrBlock, aSamples);
+	bStream.read(samplesPrBlock, bSamples);
 
-	if (aSamples.size() < samplesPr5Seconds/2 || bSamples.size() < samplesPr5Seconds) {
+	if (aSamples.size() < samplesPrBlock/2 || bSamples.size() < samplesPrBlock) {
 	    // not enough samples for another reliable check.
 	    break;
 	}
@@ -268,7 +288,7 @@ int main(int argc, char *argv[]) {
 		firstMaxVal = maxVal;
 		firstOffset = maxIdx;
 	    } else {
-		if (maxIdx - firstOffset > 500 || firstOffset - maxIdx > 500) {
+		if (maxIdx - firstOffset > 500 || firstOffset - maxIdx > 500 || maxVal < threshold) {
 		    // check to see that the offset between blocks is not too large.
 		    success = false;
 		    blockFailure = block;
@@ -276,7 +296,7 @@ int main(int argc, char *argv[]) {
 	    }
 	}
 
-	if (aSamples.size() < samplesPr5Seconds || bSamples.size() < samplesPr5Seconds) { 
+	if (aSamples.size() < samplesPrBlock || bSamples.size() < samplesPrBlock) { 
 	    // we don't check the last block. Is this ok?
 	    done = true;
 	}
@@ -291,9 +311,11 @@ int main(int argc, char *argv[]) {
 
     if (success) {
 	cout << "Success" << endl;
+	cout << "Offset: " << firstOffset << endl;
 	return 0;
     } else {
 	cout << "Failure" << endl;
+	cout << "Block: " << blockFailure << endl;
 	return 1;
 	/*
 	cout << "block " << blockFailure << ":" << endl;
