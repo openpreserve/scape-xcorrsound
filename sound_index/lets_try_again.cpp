@@ -183,13 +183,14 @@ int main(int argc, char *argv[]) {
     size_t elapsedSeconds;
 
     size_t numDBFiles = atoi(argv[1]);
-/*
+
     gettimeofday(&dbBuildStart, NULL);
 
     for (size_t arg = 2; arg < numDBFiles+2; ++arg) {
 	char *x = argv[arg];
 	cout << "Processing file " << arg-1 << " ... " << flush;
-    	insert_file(x, arg-1);
+	int32_t fileId = db.insert_file(string(x));
+    	insert_file(x, fileId);
 	files.push_back(string(x));
 	cout << "Done" << endl;
     }
@@ -202,7 +203,7 @@ int main(int argc, char *argv[]) {
     //cout << "Ratio: " << fingerprintCounter << " / " << db.size() << " = " << ratio << endl;
     //writeDBToDisk("test.out");
 
-*/
+
     //cout << db.size() << endl;
     // REPL
     while (1) {

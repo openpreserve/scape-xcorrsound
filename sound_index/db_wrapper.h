@@ -15,6 +15,7 @@ public:
     int insert(size_t fingerprint, FingerprintInfo &info);
     int bulk_insert(std::vector<std::pair<size_t, FingerprintInfo> > &data);
     int query(size_t fingerprint, std::vector<FingerprintInfo> &result);
+    uint32_t insert_file(std::string filename);
 };
 
 #endif

@@ -10,6 +10,7 @@
 #include "FingerprintInfo.h"
 
 #include "sqlite/sqlite3.h"
+
 namespace {
     sqlite3 *db;
 }
@@ -138,3 +139,48 @@ int db_wrapper::query(size_t fingerprint, std::vector<FingerprintInfo> &result) 
     return 0;
 }
 
+/**
+ * This method is susceptible to injections. Please make sure filename is 'safe'
+ */
+uint32_t db_wrapper::insert_file(std::string filename) {
+    {
+	sqlite3_stmt *ppStmt;
+	char sql[1024] = "\0";
+	sprintf(sql, "select fileId from files where filename like '%s'", filename.c_str());
+
+	if (SQLITE_OK != sqlite3_prepare_v2(db, sql, -1, &ppStmt, 0)) {
+	    std::cout << "Well here's an error..." << std::endl;
+	    //error handling
+	}
+
+	uint32_t fileId = 0;
+	if (sqlite3_step(ppStmt) != SQLITE_DONE) {
+	    fileId = sqlite3_column_int(ppStmt,0);
+	    sqlite3_finalize(ppStmt);
+	    return fileId;
+	}
+	sqlite3_finalize(ppStmt);
+    }
+
+    sqlite3_stmt *ppStmt;
+    char sql[1024] = "\0";
+    sprintf(sql, "insert into files (filename) VALUES ('%s')", filename.c_str());
+
+    if (SQLITE_OK != sqlite3_prepare_v2(db, sql, -1, &ppStmt, 0)) {
+	std::cout << "Well here's an error..." << std::endl;
+	//error handling
+    }
+
+    uint32_t fileId = 0;
+    int rc;
+    if (SQLITE_DONE != (rc = sqlite3_step(ppStmt))) {
+    	// error handling
+    	std::cout << "something went wrong. Error code: " << rc << std::endl;
+    	std::cout << sqlite3_errmsg(db) << std::endl;
+    }
+    fileId = sqlite3_last_insert_rowid(db);
+
+    sqlite3_finalize(ppStmt);
+
+    return fileId;
+}
