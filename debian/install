@@ -1,2 +1,5 @@
 waveform-compare /usr/bin/
+sound-match /usr/bin/
+overlap-analysis /usr/bin/
+
 

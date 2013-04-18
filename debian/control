@@ -12,13 +12,9 @@ Package: scape-xcorrsound
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Perform analysis on wave files by cross correlation 
-  This is a package of the toolsuite scape-xcorrsound. It contains three tools
-  waveform-compare: Compare two wave files to determine if they represent the same waveforms
-  sound-match: find the location of a small wavefile inside a big wavefile
-  xcorrSound: find the overlap between two wave files
+ This is a package of the toolsuite scape-xcorrsound. It contains three tools
+ waveform-compare: Compare two wave files to determine if they represent the
+ same waveforms
+ sound-match: find the location of a small wavefile inside a big wavefile
+ xcorrSound: find the overlap between two wave files
 
-
-Package: scape-xcorrsound-doc
-Architecture: all
-Description: documentation for scape-xcorrsound
- <insert long description, indented with spaces>
