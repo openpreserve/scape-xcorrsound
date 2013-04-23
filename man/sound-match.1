@@ -1,0 +1,18 @@
+.TH sound-match 1  "January 9, 2013" "version 0.9" "USER COMMANDS"
+.SH NAME
+waveform-compare \- A tool to identify duplicate audio files at the waveform level
+.SH SYNOPSIS
+.B waveform-compare file1.wav file2.wav
+
+.SH DESCRIPTION
+waveform-compare is a tool that splits two audio files into equal sized blocks and outputs the correlation for each block (a_i,b_i), if a and b was the input.
+
+The tools all make use of cross correlation, which can be computed through the fourier transform.
+
+Note that all the tools will need access to write to a file called <tool>.log where various information about a run will be stored.
+
+
+.SH EXIT STATUS
+waveform-compare returns 0 if the files was found to be identical. It will return nonzero otherwise
+.SH AUTHOR
+Jesper Sindahl Nielsen <jsn@statsbiblioteket.dk>
