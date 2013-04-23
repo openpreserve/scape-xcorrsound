@@ -206,8 +206,8 @@ int main(int argc, char *argv[]) {
     AudioFile b(input2.c_str());
 
     if (channel >= a.getNumberOfChannels() || channel >= b.getNumberOfChannels()) {
-	ls << log_error() << "Error, channel not available" << endl;
-	return 1;
+		ls << log_error() << "Error, channel not available" << endl;
+		return 1;
     }
 
     //cross correlate x seconds at a time.
@@ -279,20 +279,24 @@ int main(int argc, char *argv[]) {
 	    tmp = compareBlock(bFFT, aFFT, bSquarePrefixSum, aSquarePrefixSum);
 	
 	    if (tmp.second > maxVal + 1e-6) {
-		maxIdx = -tmp.first;
-		maxVal = tmp.second;
+			maxIdx = -tmp.first;
+			maxVal = tmp.second;
 	    }
 
 	    if (first) {
-		first = false;
-		firstMaxVal = maxVal;
-		firstOffset = maxIdx;
+			first = false;
+			firstMaxVal = maxVal;
+			firstOffset = maxIdx;
+			if (firstMaxVal < threshold) {
+				success = false;
+				blockFailure = block;
+			}
 	    } else {
-		if (maxIdx - firstOffset > 500 || firstOffset - maxIdx > 500 || maxVal < threshold) {
-		    // check to see that the offset between blocks is not too large.
-		    success = false;
-		    blockFailure = block;
-		}
+			if (maxIdx - firstOffset > 500 || firstOffset - maxIdx > 500 || maxVal < threshold) {
+				// check to see that the offset between blocks is not too large.
+				success = false;
+				blockFailure = block;
+			}
 	    }
 	}
 
@@ -310,18 +314,18 @@ int main(int argc, char *argv[]) {
     }
 
     if (success) {
-	cout << "Success" << endl;
-	cout << "Offset: " << firstOffset << endl;
-	return 0;
+		cout << "Success" << endl;
+		cout << "Offset: " << firstOffset << endl;
+		return 0;
     } else {
-	cout << "Failure" << endl;
-	cout << "Block: " << blockFailure << endl;
-	return 1;
-	/*
-	cout << "block " << blockFailure << ":" << endl;
-	cout << "Time: " << getTimestampFromSeconds(blockFailure*5-5) << " - " 
-	     << getTimestampFromSeconds(blockFailure*5) << " did not match properly" << endl;
-	*/
+		cout << "Failure" << endl;
+		cout << "Block: " << blockFailure << endl;
+		return 1;
+		/*
+		  cout << "block " << blockFailure << ":" << endl;
+		  cout << "Time: " << getTimestampFromSeconds(blockFailure*5-5) << " - " 
+		  << getTimestampFromSeconds(blockFailure*5) << " did not match properly" << endl;
+		*/
     }
-
+	
 }

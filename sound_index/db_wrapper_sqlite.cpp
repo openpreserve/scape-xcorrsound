@@ -22,7 +22,7 @@ std::string db_wrapper::getFilename(size_t id) {
     sprintf(sql, "select filename from files where fileId = %ld", id);
     
     if (SQLITE_OK != sqlite3_prepare_v2(db, sql, -1, &ppStmt, 0)) {
-		std::cout << "Well here's an error..." << std::endl;
+		std::cout << "Well here's an error (1)..." << std::endl;
 		//error handling
     }
 
@@ -42,8 +42,20 @@ db_wrapper::db_wrapper(char dbFile[]) {
     int returnCode = sqlite3_open(dbFile, &db);
     
     if (returnCode != SQLITE_OK) {
-	std::cout << "Database connection unsuccesful" << std::endl;
+		std::cout << "Database connection unsuccesful" << std::endl;
+		return;
     }
+	
+	sqlite3_stmt *ppStmt;
+	std::stringstream ss;
+	ss << "PRAGMA main.cache_size = 262144;";
+	const char* sql = ss.str().c_str();
+	int rc;
+	if (SQLITE_OK != (rc = sqlite3_prepare_v2(db, sql, -1, &ppStmt, 0))) {
+		//error handling.
+	}
+	
+	sqlite3_finalize(ppStmt);
 
 }
 
@@ -59,16 +71,16 @@ int db_wrapper::insert(size_t fingerprint, FingerprintInfo &info) {
     const char * sql = ss.str().c_str();
     int rc;
     if (SQLITE_OK != (rc = sqlite3_prepare_v2(db, sql, -1, &ppStmt, 0))) {
-	// error handling
-	std::cout << "something went wrong. Error code: " << rc << std::endl;
-	std::cout << ss.str() << std::endl;
-	std::cout << sqlite3_errmsg(db) << std::endl;
+		// error handling
+		std::cout << "something went wrong. Error code: " << rc << std::endl;
+		std::cout << ss.str() << std::endl;
+		std::cout << sqlite3_errmsg(db) << std::endl;
     }
 
     if (SQLITE_DONE != (rc = sqlite3_step(ppStmt))) {
-	std::cout << "something else went wrong. Error code: " << rc << std::endl;
-	std::cout << sqlite3_errmsg(db) << std::endl;
-	// error handling
+		std::cout << "something else went wrong. Error code: " << rc << std::endl;
+		std::cout << sqlite3_errmsg(db) << std::endl;
+		// error handling
     }
 
     sqlite3_finalize(ppStmt);
@@ -143,16 +155,16 @@ int db_wrapper::query(size_t fingerprint, std::vector<FingerprintInfo> &result) 
     sprintf(sql, "select * from fingerprints where fingerprint = %ld", fingerprint);
     
     if (SQLITE_OK != sqlite3_prepare_v2(db, sql, -1, &ppStmt, 0)) {
-	std::cout << "Well here's an error..." << std::endl;
-	//error handling
+		std::cout << "Well here's an error (2)..." << std::endl;
+		//error handling
     }
 
     while (sqlite3_step(ppStmt) != SQLITE_DONE) {
-	uint32_t fingerprint = sqlite3_column_int(ppStmt, 0);
-	int32_t offset = sqlite3_column_int(ppStmt, 1);
-	int32_t fileId = sqlite3_column_int(ppStmt, 2);
-	FingerprintInfo info(fileId, offset);
-	result.push_back(info);
+		uint32_t fingerprint = sqlite3_column_int(ppStmt, 0);
+		int32_t offset = sqlite3_column_int(ppStmt, 1);
+		int32_t fileId = sqlite3_column_int(ppStmt, 2);
+		FingerprintInfo info(fileId, offset);
+		result.push_back(info);
     }
 
     sqlite3_finalize(ppStmt);
@@ -170,7 +182,7 @@ uint32_t db_wrapper::insert_file(std::string filename) {
 	sprintf(sql, "select fileId from files where filename like '%s'", filename.c_str());
 
 	if (SQLITE_OK != sqlite3_prepare_v2(db, sql, -1, &ppStmt, 0)) {
-	    std::cout << "Well here's an error..." << std::endl;
+	    std::cout << "Well here's an error (3)..." << std::endl;
 	    //error handling
 	}
 
@@ -188,7 +200,7 @@ uint32_t db_wrapper::insert_file(std::string filename) {
     sprintf(sql, "insert into files (filename) VALUES ('%s')", filename.c_str());
 
     if (SQLITE_OK != sqlite3_prepare_v2(db, sql, -1, &ppStmt, 0)) {
-	std::cout << "Well here's an error..." << std::endl;
+	std::cout << "Well here's an error (4)..." << std::endl;
 	//error handling
     }
 

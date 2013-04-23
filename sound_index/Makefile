@@ -1,19 +1,14 @@
-fftw_includedir = /usr/include
-#/home/jsn/Documents/abekat/scape-xcorrsound/trunk/fftw/include
-fftw_libdir = /usr/lib/x86_64-linux-gnu/
-#/home/jsn/Documents/abekat/scape-xcorrsound/trunk/fftw/lib
-BOOST_DIR = /usr/include/boost
-BOOST_LIB = /usr/lib/
-DEBUG_FLAGS = -ggdb
+#DEBUG_FLAGS = -ggdb
+DEBUG_FLAGS = 
 PRODUCTION_FLAGS = -O2
-CPPFLAGS = -I$(fftw_includedir) -I $(BOOST_DIR)
+CPPFLAGS = -m64
 #CXXFLAGS = -Wall $(DEBUG_FLAGS)
-CXXFLAGS = $(PRODUCTION_FLAGS)
-LDFLAGS = -L$(fftw_libdir) -L$(BOOST_LIB) $(FFTW3_LIBS)
+CXXFLAGS = -Wall -pedantic $(PRODUCTION_FLAGS)
 FFTW3_LIBS = -lfftw3
 BOOST_LIBS = -lboost_program_options
+LDFLAGS = -Wl,$(FFTW3_LIBS),$(BOOST_LIBS),-s,--as-needed
 STATIC = -static-libgcc -static-libstdc++ -static
-CXX=g++
+CXX=/usr/bin/g++
 
 OBJECT_FILES = ../my_utils.o ../AudioFile.o my_fingerprint.o my_database.o my_query.o db_wrapper_sqlite.o
 

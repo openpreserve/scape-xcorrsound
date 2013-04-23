@@ -1,33 +1,29 @@
 !!!WORK IN PROGRESS!!!
 
-This package contains several tools.
- - xcorrSound is a tool to find the overlap between two audio files.
- - migrationQA is a tool that splits two audio files into equal sized blocks and outputs the correlation for each block (a_i,b_i), if a and b was the input.
+The xcorrSound package contains several tools.
+ - overlap-analysis is a tool to find the overlap between two audio files.
+ - waveform-compare is a tool that splits two audio files into equal sized blocks and outputs the correlation for each block (a_i,b_i), if a and b was the input.
 
-The tools all make use of cross correlation, which can be computed through the fourier transform.
+The tools all make use of cross correlation, which can be computed through the Fourier transform.
 
 Note that all the tools will need write access to a file called <tool>.log where various information about a run will be stored.
 
 INSTALL
 
-    Run
-
-    ./install.sh
-
-    This will install the fftw3 library and other dependencies
+    The tools depend on FFTW3 and Boost program options. These can be found as debian packages.
 
     Depending on which tool is needed, run
     make <tool>
-    where <tool> is either "xcorrSound" or "migrationQA" (quotes for clarity)
+    where <tool> is either "overlap-analysis" or "waveform-compare" (quotes for clarity)
 
 
 USE
 
-Example: xcorrSound
+Example: overlap-analysis
 
 Syntax:
 
-xcorrSound ANALYSIS_FILE_1.wav ANALYSIS_FILE_2.wav
+overlap-analysis <file1.wav> <file2.wav> [v<log level>]
 
 Output example:
 
