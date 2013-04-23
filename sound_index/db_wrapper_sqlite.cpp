@@ -2,6 +2,7 @@
 #include <iostream>
 #include <utility>
 #include <sstream>
+#include <string>
 #include <vector>
 
 #include "stdint.h"
@@ -13,6 +14,26 @@
 
 namespace {
     sqlite3 *db;
+}
+
+std::string db_wrapper::getFilename(size_t id) {
+    sqlite3_stmt *ppStmt;
+    char sql[256] = "\0";
+    sprintf(sql, "select filename from files where fileId = %ld", id);
+    
+    if (SQLITE_OK != sqlite3_prepare_v2(db, sql, -1, &ppStmt, 0)) {
+		std::cout << "Well here's an error..." << std::endl;
+		//error handling
+    }
+
+	if (sqlite3_step(ppStmt) != SQLITE_DONE) {
+		std::string filename = ((char*)sqlite3_column_text(ppStmt, 0));
+		sqlite3_finalize(ppStmt);
+		return filename;
+	} else {
+		sqlite3_finalize(ppStmt);
+		return std::string("");
+	}
 }
 
 db_wrapper::db_wrapper(char dbFile[]) {

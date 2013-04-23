@@ -3,6 +3,7 @@
 
 #include <utility>
 #include <vector>
+#include <string>
 
 #include "FingerprintInfo.h"
 
@@ -16,6 +17,7 @@ public:
     int bulk_insert(std::vector<std::pair<size_t, FingerprintInfo> > &data);
     int query(size_t fingerprint, std::vector<FingerprintInfo> &result);
     uint32_t insert_file(std::string filename);
+    std::string getFilename(size_t id);
 };
 
 #endif

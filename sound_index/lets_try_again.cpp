@@ -16,6 +16,7 @@
 #include "computeFFT.h"
 #include "db_wrapper.h"
 #include "FingerprintInfo.h"
+#include "../my_utils.h"
 
 using namespace std;
 
@@ -33,7 +34,8 @@ size_t FREQUENCY_RANGES[] = {512, 1024, 1536, 2048};
 //                         344  689  1033  1378  
 
 //map<size_t, vector<FingerprintInfo> > db;
-char dbFile[] = "/media/Big_disk/index_files/test.db";
+//char dbFile[] = "/media/jsn/Big_disk/index_files/test.db";
+char dbFile[] = "ny.db";
 db_wrapper db(dbFile);
 
 size_t timeDiff(timeval &tvStart, timeval &tvEnd) {
@@ -47,7 +49,7 @@ void computeSpectrogram(vector<int16_t> &samples, vector<complex<double> > &spec
     size_t start = timeSlice * JUMP;
     vector<int16_t> input(FRAME_SZ, 0);
     for (size_t i = start; i < start + FRAME_SZ; ++i) {
-	input[i-start] = samples[i];
+		input[i-start] = samples[i];
     }
     computeFFT(input, spectrogram);
 }
@@ -59,10 +61,10 @@ size_t getFingerprint(vector<size_t> &max_freqs) {
     // this is only for reducing bit usage.
 
     for (size_t i = 0; i < max_freqs.size(); ++i) {
-	//fp += ((max_freqs[i] - (max_freqs[i]%2))>>1); // should be modulo 4
-	if (i > 0) fp = fp << 8;
+		//fp += ((max_freqs[i] - (max_freqs[i]%2))>>1); // should be modulo 4
+		if (i > 0) fp = fp << 8;
 
-	fp += ((max_freqs[i] & 511)>>1);
+		fp += ((max_freqs[i] & 511)>>1);
     }
     if (fp > (1LL<<32)) cout << fp << endl;
     return fp;
@@ -78,16 +80,16 @@ size_t computeFingerprint(vector<complex<double> > &spectrogram, size_t timeSlic
     vector<size_t> max_frequency(4, 0);
     for (size_t freq = 0; freq < FRAME_SZ; ++freq) {
 	
-	if (abs(spectrogram[freq]) > max_amplitude[bucket]) {
-	    max_amplitude[bucket] = abs(spectrogram[freq]);
-	    max_frequency[bucket] = freq; 
-	}
+		if (abs(spectrogram[freq]) > max_amplitude[bucket]) {
+			max_amplitude[bucket] = abs(spectrogram[freq]);
+			max_frequency[bucket] = freq; 
+		}
 
-	for (size_t i = 1; i < 4; ++i) {
-	    if (freq >= FREQUENCY_RANGES[i-1] && freq <= FREQUENCY_RANGES[i]) {
-		bucket = i;
-	    }
-	}
+		for (size_t i = 1; i < 4; ++i) {
+			if (freq >= FREQUENCY_RANGES[i-1] && freq <= FREQUENCY_RANGES[i]) {
+				bucket = i;
+			}
+		}
 
     }
     //cout << max_frequency[3] << endl;
@@ -101,55 +103,56 @@ vector<FingerprintInfo> query(const string filename) {
 
     //vector<vector<complex<double> > > spectrogram;
     //computeSpectrogram(samples, spectrogram);
-
+	size_t JUMP_OLD = JUMP;
+	JUMP = 512;
     vector<pair<FingerprintInfo, size_t> > results;
     set<size_t> fileIds;
     for (size_t timeSlice = 0; timeSlice < samples.size() / JUMP; ++timeSlice) {
-	vector<complex<double> > spectrogram; computeSpectrogram(samples, spectrogram, timeSlice);
-	size_t fp = computeFingerprint(spectrogram, timeSlice);
-	vector<FingerprintInfo> tmp;
-	db.query(fp, tmp);
-	for (size_t i = 0; i < tmp.size(); ++i) {		
-	    results.push_back(make_pair(tmp[i], timeSlice*JUMP));
-	    fileIds.insert(tmp[i].fileId);
-	}
+		vector<complex<double> > spectrogram; computeSpectrogram(samples, spectrogram, timeSlice);
+		size_t fp = computeFingerprint(spectrogram, timeSlice);
+		vector<FingerprintInfo> tmp;
+		db.query(fp, tmp);
+		for (size_t i = 0; i < tmp.size(); ++i) {		
+			results.push_back(make_pair(tmp[i], timeSlice*JUMP));
+			fileIds.insert(tmp[i].fileId);
+		}
     }
-
+	JUMP = JUMP_OLD;
     vector<FingerprintInfo> matches;
 
     sort(results.begin(), results.end(), fileIdComparer);
 
     size_t range = 0;
     for (set<size_t>::iterator fileIterator = fileIds.begin(); fileIterator != fileIds.end(); ++fileIterator) {
-	size_t rangeStart = range;
-	while (results[range].first.fileId == (*fileIterator)) ++range;
-	++range;
-	if (range-rangeStart < 4) continue; //magic constant
+		size_t rangeStart = range;
+		while (results[range].first.fileId == (*fileIterator)) ++range;
+		++range;
+		if (range-rangeStart < 6) continue; //magic constant
 	
-	// compute histogram.
+		// compute histogram.
 
-	map<int64_t, size_t> timehits;
-	for (size_t i = rangeStart; i < range; ++i) {
-	    int64_t deltaTime = results[i].first.offset - results[i].second;
-	    if (timehits.count(deltaTime)) {
-		++timehits[deltaTime];
-	    } else {
-		timehits[deltaTime] = 1;
-	    }
-	}
-
-	for (map<int64_t, size_t>::iterator it = timehits.begin(); it != timehits.end(); ++it) {
-	    if (it->second >= 8) {
-		// report a match.
-		// negative offset means fingerprint matched very early in the db file
-		
-		if (matches.size() > 0) {
-		    if (matches.back().fileId == *fileIterator && (abs(matches.back().offset - it->first)) < 5)
-			continue;
+		map<int64_t, size_t> timehits;
+		for (size_t i = rangeStart; i < range; ++i) {
+			int64_t deltaTime = results[i].first.offset - results[i].second;
+			if (timehits.count(deltaTime)) {
+				++timehits[deltaTime];
+			} else {
+				timehits[deltaTime] = 1;
+			}
 		}
-		matches.push_back(FingerprintInfo(*fileIterator, it->first));
-	    }
-	}
+
+		for (map<int64_t, size_t>::iterator it = timehits.begin(); it != timehits.end(); ++it) {
+			if (it->second >= 8) {
+				// report a match.
+				// negative offset means fingerprint matched very early in the db file
+		
+				if (matches.size() > 0) {
+					if (matches.back().fileId == *fileIterator && (abs(matches.back().offset - it->first)) < 50000)
+						continue;
+				}
+				matches.push_back(FingerprintInfo(*fileIterator, (it->first>=0)?it->first:-(it->first)));
+			}
+		}
     }
 
     return matches;
@@ -170,10 +173,10 @@ void insert_file(const string filename, size_t fileId) {
     vector<pair<size_t, FingerprintInfo> > data;
     fingerprintCounter += samples.size() / JUMP;
     for (size_t timeSlice = 0; timeSlice < samples.size()/JUMP; ++timeSlice) {
-	vector<complex<double> > spectrogram; computeSpectrogram(samples, spectrogram, timeSlice);
-	FingerprintInfo info(fileId, timeSlice * JUMP);
-	size_t fingerprint = computeFingerprint(spectrogram, timeSlice);
-	data.push_back(make_pair(fingerprint, info));
+		vector<complex<double> > spectrogram; computeSpectrogram(samples, spectrogram, timeSlice);
+		FingerprintInfo info(fileId, timeSlice * JUMP);
+		size_t fingerprint = computeFingerprint(spectrogram, timeSlice);
+		data.push_back(make_pair(fingerprint, info));
     }
     db.bulk_insert(data);
 }
@@ -187,12 +190,12 @@ int main(int argc, char *argv[]) {
     gettimeofday(&dbBuildStart, NULL);
 
     for (size_t arg = 2; arg < numDBFiles+2; ++arg) {
-	char *x = argv[arg];
-	cout << "Processing file " << arg-1 << " ... " << flush;
-	int32_t fileId = db.insert_file(string(x));
+		char *x = argv[arg];
+		cout << "Processing file " << arg-1 << ": " << string(x) << " ... " << flush;
+		int32_t fileId = db.insert_file(string(x));
     	insert_file(x, fileId);
-	files.push_back(string(x));
-	cout << "Done" << endl;
+		files.push_back(string(x));
+		cout << "Done" << endl;
     }
     gettimeofday(&dbBuildEnd, NULL);
     elapsedSeconds = timeDiff(dbBuildStart, dbBuildEnd) / 1000000;
@@ -207,18 +210,19 @@ int main(int argc, char *argv[]) {
     //cout << db.size() << endl;
     // REPL
     while (1) {
-	string x;
-	cout << "Enter a query file: ";
-	cin >> x;
-	if (x.size() < 3) continue;
-	gettimeofday(&queryStart, NULL);
-	vector<FingerprintInfo> matches(query(x.c_str()));
-	gettimeofday(&queryEnd, NULL);
-	elapsedSeconds = timeDiff(queryStart, queryEnd);
-	if (matches.size() == 0) { cout << "no matches" << endl; continue; }
-	cout << "query time: " << elapsedSeconds/1000 << " ms" << endl; 
-	for (size_t i = 0; i < matches.size(); ++i) {   
-	    cout << "File: " << matches[i].fileId << " at [in seconds] : " << matches[i].offset / 5512 << endl;
-	}
+		string x;
+		cout << "Enter a query file: ";
+		cin >> x;
+		if (x.size() < 3) continue;
+		gettimeofday(&queryStart, NULL);
+		vector<FingerprintInfo> matches(query(x.c_str()));
+		gettimeofday(&queryEnd, NULL);
+		elapsedSeconds = timeDiff(queryStart, queryEnd);
+		if (matches.size() == 0) { cout << "no matches" << endl; continue; }
+		cout << "query time: " << elapsedSeconds/1000 << " ms" << endl; 
+		for (size_t i = 0; i < matches.size(); ++i) {   
+			//cout << "File: " << db.getFilename(matches[i].fileId) << " at : " << getTimestampFromSeconds(matches[i].offset / 5512) << endl;
+			cout << "File: " << db.getFilename(matches[i].fileId) << " at : " << matches[i].offset / 5512 << endl;
+		}
     }
 }

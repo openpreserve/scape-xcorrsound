@@ -1,5 +1,7 @@
-fftw_includedir = /home/jsn/Documents/abekat/scape-xcorrsound/trunk/fftw/include
-fftw_libdir = /home/jsn/Documents/abekat/scape-xcorrsound/trunk/fftw/lib
+fftw_includedir = /usr/include
+#/home/jsn/Documents/abekat/scape-xcorrsound/trunk/fftw/include
+fftw_libdir = /usr/lib/x86_64-linux-gnu/
+#/home/jsn/Documents/abekat/scape-xcorrsound/trunk/fftw/lib
 BOOST_DIR = /usr/include/boost
 BOOST_LIB = /usr/lib/
 DEBUG_FLAGS = -ggdb
