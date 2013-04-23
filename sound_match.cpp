@@ -1,6 +1,3 @@
-#ifndef SOUND_MATCH_H
-#define SOUND_MATCH_H
-
 #include <vector>
 #include <complex>
 #include <iostream>
@@ -227,6 +224,6 @@ int main(int argc, char **argv) {
 	}
 	std::cout << "matches found starting at time [hh:mm:ss]: " << endl << resStr << std::endl;
     }
+	return 0;
 }
 
-#endif

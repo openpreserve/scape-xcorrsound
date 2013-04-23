@@ -27,11 +27,10 @@ uint32_t channel = 0;
 double threshold = 0.97;
 
 void printUsage() {
-    cout << "Usage: waveform-compare <first.wav> <second.wav> [--block-size=N] [--threshold=X]" << endl;
+    cout << "Usage: waveform-compare <first.wav> <second.wav> [--channel=c] [--block-size=N] [--threshold=X]" << endl;
     cout << "Where N is the (integer) number of seconds pr block and X is the threshold in" << endl;
-    cout << "[0,1]. By default N=5 and X=0.98. Optionally the channel to compare can be" << endl;
-    cout << "specified as --channel=k where k is the channel number (i.e. 0 would be the left channel)." << endl;
-    cout << "By default k=0" << endl << endl;
+    cout << "[0,1] and c is the channel starting from 0. By default N=5, X=0.98 and c = 0." << endl;
+    cout << "Channel c is the channel as specified by the wav format." << endl;
 }
 
 void printVersion() {
