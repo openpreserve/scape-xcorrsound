@@ -4,6 +4,6 @@ scape-xcorrsound for Debian
 This is a package of the toolsuite scape-xcorrsound. It contains three tools
   waveform-compare: Compare two wave files to determine if they represent the same waveforms
   sound-match: find the location of a small wavefile inside a big wavefile
-  xcorrSound: find the overlap between two wave files
+  overlap-analysis: find the overlap between two wave files
 
  -- Asger Askov Blekinge <abr@statsbiblioteket.dk>  Thu, 14 Feb 2013 12:17:27 +0100
