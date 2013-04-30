@@ -3,7 +3,7 @@ Section: sound
 Priority: optional
 Maintainer: Asger Askov Blekinge <abr@statsbiblioteket.dk>
 Build-Depends: debhelper (>= 8.0.0), libc6, libboost-program-options-dev, libfftw3-dev
-Standards-Version: 3.9.3
+Standards-Version: 3.9.1
 Homepage: https://github.com/openplanets/scape-xcorrsound
 Vcs-Git: git://github.com/openplanets/scape-xcorrsound.git
 #Vcs-Browser: http://git.debian.org/?p=collab-maint/scape-xcorrsound.git;a=summary
