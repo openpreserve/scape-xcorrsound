@@ -12,6 +12,11 @@
 
 using namespace std;
 
+size_t timeDiff(timeval &tvStart, timeval &tvEnd) {
+    size_t elapsedMS = (tvEnd.tv_usec + tvEnd.tv_sec*1000000) - (tvStart.tv_usec + tvStart.tv_sec*1000000);
+    return elapsedMS;
+}
+
 int16_t getIntFromChars(uint8_t a, uint8_t b) {
     int16_t res = b;
     res = res << 8;

@@ -100,9 +100,9 @@ void init(int argc, char *argv[]) {
     hidden.add_options()
 	("input-files", po::value<vector<string> >(), "Input files, there must be exactly 2")
 	("block-size", po::value<int32_t>(), "Block size in seconds (must be integer) when comparing, default is 5")
-	("threshold", po::value<double>(), "Threshold value, default 0.98")
-	("channel", po::value<int32_t>(), "Channel, default 0")
-	;
+        ("threshold", po::value<double>(), "Threshold value, default 0.98")
+        ("channel", po::value<int32_t>(), "Channel, default 0")
+        ;
     
     po::positional_options_description positional;
     positional.add("input-files", -1);
@@ -118,56 +118,56 @@ void init(int argc, char *argv[]) {
     po::notify(vm);
 
     if (vm.count("help")) {
-	std::cout << generic << std::endl;
-	printUsage();
-	exit(0);
+        std::cout << generic << std::endl;
+        printUsage();
+        exit(0);
     }
     if (vm.count("version")) {
-	printVersion();
-	exit(0);
+        printVersion();
+        exit(0);
     }
     if (vm.count("info")) {
-	printInfo();
-	exit(0);
+        printInfo();
+        exit(0);
     }
 
     if (vm.count("verbose")) {
-	verbose = true;
+        verbose = true;
     } else {
-	verbose = false;
+        verbose = false;
     }
 
     if (vm.count("block-size")) {
-	int32_t block_size = vm["block-size"].as<int32_t>();
-	secondsPrBlock = block_size;
+        int32_t block_size = vm["block-size"].as<int32_t>();
+        secondsPrBlock = block_size;
     }
 
     if (vm.count("threshold")) {
-	threshold = vm["threshold"].as<double>();
+        threshold = vm["threshold"].as<double>();
     }
 
     if (vm.count("channel")) {
-	channel = vm["channel"].as<int32_t>();
+        channel = vm["channel"].as<int32_t>();
     }
 
     if (vm.count("input-files")) {
-	vector<string> f = vm["input-files"].as<vector<string> >();
-	if (f.size() != 2) {
-	    std::cout << generic << std::endl;
-	    exit(1);
-	}
-	input1 = f[0];
-	input2 = f[1];
+        vector<string> f = vm["input-files"].as<vector<string> >();
+        if (f.size() != 2) {
+            std::cout << generic << std::endl;
+            exit(1);
+        }
+        input1 = f[0];
+        input2 = f[1];
     } else {
-	std::cout << generic << std::endl;
-	exit(1);
+        std::cout << generic << std::endl;
+        exit(1);
     }
 
 }
 
 pair<int64_t, double> 
 compareBlock(proxyFFT<int16_t, double> &aFFT, proxyFFT<int16_t, double> &bFFT,
-	     vector<uint64_t> &aSquarePrefixSum, vector<uint64_t> &bSquarePrefixSum) {
+             vector<uint64_t> &aSquarePrefixSum, vector<uint64_t> &bSquarePrefixSum) {
 
     vector<complex<double> > result;
     pair<int64_t, double> res = make_pair(-1,0.0);
@@ -179,16 +179,16 @@ compareBlock(proxyFFT<int16_t, double> &aFFT, proxyFFT<int16_t, double> &bFFT,
 
     // results are unreliable if there is not enough 'overlap', hence -1000.
     for (size_t i = 0; i < result.size()-1000; ++i) {
-	double val = result[i].real();
-	double norm = computeNormFactor(aSquarePrefixSum, bSquarePrefixSum, 
-					aSquarePrefixSum.begin() + i, aSquarePrefixSum.end(),
-					bSquarePrefixSum.begin(), bSquarePrefixSum.end() - i);
+        double val = result[i].real();
+        double norm = computeNormFactor(aSquarePrefixSum, bSquarePrefixSum, 
+                                        aSquarePrefixSum.begin() + i, aSquarePrefixSum.end(),
+                                        bSquarePrefixSum.begin(), bSquarePrefixSum.end() - i);
 
-	val /= norm;
-	if (val > maxVal + 1e-6) {
-	    maxVal = val;
-	    maxIdx = i;
-	}
+        val /= norm;
+        if (val > maxVal + 1e-6) {
+            maxVal = val;
+            maxIdx = i;
+        }
     }
 
     res.first = maxIdx;
@@ -222,94 +222,99 @@ int main(int argc, char *argv[]) {
     bool success = true;
     size_t blockFailure = 0;
 
+    double blockFailureVal = 0.0;
+    int64_t blockFailureOffset = 0;
+
     double firstMaxVal = 0.0;
     int64_t firstOffset = 0;
 
     for (size_t block = 1; !done; ++block) {
-	vector<int16_t> aSamples, bSamples;
-	vector<uint64_t> aSquarePrefixSum, bSquarePrefixSum;
-	vector<complex<double> > result;
+        vector<int16_t> aSamples, bSamples;
+        vector<uint64_t> aSquarePrefixSum, bSquarePrefixSum;
+        vector<complex<double> > result;
 
-	aStream.read(samplesPrBlock, aSamples);
-	bStream.read(samplesPrBlock, bSamples);
+        aStream.read(samplesPrBlock, aSamples);
+        bStream.read(samplesPrBlock, bSamples);
 
-	if (aSamples.size() < samplesPrBlock/2 || bSamples.size() < samplesPrBlock) {
-	    // not enough samples for another reliable check.
-	    break;
-	}
+        if (aSamples.size() < samplesPrBlock/2 || bSamples.size() < samplesPrBlock) {
+            // not enough samples for another reliable check.
+            break;
+        }
 
-	prefixSquareSum(aSamples, aSquarePrefixSum);
-	prefixSquareSum(bSamples, bSquarePrefixSum);
+        prefixSquareSum(aSamples, aSquarePrefixSum);
+        prefixSquareSum(bSamples, bSquarePrefixSum);
 
-	// we count the average of absolute values 
-	// if the average is close to 0, then we decide it is silence
+        // we count the average of absolute values 
+        // if the average is close to 0, then we decide it is silence
 
-	size_t absSumA = 0; size_t absSumB = 0;
-	bool silence = false;
-	for (size_t i = 0; i < aSamples.size(); ++i) {
-	    absSumA += (aSamples[i]>=0)?aSamples[i]:-aSamples[i];
-	}
-	for (size_t i = 0; i < bSamples.size(); ++i) {
-	    absSumB += (bSamples[i]>=0)?bSamples[i]:-bSamples[i];
-	}
+        size_t absSumA = 0; size_t absSumB = 0;
+        bool silence = false;
+        for (size_t i = 0; i < aSamples.size(); ++i) {
+            absSumA += (aSamples[i]>=0)?aSamples[i]:-aSamples[i];
+        }
+        for (size_t i = 0; i < bSamples.size(); ++i) {
+            absSumB += (bSamples[i]>=0)?bSamples[i]:-bSamples[i];
+        }
 	
-	double avgA = static_cast<double>(absSumA)/aSamples.size();
-	double avgB = static_cast<double>(absSumB)/bSamples.size();
+        double avgA = static_cast<double>(absSumA)/aSamples.size();
+        double avgB = static_cast<double>(absSumB)/bSamples.size();
 
-	if (avgA <= 5.0 && avgB <= 5.0) {
-	    silence = true;
-	} else if (avgA <= 5.0 || avgB <= 5.0) {
-	    success = false;
-	} 
+        if (avgA <= 5.0 && avgB <= 5.0) {
+            silence = true;
+        } else if (avgA <= 5.0 || avgB <= 5.0) {
+            success = false;
+        } 
 
-	bool compare = !silence;
+        bool compare = !silence;
 
-	int64_t maxIdx = -1; double maxVal = -1.0;
+        int64_t maxIdx = -1; double maxVal = -1.0;
 
-	if (compare) {
-	    proxyFFT<int16_t, double> aFFT(aSamples);
-	    proxyFFT<int16_t, double> bFFT(bSamples);
+        if (compare) {
+            proxyFFT<int16_t, double> aFFT(aSamples);
+            proxyFFT<int16_t, double> bFFT(bSamples);
 
-	    pair<int64_t, double> tmp = compareBlock(aFFT, bFFT, aSquarePrefixSum, bSquarePrefixSum);
+            pair<int64_t, double> tmp = compareBlock(aFFT, bFFT, aSquarePrefixSum, bSquarePrefixSum);
 
-	    maxIdx = tmp.first;
-	    maxVal = tmp.second;
+            maxIdx = tmp.first;
+            maxVal = tmp.second;
 
-	    tmp = compareBlock(bFFT, aFFT, bSquarePrefixSum, aSquarePrefixSum);
+            tmp = compareBlock(bFFT, aFFT, bSquarePrefixSum, aSquarePrefixSum);
 	
-	    if (tmp.second > maxVal + 1e-6) {
-			maxIdx = -tmp.first;
-			maxVal = tmp.second;
-	    }
+            if (tmp.second > maxVal + 1e-6) {
+                maxIdx = -tmp.first;
+                maxVal = tmp.second;
+            }
 
-	    if (first) {
-			first = false;
-			firstMaxVal = maxVal;
-			firstOffset = maxIdx;
-			if (firstMaxVal < threshold) {
-				success = false;
-				blockFailure = block;
-			}
-	    } else {
-			if (maxIdx - firstOffset > 500 || firstOffset - maxIdx > 500 || maxVal < threshold) {
-				// check to see that the offset between blocks is not too large.
-				success = false;
-				blockFailure = block;
-			}
-	    }
-	}
+            if (first) {
+                first = false;
+                firstMaxVal = maxVal;
+                firstOffset = maxIdx;
+                if (firstMaxVal < threshold) {
+                    success = false;
+                    blockFailure = block;
+                }
+            } else {
+                if (maxIdx - firstOffset > 500 || firstOffset - maxIdx > 500 || maxVal < threshold) {
+                    // check to see that the offset between blocks is not too large.
+                    success = false;
+                    blockFailure = block;
+                    blockFailureVal = maxVal;
+                    blockFailureOffset = maxIdx;
+                }
+            }
+        }
 
-	if (aSamples.size() < samplesPrBlock || bSamples.size() < samplesPrBlock) { 
-	    // we don't check the last block. Is this ok?
-	    done = true;
-	}
-	if (verbose) {
-	    if (compare) {
-		cout << "block " << block << ": " << maxVal << " " << maxIdx << endl;
-	    } else if (silence) {
-		cout << "block " << block << ": " << "silence" << endl;
-	    }
-	}
+        if (aSamples.size() < samplesPrBlock || bSamples.size() < samplesPrBlock) { 
+            // we don't check the last block. Is this ok?
+            done = true;
+        }
+        if (verbose) {
+            if (compare) {
+                cout << "block " << block << ": " << maxVal << " " << maxIdx << endl;
+            } else if (silence) {
+                cout << "block " << block << ": " << "silence" << endl;
+            }
+        }
     }
 
     if (success) {
@@ -319,6 +324,8 @@ int main(int argc, char *argv[]) {
     } else {
 		cout << "Failure" << endl;
 		cout << "Block: " << blockFailure << endl;
+        cout << "Value in block: " << blockFailureVal << endl;
+        cout << "Offset in block: " << blockFailureOffset << " (normal: " << firstOffset << ")" << endl;
 		return 1;
 		/*
 		  cout << "block " << blockFailure << ":" << endl;

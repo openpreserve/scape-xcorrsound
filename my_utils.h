@@ -13,6 +13,8 @@ uint32_t convertFourBytesToInt(unsigned char a, unsigned char b, unsigned char c
 void convertCharArrayToShort(char* arr, short* arr2, size_t arraySize);
 int16_t getIntFromChars(uint8_t a, uint8_t b);
 int32_t getIntFromChars(uint8_t a, uint8_t b, uint8_t c, uint8_t d);
+size_t timeDiff(timeval &tvStart, timeval &tvEnd);
+
 std::string getTimestampFromSeconds(size_t seconds);
 
 template<typename T1, typename T2> 
