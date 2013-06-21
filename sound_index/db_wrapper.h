@@ -10,7 +10,7 @@
 class db_wrapper {
 
 public:
-    db_wrapper(char dbFile[]);
+    db_wrapper();
     ~db_wrapper();
 
     int insert(size_t fingerprint, FingerprintInfo &info);

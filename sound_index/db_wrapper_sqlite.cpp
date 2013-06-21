@@ -12,6 +12,8 @@
 
 #include "sqlite/sqlite3.h"
 
+char dbFile[] = "ny.db";
+
 namespace {
     sqlite3 *db;
 }
@@ -36,7 +38,7 @@ std::string db_wrapper::getFilename(size_t id) {
 	}
 }
 
-db_wrapper::db_wrapper(char dbFile[]) {
+db_wrapper::db_wrapper() {
 
     char *errMsg = 0;
     int returnCode = sqlite3_open(dbFile, &db);
@@ -100,19 +102,19 @@ int db_wrapper::bulk_insert(std::vector<std::pair<size_t, FingerprintInfo> > &da
 
     for (size_t i = 0; i < data.size(); ++i) {
 
-	sqlite3_bind_int(ppStmt, 1, data[i].first);
-	sqlite3_bind_int(ppStmt, 2, data[i].second.offset);
-	sqlite3_bind_int(ppStmt, 3, data[i].second.fileId);
+		sqlite3_bind_int(ppStmt, 1, data[i].first);
+		sqlite3_bind_int(ppStmt, 2, data[i].second.offset);
+		sqlite3_bind_int(ppStmt, 3, data[i].second.fileId);
 
-	int rc =  sqlite3_step(ppStmt);
+		int rc =  sqlite3_step(ppStmt);
 	
-	if (rc != SQLITE_DONE) {
-	    std::cout << sqlite3_errmsg(db) << std::endl;
-	    std::cout << data[i].second.fileId << std::endl;
-	}
+		if (rc != SQLITE_DONE) {
+			std::cout << sqlite3_errmsg(db) << std::endl;
+			std::cout << data[i].second.fileId << std::endl;
+		}
 
-	sqlite3_clear_bindings(ppStmt);
-	sqlite3_reset(ppStmt);
+		sqlite3_clear_bindings(ppStmt);
+		sqlite3_reset(ppStmt);
 
     }
 

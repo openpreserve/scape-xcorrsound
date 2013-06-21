@@ -35,15 +35,13 @@ size_t FREQUENCY_RANGES[] = {512, 1024, 1536, 2048};
 
 //map<size_t, vector<FingerprintInfo> > db;
 //char dbFile[] = "/media/jsn/Big_disk/index_files/test.db";
-char dbFile[] = "ny.db";
-db_wrapper db(dbFile);
 
-size_t timeDiff(timeval &tvStart, timeval &tvEnd) {
-    size_t elapsedMS = (tvEnd.tv_usec + tvEnd.tv_sec*1000000) - (tvStart.tv_usec + tvStart.tv_sec*1000000);
-    return elapsedMS;
-}
+db_wrapper db;
 
-void computeSpectrogram(vector<int16_t> &samples, vector<complex<double> > &spectrogram, size_t timeSlice) {
+void
+computeSpectrogram(vector<int16_t> &samples, 
+                        vector<complex<double> > &spectrogram, 
+                        size_t timeSlice) {
     spectrogram.clear();
 
     size_t start = timeSlice * JUMP;
@@ -54,7 +52,8 @@ void computeSpectrogram(vector<int16_t> &samples, vector<complex<double> > &spec
     computeFFT(input, spectrogram);
 }
 
-size_t getFingerprint(vector<size_t> &max_freqs) {
+size_t
+getFingerprint(vector<size_t> &max_freqs) {
     size_t fp = 0;
     // each bucket needs 8 bits
     // freq i and i+1 are considered the same if i%2==0.
@@ -70,11 +69,17 @@ size_t getFingerprint(vector<size_t> &max_freqs) {
     return fp;
 }
 
-bool fileIdComparer(const pair<FingerprintInfo,size_t> &lhs, const pair<FingerprintInfo,size_t> &rhs) {
+bool
+fileIdComparer(const pair<FingerprintInfo,size_t> &lhs, 
+               const pair<FingerprintInfo,size_t> &rhs) {
+
     return lhs.first.fileId < rhs.first.fileId;
 }
 
-size_t computeFingerprint(vector<complex<double> > &spectrogram, size_t timeSlice) {
+size_t
+computeFingerprint(vector<complex<double> > &spectrogram, 
+                   size_t timeSlice) {
+
     size_t bucket = 0;
     vector<double> max_amplitude(4, 0);
     vector<size_t> max_frequency(4, 0);
@@ -96,7 +101,9 @@ size_t computeFingerprint(vector<complex<double> > &spectrogram, size_t timeSlic
     return getFingerprint(max_frequency);
 }
 
-vector<FingerprintInfo> query(const string filename) {
+vector<FingerprintInfo>
+query(const string filename) {
+
     AudioFile a(filename.c_str());
     vector<int16_t> samples;
     a.getSamplesForChannel(0, samples);
@@ -107,12 +114,18 @@ vector<FingerprintInfo> query(const string filename) {
 	JUMP = 512;
     vector<pair<FingerprintInfo, size_t> > results;
     set<size_t> fileIds;
+
     for (size_t timeSlice = 0; timeSlice < samples.size() / JUMP; ++timeSlice) {
-		vector<complex<double> > spectrogram; computeSpectrogram(samples, spectrogram, timeSlice);
+		vector<complex<double> > spectrogram; 
+        computeSpectrogram(samples, spectrogram, timeSlice);
+
 		size_t fp = computeFingerprint(spectrogram, timeSlice);
+
 		vector<FingerprintInfo> tmp;
+
 		db.query(fp, tmp);
-		for (size_t i = 0; i < tmp.size(); ++i) {		
+
+		for (size_t i = 0; i < tmp.size(); ++i) {
 			results.push_back(make_pair(tmp[i], timeSlice*JUMP));
 			fileIds.insert(tmp[i].fileId);
 		}
@@ -123,11 +136,13 @@ vector<FingerprintInfo> query(const string filename) {
     sort(results.begin(), results.end(), fileIdComparer);
 
     size_t range = 0;
-    for (set<size_t>::iterator fileIterator = fileIds.begin(); fileIterator != fileIds.end(); ++fileIterator) {
+    for (set<size_t>::iterator fileIterator = fileIds.begin(); 
+         fileIterator != fileIds.end(); ++fileIterator) {
+
 		size_t rangeStart = range;
 		while (results[range].first.fileId == (*fileIterator)) ++range;
 		++range;
-		if (range-rangeStart < 6) continue; //magic constant
+		if (range-rangeStart < 8) continue; //magic constant
 	
 		// compute histogram.
 
@@ -147,7 +162,9 @@ vector<FingerprintInfo> query(const string filename) {
 				// negative offset means fingerprint matched very early in the db file
 		
 				if (matches.size() > 0) {
-					if (matches.back().fileId == *fileIterator && (abs(matches.back().offset - it->first)) < 50000)
+					if (matches.back().fileId == *fileIterator &&
+                        (abs(matches.back().offset - it->first)) < 50000)
+
 						continue;
 				}
 				matches.push_back(FingerprintInfo(*fileIterator, (it->first>=0)?it->first:-(it->first)));
@@ -158,7 +175,9 @@ vector<FingerprintInfo> query(const string filename) {
     return matches;
 }
 
-void insert_file(const string filename, size_t fileId) {
+void 
+insert_file(const string filename, 
+            size_t fileId) {
 
     AudioFile a(filename.c_str());
     vector<int16_t> samples;
@@ -169,7 +188,7 @@ void insert_file(const string filename, size_t fileId) {
 
     // compute most significant feature in 4 frequency ranges
     // for all time slices.
-    
+
     vector<pair<size_t, FingerprintInfo> > data;
     fingerprintCounter += samples.size() / JUMP;
     for (size_t timeSlice = 0; timeSlice < samples.size()/JUMP; ++timeSlice) {
@@ -182,19 +201,20 @@ void insert_file(const string filename, size_t fileId) {
 }
 
 int main(int argc, char *argv[]) {
+
     timeval dbBuildStart, dbBuildEnd, queryStart, queryEnd;
     size_t elapsedSeconds;
 
-    size_t numDBFiles = atoi(argv[1]);
+    size_t numDBFiles = atoi(argv[2]);
 
     gettimeofday(&dbBuildStart, NULL);
 
-    for (size_t arg = 2; arg < numDBFiles+2; ++arg) {
-		char *x = argv[arg];
-		cout << "Processing file " << arg-1 << ": " << string(x) << " ... " << flush;
-		int32_t fileId = db.insert_file(string(x));
+    for (size_t arg = 3; arg < numDBFiles+3; ++arg) {
+		string x = string(argv[arg]);
+		cout << "Processing file " << arg-2 << ": " << x << " ... " << flush;
+		int32_t fileId = db.insert_file(x);
     	insert_file(x, fileId);
-		files.push_back(string(x));
+		files.push_back(x);
 		cout << "Done" << endl;
     }
     gettimeofday(&dbBuildEnd, NULL);
@@ -206,6 +226,7 @@ int main(int argc, char *argv[]) {
     //cout << "Ratio: " << fingerprintCounter << " / " << db.size() << " = " << ratio << endl;
     //writeDBToDisk("test.out");
 
+    if (strcmp(argv[1],"b") == 0) return 0;
 
     //cout << db.size() << endl;
     // REPL
@@ -214,15 +235,19 @@ int main(int argc, char *argv[]) {
 		cout << "Enter a query file: ";
 		cin >> x;
 		if (x.size() < 3) continue;
+        if (x == "exit") break;
 		gettimeofday(&queryStart, NULL);
 		vector<FingerprintInfo> matches(query(x.c_str()));
+        cout << "tester" << endl;
 		gettimeofday(&queryEnd, NULL);
 		elapsedSeconds = timeDiff(queryStart, queryEnd);
 		if (matches.size() == 0) { cout << "no matches" << endl; continue; }
 		cout << "query time: " << elapsedSeconds/1000 << " ms" << endl; 
 		for (size_t i = 0; i < matches.size(); ++i) {   
-			//cout << "File: " << db.getFilename(matches[i].fileId) << " at : " << getTimestampFromSeconds(matches[i].offset / 5512) << endl;
-			cout << "File: " << db.getFilename(matches[i].fileId) << " at : " << matches[i].offset / 5512 << endl;
+			//cout << "File: " << db.getFilename(matches[i].fileId) 
+            //     << " at : " << getTimestampFromSeconds(matches[i].offset / 5512) << endl;
+			cout << "File: " << db.getFilename(matches[i].fileId) 
+                 << " at : " << matches[i].offset / 5512 << endl;
 		}
     }
 }

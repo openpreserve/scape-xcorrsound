@@ -1,5 +1,4 @@
-#DEBUG_FLAGS = -ggdb
-DEBUG_FLAGS = 
+DEBUG_FLAGS = -g
 PRODUCTION_FLAGS = -O2
 CPPFLAGS = -m64
 #CXXFLAGS = -Wall $(DEBUG_FLAGS)
@@ -10,18 +9,22 @@ LDFLAGS = -Wl,$(FFTW3_LIBS),$(BOOST_LIBS),-s,--as-needed
 STATIC = -static-libgcc -static-libstdc++ -static
 CXX=/usr/bin/g++
 
-OBJECT_FILES = ../my_utils.o ../AudioFile.o my_fingerprint.o my_database.o my_query.o db_wrapper_sqlite.o
+OBJECT_FILES = ../my_utils.o ../AudioFile.o my_fingerprint.o my_database.o my_query.o
 
 all : testfingerprint
 
-another : lets_try_again.cpp ../AudioFile.o ../my_utils.o ../my_utils.h db_wrapper.h db_wrapper_sqlite.o
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) sqlite/sqlite3.o lets_try_again.cpp -o another $(FFTW3_LIBS) $(LDFLAGS) -lpthread -ldl -std=c++0x
+another : lets_try_again.cpp ../AudioFile.o ../my_utils.o ../my_utils.h db_wrapper.h db_wrapper_sqlite.o $(OBJECT_FILES) db_wrapper_postgres.o
+#	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) db_wrapper_sqlite.o sqlite/sqlite3.o lets_try_again.cpp -o another $(FFTW3_LIBS) $(LDFLAGS) -lpthread -ldl -std=c++0x
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) db_wrapper_postgres.o lets_try_again.cpp -o another $(FFTW3_LIBS) $(LDFLAGS) -lpthread -ldl -std=c++0x -I/usr/lib -lpqxx -lpq 
 
-clean :
-	rm -rf *.o testfingerprint test_my_fingerprint
+experiment : experiment.cpp ../AudioFile.o ../my_utils.o ../my_utils.h
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) experiment.cpp -o experiment $(FFTW3_LIBS) $(LDFLAGS)
 
 db_wrapper_sqlite.o : db_wrapper.h db_wrapper_sqlite.cpp sqlite/sqlite3.h
 	$(CXX) $(CXXFLAGS) -c db_wrapper_sqlite.cpp -o db_wrapper_sqlite.o
+
+db_wrapper_postgres.o : db_wrapper.h db_wrapper_postgres.cpp
+	$(CXX) $(CXXFLAGS) -c db_wrapper_postgres.cpp -o db_wrapper_postgres.o -I/usr/lib -lpqxx -lpq 
 
 ismir_impl : ../AudioFile.o ../my_utils.o ../my_utils.h ismir_impl.cc
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) ismir_impl.cc -o ismir_impl $(FFTW3_LIBS) $(LDFLAGS)
@@ -47,5 +50,7 @@ test_my_fingerprint : my_database.o my_fingerprint.o my_query.o test_my_fingerpr
 testfingerprint : testfingerprint.cpp fingerprint.h ../AudioFile.o ../my_utils.o
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) testfingerprint.cpp -o testfingerprint $(FFTW3_LIBS) $(LDFLAGS)
 
+clean :
+	rm -rf *.o testfingerprint test_my_fingerprint another experiment ms test
 
 .PHONY : clean

@@ -8,8 +8,8 @@
 
 
 template<typename T1, typename T2>
-inline
-void computeFFT(std::vector<T1> &input, std::vector<std::complex<T2> > &output) {
+    inline
+    void computeFFT(std::vector<T1> &input, std::vector<std::complex<T2> > &output) {
     using std::vector; using std::complex;
 
     fftw_plan plan;
@@ -17,8 +17,8 @@ void computeFFT(std::vector<T1> &input, std::vector<std::complex<T2> > &output) 
     fftw_complex *o = (fftw_complex*) fftw_malloc(sizeof(fftw_complex)*input.size());
 
     for (size_t i = 0; i < input.size(); ++i) {
-	t[i][0] = input[i];
-	t[i][1] = 0;
+        t[i][0] = input[i];
+        t[i][1] = 0;
     }
 
     plan = fftw_plan_dft_1d(input.size(), t, o, FFTW_FORWARD, FFTW_ESTIMATE);
