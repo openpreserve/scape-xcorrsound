@@ -3,6 +3,7 @@
 #include <string>
 #include <sstream>
 
+#include <cmath>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -111,4 +112,15 @@ string getTimestampFromSeconds(size_t seconds) {
     tstmp << seconds;
 
     return tstmp.str();
+}
+
+void getHanningWindow(size_t windowLength, vector<double> &window) {
+
+    const double PI = 3.14159265359;
+
+    window.resize(windowLength);
+    
+    for (size_t i = 0; i < windowLength; ++i) {
+        window[i] = (25.0/46.0) - (21.0/46.0) * cos((2*PI*i)/(windowLength-1));
+    }
 }

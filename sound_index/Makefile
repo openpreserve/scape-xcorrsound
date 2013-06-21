@@ -50,6 +50,9 @@ test_my_fingerprint : my_database.o my_fingerprint.o my_query.o test_my_fingerpr
 testfingerprint : testfingerprint.cpp fingerprint.h ../AudioFile.o ../my_utils.o
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) testfingerprint.cpp -o testfingerprint $(FFTW3_LIBS) $(LDFLAGS)
 
+sig_freqs : sig_freqs.cc ../my_utils.h ../my_utils.cpp ../AudioFile.h computeFFT.h
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) sig_freqs.cc -o sig_freqs $(FFTW3_LIBS) $(LDFLAGS)
+
 clean :
 	rm -rf *.o testfingerprint test_my_fingerprint another experiment ms test
 
