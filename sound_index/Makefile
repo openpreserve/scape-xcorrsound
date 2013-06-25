@@ -27,7 +27,7 @@ db_wrapper_postgres.o : db_wrapper.h db_wrapper_postgres.cpp
 	$(CXX) $(CXXFLAGS) -c db_wrapper_postgres.cpp -o db_wrapper_postgres.o -I/usr/lib -lpqxx -lpq 
 
 ismir_impl : ../AudioFile.o ../my_utils.o ../my_utils.h ismir_impl.cc
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) ismir_impl.cc -o ismir_impl $(FFTW3_LIBS) $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) ../my_utils.o ../AudioFile.o ismir_impl.cc -o ismir_impl $(FFTW3_LIBS) $(LDFLAGS)
 
 most_significant : most_significant.cpp ../AudioFile.o ../my_utils.o ../my_utils.h
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJECT_FILES) most_significant.cpp -o ms $(FFTW3_LIBS) $(LDFLAGS) -std=c++0x
