@@ -1,25 +1,20 @@
+#include <AudioFile.h>
+#include <AudioStream.h>
 #include <complex>
+#include <computeFFT.h>
+#include <cstring>
+#include <fftw3.h>
 #include <fstream>
+#include <hamming.h>
 #include <iomanip>
 #include <map>
+#include <my_utils.h>
 #include <ostream>
 #include <set>
 #include <sstream>
+#include <stdint.h>
 #include <string>
 #include <vector>
-
-#include "stdint.h"
-
-#include <fftw3.h>
-
-#include "../AudioStream.h"
-#include "../AudioFile.h"
-#include "computeFFT.h"
-#include "../my_utils.h"
-
-#include <cstring>
-
-#include "hamming.h"
 
 using std::vector; using std::complex; using std::map; 
 using std::set; using std::string; using std::stringstream;
@@ -30,6 +25,7 @@ vector<uint32_t> db;
 map<size_t, string> files;
 int fileNumber = 0;
 size_t cnt = 0;
+
 static const double PI = 3.14159265359;
 
 static const size_t frameLength = 2048;//16384;

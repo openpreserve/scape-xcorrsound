@@ -9,7 +9,7 @@ find_package(Boost
 
 find_package(FFTW)
 
-include_directories(${FFTW_INCLUDES} ${Boost_INCLUDE_DIR} libs/core)
+include_directories(${FFTW_INCLUDES} ${Boost_INCLUDE_DIR} libs/core libs/sound_index)
 
 set(CPACK_PACKAGE_NAME scape-xcorrsound)
 set(CPACK_PACKAGE_VERSION 0.9.1)
@@ -25,6 +25,7 @@ overlap-analysis: find the overlap between two wave files")
 
 add_subdirectory (libs)
 add_subdirectory (apps)
+add_subdirectory (man)
 
 INCLUDE(CPack)
 SET(CPACK_GENERATOR "DEB")
