@@ -1,0 +1,8 @@
+language: cpp
+compiler:
+  - gcc
+install: "sudo apt-get install libfftw3-dev libboost-program-options-dev libboost-dev"
+before_script:
+  - mkdir build && cd build
+  - cmake ..
+script: "make package"
