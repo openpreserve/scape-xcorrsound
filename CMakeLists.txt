@@ -9,7 +9,7 @@ find_package(Boost
 
 find_package(FFTW)
 
-include_directories(${FFTW_INCLUDES} ${Boost_INCLUDE_DIR} libs/core libs/sound_index)
+include_directories(${FFTW_INCLUDES} ${Boost_INCLUDE_DIR} libs/core libs/sound_index tpie ${CMAKE_CURRENT_BINARY_DIR}/tpie)
 
 set(CPACK_PACKAGE_NAME scape-xcorrsound)
 set(CPACK_PACKAGE_VERSION 0.9.1)
@@ -23,9 +23,13 @@ waveform-compare: Compare two wave files to determine if they represent the same
 sound-match: find the location of a small wavefile inside a big wavefile
 overlap-analysis: find the overlap between two wave files")
 
+add_subdirectory (tpie)
 add_subdirectory (libs)
 add_subdirectory (apps)
 add_subdirectory (man)
+
+add_executable(tpietest tpietest.cc)
+target_link_libraries(tpietest tpie)
 
 INCLUDE(CPack)
 SET(CPACK_GENERATOR "DEB")

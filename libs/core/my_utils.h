@@ -78,6 +78,4 @@ double computeNormFactor(std::vector<T1> &prefixSquareSmall, std::vector<T1> &pr
 
 }
 
-void getHanningWindow(size_t windowLength, std::vector<double> &window);
-
 #endif

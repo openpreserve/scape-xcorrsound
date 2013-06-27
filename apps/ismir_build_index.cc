@@ -74,7 +74,7 @@ void init(int argc, char *argv[]) {
 
 	exit(0);
     }
-    int cnt = 0;
+
     if (vm.count("dbname")) {
 	dbname = vm["dbname"].as<std::string>();
     } else {

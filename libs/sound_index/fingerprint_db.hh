@@ -20,9 +20,9 @@ namespace sound_index {
 
 	void insert(std::string filename);
 
-	std::vector<std::string> query_scan(std::string filename);
+	void query_scan(std::string filename, std::vector<std::string> &);
     
-	void merge(fingerprint_db &other);
+	void merge(fingerprint_db &a, fingerprint_db &b);
 
 
     };

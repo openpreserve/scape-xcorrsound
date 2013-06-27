@@ -1,8 +1,11 @@
 add_library (sound_index
-  computeFFT.h
-  hamming.h
   #ismir_impl.cc
-  tmp.cc
+  computeFFT.h
+  fingerprint_db.cc
+  fingerprint_db.hh
+  fingerprint_stream.cc
+  fingerprint_stream.hh
+  hamming.h
 )
 
 target_link_libraries(sound_index ${FFTW_LIBRARIES} core)
