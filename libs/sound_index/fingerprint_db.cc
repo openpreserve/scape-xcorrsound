@@ -13,6 +13,8 @@ namespace si = sound_index;
 
 namespace {
 
+    uint32_t macro_sz = 128;
+
     uint32_t hammingLookup16(uint32_t n) {
 	uint16_t a = n & 0xFFFF;
 	uint16_t b = n>>16;
@@ -112,67 +114,73 @@ void si::fingerprint_db::query_scan(std::string filename, std::vector<std::strin
     // size_t bestMatch = 1024*1024;
     // size_t bestMatchDistance = fingerprints.size();
 
-    std::vector<uint32_t> db(1024*1024+32);
+    std::vector<uint32_t> db(1024*1024+macro_sz);
     
     std::ifstream fin(this->dbFilename.c_str(), std::ifstream::in | std::ifstream::binary);
     
     uint32_t *buf = new uint32_t[1024*1024];
 
     while (fin) {
-	for (size_t i = 0; i < 32; ++i) {
-	    db[i] = db[db.size()-32+i];
-	}
+        for (size_t i = 0; i < macro_sz; ++i) {
+            db[i] = db[db.size()-macro_sz+i];
+        }
 
-	fin.read((char*)buf, 1024*1024*sizeof(uint32_t));
+        fin.read((char*)buf, 1024*1024*sizeof(uint32_t));
 
-	size_t count = fin.gcount()/sizeof(uint32_t);
+        size_t count = fin.gcount()/sizeof(uint32_t);
 	
-	for (size_t i = 0; i < count; ++i) {
-	    db[i+32] = buf[i];
-	}
+        for (size_t i = 0; i < count; ++i) {
+            db[i+macro_sz] = buf[i];
+        }
 
 
-	for (size_t i = 1; i < db.size()-32; ++i) {
-	    size_t dist = 0;
-	    for (size_t j = fingerprints.size()/2; j < fingerprints.size()/2+32; ++j) {
-		uint32_t x = static_cast<uint32_t>(fingerprints[j] ^ db[i+j]);
-		uint32_t cnt = hammingLookup16(x);
-		dist += cnt;
-	    }
-	    
-	    if (dist < 358) { //0.35 * 1024 ~= 358
+        for (size_t i = 1; i < db.size()-macro_sz; ++i) {
+            size_t dist = 0;
+            //bool atLeastOne = true;//false;
+            for (size_t j = fingerprints.size()/4; j < fingerprints.size()/4+macro_sz; ++j) {
+                uint32_t x = fingerprints[j] ^ db[i+j];
+                //uint32_t cnt = hammingLookup16(x);
+                uint32_t cnt = __builtin_popcountll(x);
+                dist += cnt;
+                //if (cnt < 5) atLeastOne = true;
+            }
+
+            if (dist <= 1450) {
+            //if (dist < 716 && atLeastOne) {
+            //if (dist < 358 && atLeastOne) { //0.35 * 1024 ~= 358
 		
-		std::map<size_t, std::string>::iterator iter = idToFile.lower_bound(i);
+                std::map<size_t, std::string>::iterator iter = idToFile.lower_bound(i);
 	    
-		//size_t fileId = iter->first;
+                //size_t fileId = iter->first;
 	    
-		std::string filename = iter->second;
+                std::string filename = iter->second;
 
-		size_t start = 0;
-		if (iter != idToFile.begin()) {
-		    --iter;
-		    start = iter->first;
-		}
+                size_t start = 0;
+                if (iter != idToFile.begin()) {
+                    --iter;
+                    start = iter->first;
+                }
 
-		size_t sampleInFile = i - start;
+                size_t sampleInFile = i - start;
 
-		std::string timestamp = getTimestampFromSeconds(sampleInFile*advance / sampleRate);
+                std::string timestamp = getTimestampFromSeconds(sampleInFile*advance / sampleRate);
+                //std::stringstream ss2; ss2 << (sampleInFile*advance/sampleRate) << "  i: " << i;
+                //std::string timestamp(ss2.str());
+                std::stringstream ss;
+
+                ss << "match in " << filename 
+                   << " at " << timestamp
+                   << " with distance " << dist;
 		
-		std::stringstream ss;
-
-		ss << "match in " << filename 
-		   << " at " << timestamp
-		   << " with distance " << dist;
-		
-		ret.push_back(ss.str());
-	    }
-	}
+                ret.push_back(ss.str());
+            }
+        }
 
     }
 
 }
 
-void si::fingerprint_db::merge(fingerprint_db &a, fingerprint_db &b) {
+void si::fingerprint_db::merge(std::vector<std::string> &inputs) {
 
 }
 

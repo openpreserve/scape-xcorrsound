@@ -8,22 +8,21 @@
 namespace sound_index {
     class fingerprint_db {
     private:
-	std::map<size_t, std::string> idToFile;
+        std::map<size_t, std::string> idToFile;
     
-	std::string dbFilename;
+        std::string dbFilename;
 
     public:
 
-	void open(std::string filename);
+        void open(std::string filename);
 
-	void close();
+        void close();
 
-	void insert(std::string filename);
+        void insert(std::string filename);
 
-	void query_scan(std::string filename, std::vector<std::string> &);
+        void query_scan(std::string filename, std::vector<std::string> &);
     
-	void merge(fingerprint_db &a, fingerprint_db &b);
-
+        void merge(std::vector<std::string> &inputs);
 
     };
 }

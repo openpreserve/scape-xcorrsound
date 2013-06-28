@@ -8,7 +8,7 @@ namespace sound_index {
 
     const size_t frameLength = 2048;
 
-    const size_t advance = 512;
+    const size_t advance = 128;
 
     const size_t sampleRate = 5512;
 

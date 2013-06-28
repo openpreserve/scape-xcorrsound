@@ -9,111 +9,111 @@ namespace {
 
     void getHanningWindow(size_t windowLength, std::vector<double> &window) {
 
-	const double PI = 3.14159265359;
+        const double PI = 3.14159265359;
 
-	window.resize(windowLength);
+        window.resize(windowLength);
     
-	for (size_t i = 0; i < windowLength; ++i) {
-	    window[i] = (25.0/46.0) - (21.0/46.0) * cos((2*PI*i)/(windowLength-1));
-	}
+        for (size_t i = 0; i < windowLength; ++i) {
+            window[i] = (25.0/46.0) - (21.0/46.0) * cos((2*PI*i)/(windowLength-1));
+        }
     }
 
     template <typename T>
     inline
     static double normalize(std::vector<T> &samples) {
 
-	double rootMeanSquare = 0.0;
-	for (size_t i = 0; i < samples.size(); ++i) {
-	    rootMeanSquare += samples[i] * samples[i];
-	}
+        double rootMeanSquare = 0.0;
+        for (size_t i = 0; i < samples.size(); ++i) {
+            rootMeanSquare += samples[i] * samples[i];
+        }
 
-	rootMeanSquare /= samples.size();
+        rootMeanSquare /= samples.size();
 
-	return sqrt(rootMeanSquare);
+        return sqrt(rootMeanSquare);
 
     }
 
     inline
     static double getHz(const size_t idx) {
-	if (idx > frameLength) return frameLength;
+        if (idx > frameLength) return frameLength;
 
-	double T = static_cast<double>(frameLength) / static_cast<double>(sampleRate);
-	return idx / T;
+        double T = static_cast<double>(frameLength) / static_cast<double>(sampleRate);
+        return idx / T;
     }
 
     inline
     static double getMel(const double hz) {
-	return 2595 * std::log10(1+hz/700.0);
+        return 2595 * std::log10(1+hz/700.0);
     }
 
     inline
     static size_t getIndexFromHz(double hz) {
 
-	// hz = idx*(sampleRate/frameLength)
-	// => idx = ceil(hz * (frameLength / sampleRate))
-	size_t idx = (size_t) hz * static_cast<double>(frameLength) / static_cast<double>(sampleRate);
-	return idx;
+        // hz = idx*(sampleRate/frameLength)
+        // => idx = ceil(hz * (frameLength / sampleRate))
+        size_t idx = (size_t) hz * static_cast<double>(frameLength) / static_cast<double>(sampleRate);
+        return idx;
     }
 
     inline
     static void getBarkScale(double maxFrequency, std::vector<size_t> &indices) {
     
-	size_t bands = 33;
-	indices.resize(bands);
+        size_t bands = 33;
+        indices.resize(bands);
 
-	double logMin = log(318.0) / log(2);
-	double logMax = log(maxFrequency) / log(2);
+        double logMin = log(318.0) / log(2);
+        double logMax = log(maxFrequency) / log(2);
 
-	double delta = (logMax - logMin) / bands;
+        double delta = (logMax - logMin) / bands;
     
-	double sum = 0.0;
-	for (size_t i = 0; i < bands; ++i) {
+        double sum = 0.0;
+        for (size_t i = 0; i < bands; ++i) {
         
-	    double hz = pow(2, logMin + sum);
+            double hz = pow(2, logMin + sum);
         
-	    indices[i] = getIndexFromHz(hz);
+            indices[i] = getIndexFromHz(hz);
 
-	    sum += delta;
-	}
+            sum += delta;
+        }
     
     }
 
     inline
     static void getLogScale(double maxFrequency, std::vector<size_t> &indices) {
-	size_t bands = 33;
-	indices.resize(bands);
+        size_t bands = 33;
+        indices.resize(bands);
 
-	double logMin = log(318.0) / log(2);
-	double logMax = log(maxFrequency) / log(2);
+        double logMin = log(318.0) / log(2);
+        double logMax = log(maxFrequency) / log(2);
 
-	double delta = (logMax - logMin) / bands;
+        double delta = (logMax - logMin) / bands; //linear increase on log scale
     
-	double sum = 0.0;
-	for (size_t i = 0; i < bands; ++i) {
+        double sum = 0.0;
+        for (size_t i = 0; i < bands; ++i) {
         
-	    double hz = pow(2, logMin + sum);
+            double hz = pow(2, logMin + sum);
         
-	    indices[i] = getIndexFromHz(hz);
+            indices[i] = getIndexFromHz(hz);
 
-	    sum += delta;
-	}
+            sum += delta;
+        }
     }
 
     inline
     static uint32_t getFingerprint(std::vector<double> &prevEnergy, std::vector<double> &energy) {
     
-	uint32_t fingerprint = 0;
+        uint32_t fingerprint = 0;
 
-	for (size_t bitPos = 0; bitPos < 32; ++bitPos) {
-	    double val = energy[bitPos] - energy[bitPos+1] - (prevEnergy[bitPos] - prevEnergy[bitPos+1]);
+        for (size_t bitPos = 0; bitPos < 32; ++bitPos) {
+            double val = energy[bitPos] - energy[bitPos+1] - (prevEnergy[bitPos] - prevEnergy[bitPos+1]);
         
-	    uint32_t bit = (val > 0)?1:0;
+            uint32_t bit = (val > 0)?1:0;
 
-	    fingerprint = fingerprint + (bit << bitPos);
+            fingerprint = fingerprint + (bit << bitPos);
 
-	}
+        }
 
-	return fingerprint;
+        return fingerprint;
     }
 }
 
