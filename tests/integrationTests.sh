@@ -1,7 +1,8 @@
 #!/bin/bash
 
-SCRIPT_PATH=$(pwd)
+SCRIPT_PATH=$(dirname $(readlink -f $0 ) )
 
+echo "$SCRIPT_PATH"
 set -o errexit
 
 fileServer="https://sbforge.org/downloads/scape/scape_xcorrsound_jenkins_files"
