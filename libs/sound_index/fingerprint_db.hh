@@ -1,6 +1,7 @@
 #ifndef FINGERPRINT_DB_GUARD
 #define FINGERPRINT_DB_GUARD
 
+#include <fingerprint_strategy.hh>
 #include <map>
 #include <string>
 #include <vector>
@@ -12,7 +13,11 @@ namespace sound_index {
     
         std::string dbFilename;
 
+        fingerprint_strategy *fp_strategy;
+
     public:
+
+        fingerprint_db();
 
         void open(std::string filename);
 

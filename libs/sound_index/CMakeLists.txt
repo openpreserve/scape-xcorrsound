@@ -1,10 +1,13 @@
 add_library (sound_index
+  #fingerprint_stream.cc
+  #fingerprint_stream.hh
   #ismir_impl.cc
   computeFFT.h
   fingerprint_db.cc
   fingerprint_db.hh
-  fingerprint_stream.cc
-  fingerprint_stream.hh
+  fingerprint_strategy.hh
+  fingerprint_strategy_chroma.cc
+  fingerprint_strategy_ismir.cc
   hamming.h
 )
 

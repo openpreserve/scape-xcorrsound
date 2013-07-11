@@ -1,5 +1,6 @@
 #include <AudioFile.h>
 #include <fingerprint_db.hh>
+#include <fingerprint_strategy.hh>
 #include <fingerprint_stream.hh>
 #include <fstream>
 #include <hamming.h>
@@ -49,6 +50,10 @@ namespace {
 
 }
 
+si::fingerprint_db::fingerprint_db() {
+    this->fp_strategy = new si::fingerprint_strategy_ismir();
+}
+
 void si::fingerprint_db::open(std::string filename) {
 
     size_t idx = 0;
@@ -83,16 +88,18 @@ void si::fingerprint_db::insert(std::string filename) {
     // assume we can have the entire file "filename" in memory.
     // "filename" is the filename of a wav file.
 
-    AudioFile a(filename.c_str());
+    //AudioFile a(filename.c_str());
     
     std::vector<int16_t> samples;
 
-    a.getSamplesForChannel(0, samples);
+    //a.getSamplesForChannel(0, samples);
 
     std::vector<uint32_t> fingerprints;
 
-    generateFingerprintStream(samples, fingerprints);
+    //generateFingerprintStream(samples, fingerprints);
     
+    this->fp_strategy->getFingerprintsForFile(filename, fingerprints);
+
     // append fingerprint stream to this->dbFilename
     writeDBToDisk((this->dbFilename).c_str(), fingerprints, filename);
     
@@ -101,15 +108,17 @@ void si::fingerprint_db::insert(std::string filename) {
 void si::fingerprint_db::query_scan(std::string filename, std::vector<std::string> &ret) {
     // "filename" is the name of the wav file that is our query.
     ret.clear();
-    AudioFile a(filename.c_str());
+    //AudioFile a(filename.c_str());
     
     std::vector<int16_t> samples;
 
-    a.getSamplesForChannel(0, samples);
+    //a.getSamplesForChannel(0, samples);
 
     std::vector<uint32_t> fingerprints;
 
-    generateFingerprintStream(samples, fingerprints);
+    //generateFingerprintStream(samples, fingerprints);
+
+    this->fp_strategy->getFingerprintsForFile(filename, fingerprints);
 
     // size_t bestMatch = 1024*1024;
     // size_t bestMatchDistance = fingerprints.size();
