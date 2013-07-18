@@ -17,6 +17,12 @@ namespace sound_index {
     void
     fingerprint_strategy_chroma::getFingerprintsForFile(std::string filename, std::vector<uint32_t> &res) {
         // implement chroma.
+
+        if (filename.substr(filename.size()-3, 3) == "mp3") {
+            // do the mp3
+        } else {
+            // do the wav
+        }
     }
         
     size_t
