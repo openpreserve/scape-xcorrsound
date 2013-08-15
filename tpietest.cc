@@ -9,7 +9,7 @@ int main() {
     tpie::tpie_init();
 
     {
-	size_t n=1024*1024*64;
+	size_t n=1024*1024*128;
 	
 	tpie::progress_indicator_arrow pi("", n);
 	
