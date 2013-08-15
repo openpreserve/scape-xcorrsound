@@ -9,39 +9,40 @@ find_package(Boost
 
 find_package(FFTW)
 
-find_package (LibAVCodec 53.35.0 REQUIRED)
-find_package (LibAVFormat 53.21.1 REQUIRED)
-find_package (LibAVUtil 51.22.1 REQUIRED)
+#find_package (LibAVCodec 53.35.0 REQUIRED)
+#find_package (LibAVFormat 53.21.1 REQUIRED)
+#find_package (LibAVUtil 51.22.1 REQUIRED)
 
 include_directories(${FFTW_INCLUDES} ${Boost_INCLUDE_DIR} libs/core libs/sound_index tpie ${CMAKE_CURRENT_BINARY_DIR}/tpie)
 #include_directories(${FFTW_INCLUDES} ${Boost_INCLUDE_DIR} libs/core libs/sound_index)
 
-include_directories (${LIBAVCODEC_INCLUDE_DIRS})
-include_directories (${LIBAVFORMAT_INCLUDE_DIRS})
-include_directories (${LIBAVUTIL_INCLUDE_DIRS})
+#include_directories (${LIBAVCODEC_INCLUDE_DIRS})
+#include_directories (${LIBAVFORMAT_INCLUDE_DIRS})
+#include_directories (${LIBAVUTIL_INCLUDE_DIRS})
 
 ## testing
-include_directories (/home/jsn/chromaprint-0.7/build/src/Headers)
+#include_directories (/home/jsn/chromaprint-0.7/build/src/Headers)
 
-link_directories (${LIBAVCODEC_LIBRARY_DIRS})
-link_directories (${LIBAVFORMAT_LIBRARY_DIRS})
-link_directories (${LIBAVUTIL_LIBRARY_DIRS})
+#link_directories (${LIBAVCODEC_LIBRARY_DIRS})
+#link_directories (${LIBAVFORMAT_LIBRARY_DIRS})
+#link_directories (${LIBAVUTIL_LIBRARY_DIRS})
 
+
+#link_directories (/home/jsn/chromaprint-0.7/build/src)
+#list (APPEND CHROMA_LIBS chromaprint)
+#add_definitions (-D__STDC_CONSTANT_MACROS)
+
+#get_filename_component (LIBAVCODEC_RPATH ${LIBAVCODEC_LIBRARY} PATH)
+#get_filename_component (LIBAVFORMAT_RPATH ${LIBAVFORMAT_LIBRARY} PATH)
+#get_filename_component (LIBAVUTIL_RPATH ${LIBAVUTIL_LIBRARY} PATH)
 ## testing
-link_directories (/home/jsn/chromaprint-0.7/build/src)
-list (APPEND CHROMA_LIBS chromaprint)
-add_definitions (-D__STDC_CONSTANT_MACROS)
 
-get_filename_component (LIBAVCODEC_RPATH ${LIBAVCODEC_LIBRARY} PATH)
-get_filename_component (LIBAVFORMAT_RPATH ${LIBAVFORMAT_LIBRARY} PATH)
-get_filename_component (LIBAVUTIL_RPATH ${LIBAVUTIL_LIBRARY} PATH)
-
-if (LINUX)
-    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,${LIBAVCODEC_RPATH}")
-    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,${LIBAVCODEC_LIBAVFORMAT}")
-    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,${LIBAVUTIL_RPATH}")
-    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,${LIBSWSCALE_RPATH}")
-endif (LINUX)
+#if (LINUX)
+#    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,${LIBAVCODEC_RPATH}")
+#    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,${LIBAVCODEC_LIBAVFORMAT}")
+#    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,${LIBAVUTIL_RPATH}")
+#    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,${LIBSWSCALE_RPATH}")
+#endif (LINUX)
 
 set(CPACK_PACKAGE_NAME scape-xcorrsound)
 set(CPACK_PACKAGE_VERSION 0.9.1)
