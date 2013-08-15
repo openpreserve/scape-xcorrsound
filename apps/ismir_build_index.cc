@@ -25,13 +25,16 @@ void bulk() {
     std::ifstream fin(file.c_str(), std::ifstream::in);
 
     if (!fin) {
-	std::cout << "Could not open input file specified with -f." << std::endl;
-	exit(1);
+        std::cout << "Could not open input file specified with -f." << std::endl;
+        exit(1);
     }
 
     std::string x;
+
     while (fin >> x) {
-	db.insert(x);
+        // progress info
+        std::cout << x << std::endl;
+        db.insert(x);
     }
 
     db.close();
@@ -67,30 +70,30 @@ void init(int argc, char *argv[]) {
     po::store(po::command_line_parser(argc, argv).options(all).run(), vm);
 
     if (vm.count("help")) {
-	std::cout << "Usage: ismir_build_index [PROGRAM OPTIONS] SETTINGS" << std::endl << std::endl;
-	std::cout << generic << std::endl;
+        std::cout << "Usage: ismir_build_index [PROGRAM OPTIONS] SETTINGS" << std::endl << std::endl;
+        std::cout << generic << std::endl;
 
-	std::cout << hidden << std::endl;
+        std::cout << hidden << std::endl;
 
-	exit(0);
+        exit(0);
     }
 
     if (vm.count("dbname")) {
-	dbname = vm["dbname"].as<std::string>();
+        dbname = vm["dbname"].as<std::string>();
     } else {
-	std::cout << "dbname must be provided" << std::endl;
-	exit(1);
+        std::cout << "dbname must be provided" << std::endl;
+        exit(1);
     }
 
     if (vm.count("file")) {
-	file = vm["file"].as<std::string>();
-	bulk();
-	exit(0);
+        file = vm["file"].as<std::string>();
+        bulk();
+        exit(0);
     }
     if (vm.count("input")) {
-	input = vm["input"].as<std::string>();
-	single();
-	exit(0);
+        input = vm["input"].as<std::string>();
+        single();
+        exit(0);
     }
 
     std::cout << "need at least one input file" << std::endl;
