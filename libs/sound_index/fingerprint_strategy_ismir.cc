@@ -5,11 +5,12 @@
 #include <fingerprint_strategy.hh>
 #include <stdint.h>
 #include <string>
+#include <sstream>
 
 namespace {
     size_t frameLength = 2048;
 
-    size_t advance = 512;
+    size_t advance = 64;
 
     size_t sampleRate  = 5512;
 
@@ -173,13 +174,54 @@ namespace sound_index {
 
     void 
     fingerprint_strategy_ismir::getFingerprintsForFile(std::string filename, std::vector<uint32_t> &res) {
+        bool isWav = true;
+        std::stringstream tmpss;
+
+        // if filename is not wav file, start by converting to 5512hz stereo wav file
+        // if filename is wav file, assume it conforms to assumption above.
+
+        if (filename.substr(filename.size()-3, 3) != "wav") {
+            isWav = false;
+            std::cout << "hellowzor2" << std::endl;
+            size_t idx = 0;
+            for (size_t i = filename.size(); i > 0; --i) {
+                if (filename[i-1] == '/') {
+                    idx = i;
+                    break;
+                }
+            }
+
+            tmpss << "/tmp/" << filename.substr(idx, std::string::npos) << ".wav";
+            std::stringstream ss;
+            ss << "ffmpeg -i " << filename << " -ar 5512 " << tmpss.str();
+            FILE* cmd = popen(ss.str().c_str(), "r");
+            int res = pclose(cmd);
+            if (res == -1) {
+                std::stringstream rmss;
+                rmss << "rm -rf " << tmpss.str();
+                cmd = popen(rmss.str().c_str(), "r");
+                res = pclose(cmd);
+                return; // error
+            }
+            
+        } else {
+            tmpss << filename;
+        }
+
         // implement ismir.
-        AudioFile a(filename.c_str());
+        AudioFile a(tmpss.str().c_str());
         std::vector<int16_t> samples;
 
         a.getSamplesForChannel(0, samples);
 
         ::generateFingerprintStream(samples, res);
+
+        if (!isWav) {
+            std::stringstream rmss;
+            rmss << "rm -rf " << tmpss.str();
+            FILE *cmd = popen(rmss.str().c_str(), "r");
+            int res = pclose(cmd);
+        }
     }
         
     size_t 
@@ -190,7 +232,5 @@ namespace sound_index {
 
     size_t
     fingerprint_strategy_ismir::getSampleRate() { return ::sampleRate; }
-
-
 
 }

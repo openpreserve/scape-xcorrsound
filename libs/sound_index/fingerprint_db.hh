@@ -25,7 +25,9 @@ namespace sound_index {
 
         void insert(std::string filename);
 
-        void query_scan(std::string filename, std::vector<std::string> &);
+        void query_scan(std::string filename, std::vector<std::string> &results);
+
+        void query(std::string filename, std::vector<std::string> &results);
     
         void merge(std::vector<std::string> &inputs);
 
