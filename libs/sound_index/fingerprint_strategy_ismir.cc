@@ -260,10 +260,6 @@ namespace sound_index {
             as.read(a.getNumberOfSamplesPrChannel(), samples);
 
         }
-        std::cout << samples.size() << std::endl;
-        for (size_t i = 0; i < samples.size(); ++i) {
-            std::cout << samples[i] << std::endl;
-        }
         // implement ismir.
         ::generateFingerprintStream(samples, res);
     }
