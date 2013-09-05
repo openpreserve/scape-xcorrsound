@@ -22,8 +22,8 @@ private:
 
 
     inline void fillBuffer() {
-	_end = fread(_buf, 1, _bufferSize, _file);
-	_pos = 0;
+        _end = fread(_buf, 1, _bufferSize, _file);
+        _pos = 0;
     }
     
     inline uint8_t readNext() {
@@ -36,7 +36,7 @@ private:
     inline bool good() {
         if (_pos < _end) return true;
         if (ferror(_file) != 0) return false;
-        if (_pos == _end && feof(_file) != 0) return false;
+        if (feof(_file) != 0) return false;
 
         return true;
     }
@@ -62,14 +62,14 @@ public:
      */
     void read(size_t samples, std::vector<short> &res) {
         res.resize(samples);
-        size_t i;
+        size_t i = 0;
         for (i = 0; i < samples && good(); ++i) {
 
             for (size_t j = 0; j < _channel; ++j) {
                 readNext();
                 readNext();
             }
-
+            
             char first = readNext();
             char second = readNext();
             for (size_t j = _channel+1; j < _channels; ++j) {
@@ -82,4 +82,5 @@ public:
     }
 
 };
+
 #endif // AUDIO_STREAM_H
