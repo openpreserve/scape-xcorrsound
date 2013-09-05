@@ -23,7 +23,7 @@ namespace sound_index {
 
         void close();
 
-        void insert(std::string filename);
+        void insert(std::string filename, std::string indexedName = "");
 
         void query_scan(std::string filename, std::vector<std::string> &results);
 

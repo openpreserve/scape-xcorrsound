@@ -41,10 +41,10 @@ void bulk() {
 
 }
 
-void single() {
+void single(std::string name = "") {
 
     db.open(dbname);
-    db.insert(input);
+    db.insert(input, name);
     db.close();
 
 }
@@ -56,9 +56,11 @@ void init(int argc, char *argv[]) {
     
     po::options_description hidden("Settings");
     hidden.add_options()
-	("dbname,d", po::value<std::string>(), "Database name")
-	("file,f", po::value<std::string>(), "File with names of wav files for bulk insertion, this ignores the --input option")
-	("input,i", po::value<std::string>(), "Single wav file");
+        ("dbname,d", po::value<std::string>(), "Database name")
+        ("file,f", po::value<std::string>(), "File with names of wav files for bulk insertion, this ignores the --input option")
+        ("input,i", po::value<std::string>(), "Single wav file, use '-' as this value if the file is given on stdin")
+        ("name,n", po::value<std::string>(), "Name if input is on stdin");
+    
 
     po::options_description all("Allowed options");
     all.add(generic).add(hidden);
@@ -92,9 +94,14 @@ void init(int argc, char *argv[]) {
     }
     if (vm.count("input")) {
         input = vm["input"].as<std::string>();
-        single();
+        if (vm.count("name")) {
+            single(vm["name"].as<std::string>());
+        } else {
+            single();
+        }
         exit(0);
     }
+
 
     std::cout << "need at least one input file" << std::endl;
     exit(1);

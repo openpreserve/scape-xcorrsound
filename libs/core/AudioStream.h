@@ -27,60 +27,58 @@ private:
     }
     
     inline uint8_t readNext() {
-	if (_pos == _end) {
-	    fillBuffer();
-	}
-	return _buf[_pos++];
+        if (_pos == _end) {
+            fillBuffer();
+        }
+        return _buf[_pos++];
     }
 
     inline bool good() {
-	if (ferror(_file) != 0) return false;
-	if (_pos == _end && feof(_file) != 0) return false;
+        if (_pos < _end) return true;
+        if (ferror(_file) != 0) return false;
+        if (_pos == _end && feof(_file) != 0) return false;
 
-	return true;
+        return true;
     }
 
 public:
     
     AudioStream(size_t channel, size_t channels, std::string filename, size_t startOfData) 
-	: _file(fopen(filename.c_str(), "r")),
+        : _file(fopen(filename.c_str(), "r")),
 	  _channel(channel),
 	  _channels(channels),
-	  _pos(0),
-	  _end(0) {	
+        _pos(0),
+        _end(0) {	
 
-	fseek(_file, startOfData, SEEK_SET);
+        fseek(_file, startOfData, SEEK_SET);
     }
 
     ~AudioStream() {
-	fclose(_file);
+        fclose(_file);
     }
     
     /**
      * invariant: after each read we are at the next sample
      */
     void read(size_t samples, std::vector<short> &res) {
-	res.resize(samples);
-	size_t i;
-	for (i = 0; i < samples && !feof(_file); ++i) {
-	    if (!good()) {
-		break;
-	    }
+        res.resize(samples);
+        size_t i;
+        for (i = 0; i < samples && good(); ++i) {
 
-	    for (size_t j = 0; j < _channel; ++j) {
-		readNext();
-		readNext();
-	    }
+            for (size_t j = 0; j < _channel; ++j) {
+                readNext();
+                readNext();
+            }
 
-	    char first = readNext();
-	    char second = readNext();
-	    for (size_t j = _channel+1; j < _channels; ++j) {
-		readNext(); // resetting to keep invariant.
-		readNext();
-	    }
-	    res[i] = convertTwoBytesToShort(first, second);
-	}
-	res.resize(i);
+            char first = readNext();
+            char second = readNext();
+            for (size_t j = _channel+1; j < _channels; ++j) {
+                readNext(); // resetting to keep invariant.
+                readNext();
+            }
+            res[i] = convertTwoBytesToShort(first, second);
+        }
+        res.resize(i);
     }
 
 };

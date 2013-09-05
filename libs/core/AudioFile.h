@@ -23,6 +23,7 @@ private:
     void populateFieldVariables();
 public:
     AudioFile(const char *path);
+
     ~AudioFile();
 
     // end is one past the last sample.

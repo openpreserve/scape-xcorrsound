@@ -26,10 +26,10 @@ namespace {
 
     void writeDBToDisk(std::string dbFilename, 
                        std::vector<uint32_t> &db,
-                       std::string audioFilename) {
+                       std::string indexedName) {
 
         std::ofstream of(dbFilename.c_str(), std::ios::out | std::ios::binary | std::ios::app);
-        size_t init = of.tellp() / 4;
+
         for (size_t i = 0; i < db.size(); ++i) {
             of.write((char*) &db[i], sizeof(uint32_t));
         }
@@ -39,36 +39,9 @@ namespace {
         std::string mapFilename = "map_" + dbFilename;
         std::ofstream mof(mapFilename.c_str(), std::ios::out | std::ios::app);
 
-        // typedef std::map<size_t, string>::iterator m_iter;
-        // for (m_iter iter = files.begin(); iter != files.end(); ++iter) {
-        //     mof << iter->first + init << " " << iter->second << endl;
-        // }
-
-        mof << end << " " << audioFilename << std::endl;
+        mof << end << " " << indexedName << std::endl;
         mof.close();
 
-        // SANITY CHECK
-        /*
-        std::cout << "starting sanity check" << std::endl;
-        std::cout << "db.size()=" << db.size() << std::endl;
-        std::cout << "end=" << end << "  init=" << init << std::endl;
-        std::cout << "dbFilename=" << dbFilename << std::endl;
-        uint32_t *buf = new uint32_t[end-init];        
-        if (end-init != db.size()) {
-            std::cout << "ERROR, non-matching size" << std::endl;
-        }
-        std::ifstream fin(dbFilename.c_str(), std::ifstream::in | std::ifstream::binary);
-        fin.seekg(init*4);
-        fin.read((char*) buf, (end-init)*sizeof(uint32_t));
-
-        for (size_t i = 0; i < end-init; ++i) {
-            if (buf[i] != db[i]) {
-                std::cout << "ERROR, non-matching fingerprint" << std::endl;
-            }
-        }
-        delete[] buf;
-        std::cout << "sanity check ended" << std::endl;
-        */
     }
 
     void getMapFile(std::string &filename, std::string &mapFile) {
@@ -111,7 +84,7 @@ void si::fingerprint_db::open(std::string filename) {
 
 }
 
-void si::fingerprint_db::insert(std::string filename) {
+void si::fingerprint_db::insert(std::string filename, std::string indexedName) {
     // assume we can have the entire file "filename" in memory.
     // "filename" is the filename of a wav file.
 
@@ -128,7 +101,7 @@ void si::fingerprint_db::insert(std::string filename) {
     this->fp_strategy->getFingerprintsForFile(filename, fingerprints);
 
     // append fingerprint stream to this->dbFilename
-    writeDBToDisk((this->dbFilename).c_str(), fingerprints, filename);
+    writeDBToDisk((this->dbFilename).c_str(), fingerprints, filename == "-" ? indexedName : filename);
 
 }
 
@@ -137,7 +110,7 @@ void si::fingerprint_db::query_scan(std::string filename, std::vector<std::strin
     ret.clear();
     //AudioFile a(filename.c_str());
     
-    std::vector<int16_t> samples;
+    //std::vector<int16_t> samples;
 
     //a.getSamplesForChannel(0, samples);
 
@@ -150,14 +123,16 @@ void si::fingerprint_db::query_scan(std::string filename, std::vector<std::strin
     // size_t bestMatch = 1024*1024;
     // size_t bestMatchDistance = fingerprints.size();
 
-    std::vector<uint32_t> db(1024*1024+macro_sz);
+    std::vector<uint32_t> db(1024*1024+macro_sz, 0);
     
     std::ifstream fin(this->dbFilename.c_str(), std::ifstream::in | std::ifstream::binary);
 
     uint32_t *buf = new uint32_t[1024*1024];
     size_t end = 0;
     size_t pos = 0;
+    size_t prevMatchPos = std::numeric_limits<size_t>::max();
     while (fin) {
+
         for (size_t i = 0; i < macro_sz; ++i) {
             db[i] = db[db.size()-macro_sz+i];
         }
@@ -171,16 +146,14 @@ void si::fingerprint_db::query_scan(std::string filename, std::vector<std::strin
             db[i+macro_sz] = buf[i];
         }
 
-
-        size_t prevMatchPos = std::numeric_limits<size_t>::max();
-
         for (size_t i = 0; i < end-macro_sz; ++i,++pos) {
-            if (pos - prevMatchPos < this->fp_strategy->getSampleRate() &&
+            if (pos - prevMatchPos < (this->fp_strategy->getSampleRate()) &&
                 prevMatchPos != std::numeric_limits<size_t>::max()) continue;
             size_t dist = 0;
             // bool atLeastOne = false;
-            for (size_t j = 100; j < 100+macro_sz; ++j) {
-                uint32_t x = fingerprints[j] ^ db[i+j];
+            size_t startJ = 50;
+            for (size_t j = startJ; j < startJ+macro_sz; ++j) {
+                uint32_t x = fingerprints[j] ^ db[i+j-startJ];
                 //uint32_t cnt = hammingLookup16(x);
                 uint32_t cnt = __builtin_popcountll(x);
                 dist += cnt;
@@ -224,7 +197,7 @@ void si::fingerprint_db::query_scan(std::string filename, std::vector<std::strin
 }
 
 void si::fingerprint_db::query(std::string filename, std::vector<std::string> &results) {
-    
+    return;
 }
 
 void si::fingerprint_db::merge(std::vector<std::string> &inputs) {

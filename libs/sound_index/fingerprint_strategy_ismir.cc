@@ -2,10 +2,16 @@
 #include <cmath>
 #include <complex>
 #include <computeFFT.h>
+#include <cstdlib>
+#include <ctime>
 #include <fingerprint_strategy.hh>
+#include <functional>
+#include <sstream>
 #include <stdint.h>
 #include <string>
-#include <sstream>
+#include <sys/time.h>
+#include <wavStdinReader.hh>
+#include <iomanip>
 
 namespace {
     size_t frameLength = 2048;
@@ -13,6 +19,35 @@ namespace {
     size_t advance = 64;
 
     size_t sampleRate  = 5512;
+
+    std::string getTmpDir() {
+        const char *val = ::getenv("TmpSoundIndex");
+        if (val == 0) {
+            return "/tmp/";
+        } else {
+            return std::string(val);
+        }
+    }
+
+    std::string getTmpFilename() {
+
+        timeval tv;
+        gettimeofday(&tv, 0);
+
+        std::stringstream ss;
+        for (size_t i = 0; i < sizeof(tv.tv_sec); ++i) {
+            char c = ((tv.tv_sec >> (i*8) & 255) % 26)+65;
+            ss << c;
+        }
+
+        for (size_t i = 0; i < sizeof(tv.tv_usec); ++i) {
+            char c = ((tv.tv_usec >> (i*8) & 255) % 26)+97;
+            ss << c;
+        }
+        ss << ".wav";
+
+        return ss.str();
+    }
 
     void getHanningWindow(size_t windowLength, std::vector<double> &window) {
 
@@ -133,8 +168,8 @@ namespace {
 
         std::vector<double> prevEnergy(33, 0.0);
         size_t frameStart, frameEnd;
-        frameStart = 0; frameEnd = frameStart += advance;
 
+        frameStart = 0; frameEnd = frameStart + frameLength;
         for (size_t frameStart = 0; frameEnd < input.size(); frameStart += advance, frameEnd += advance) {
             std::vector<std::complex<double> > transform(frameLength);
         
@@ -174,15 +209,25 @@ namespace sound_index {
 
     void 
     fingerprint_strategy_ismir::getFingerprintsForFile(std::string filename, std::vector<uint32_t> &res) {
-        bool isWav = true;
-        std::stringstream tmpss;
+        std::vector<int16_t> samples;
 
         // if filename is not wav file, start by converting to 5512hz stereo wav file
-        // if filename is wav file, assume it conforms to assumption above.
+        // if filename is on stdin, assume it conforms to assumption above.
+        // otherwise assume the file is 5512hz wav file.
+        if (filename == "-") {
+            // use stdin wav file reader.
+            
+            wavStdinReader wsr;
+            wsr.getSamplesForChannel(0, samples);
 
-        if (filename.substr(filename.size()-3, 3) != "wav") {
-            isWav = false;
-            std::cout << "hellowzor2" << std::endl;
+        } else if (filename.substr(filename.size()-3, 3) != "wav") {
+            std::stringstream tmpss;
+
+            AudioFile a(tmpss.str().c_str());
+            AudioStream as(a.getStream(0));
+
+            as.read(a.getNumberOfSamplesPrChannel(), samples);
+
             size_t idx = 0;
             for (size_t i = filename.size(); i > 0; --i) {
                 if (filename[i-1] == '/') {
@@ -191,7 +236,9 @@ namespace sound_index {
                 }
             }
 
-            tmpss << "/tmp/" << filename.substr(idx, std::string::npos) << ".wav";
+            std::string tmpDir = ::getTmpDir();
+            tmpss << tmpDir << filename.substr(idx, std::string::npos) << ".wav";
+
             std::stringstream ss;
             ss << "ffmpeg -i " << filename << " -ar 5512 " << tmpss.str();
             FILE* cmd = popen(ss.str().c_str(), "r");
@@ -203,27 +250,24 @@ namespace sound_index {
                 res = pclose(cmd);
                 return; // error
             }
-            
-        } else {
-            tmpss << filename;
-        }
-
-        // implement ismir.
-        AudioFile a(tmpss.str().c_str());
-        std::vector<int16_t> samples;
-
-        a.getSamplesForChannel(0, samples);
-
-        ::generateFingerprintStream(samples, res);
-
-        if (!isWav) {
             std::stringstream rmss;
             rmss << "rm -rf " << tmpss.str();
-            FILE *cmd = popen(rmss.str().c_str(), "r");
-            int res = pclose(cmd);
+            cmd = popen(rmss.str().c_str(), "r");
+            int resCmd = pclose(cmd);            
+        } else {
+            AudioFile a(filename.c_str());
+            AudioStream as(a.getStream(0));
+            as.read(a.getNumberOfSamplesPrChannel(), samples);
+
         }
+        std::cout << samples.size() << std::endl;
+        for (size_t i = 0; i < samples.size(); ++i) {
+            std::cout << samples[i] << std::endl;
+        }
+        // implement ismir.
+        ::generateFingerprintStream(samples, res);
     }
-        
+    
     size_t 
     fingerprint_strategy_ismir::getFrameLength() { return ::frameLength; }
 
