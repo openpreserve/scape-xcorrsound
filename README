@@ -13,20 +13,22 @@ INSTALL
 
     The tools depend on FFTW3 and Boost program options. These can be found as debian packages.
 
-    Depending on which tool is needed, run
-    make <tool>
-    where <tool> is either "overlap-analysis" or "waveform-compare" (quotes for clarity)
+    Download the repository, change directory to the repository and run:
+
+    mkdir build
+    cd build
+    cmake ..
+    make
+
+    You will now find all the tools in build/apps/
 
 BUILD DEBIAN PACKAGE
 
-    You need gpg installed and you need a gpg key. Run
+    Inside the build directory run:
 
-    sudo apt-get install gnupg
-    gpg --gen-key
+    cpack -G DEB
 
-    You can the generate the debian package. Run
-
-    debuild
+    Now the .deb package file in the build directory.
 
 USE
 
