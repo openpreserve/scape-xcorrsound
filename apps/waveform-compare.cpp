@@ -228,6 +228,8 @@ int main(int argc, char *argv[]) {
     double firstMaxVal = 0.0;
     int64_t firstOffset = 0;
 
+    double minimumVal = 2;
+
     for (size_t block = 1; !done; ++block) {
         vector<int16_t> aSamples, bSamples;
         vector<uint64_t> aSquarePrefixSum, bSquarePrefixSum;
@@ -289,9 +291,12 @@ int main(int argc, char *argv[]) {
                 first = false;
                 firstMaxVal = maxVal;
                 firstOffset = maxIdx;
+                minimumVal = maxVal;
                 if (firstMaxVal < threshold) {
                     success = false;
                     blockFailure = block;
+                    blockFailureVal = maxVal;
+                    blockFailureOffset = maxIdx;
                 }
             } else {
                 if (maxIdx - firstOffset > 500 || firstOffset - maxIdx > 500 || maxVal < threshold) {
@@ -300,6 +305,9 @@ int main(int argc, char *argv[]) {
                     blockFailure = block;
                     blockFailureVal = maxVal;
                     blockFailureOffset = maxIdx;
+                }
+                if (maxVal < minimumVal) {
+                    minimumVal = maxVal;
                 }
             }
         }
@@ -320,6 +328,7 @@ int main(int argc, char *argv[]) {
     if (success) {
 		cout << "Success" << endl;
 		cout << "Offset: " << firstOffset << endl;
+        std::cout << "Similarity: " << minimumVal << std::endl;
 		return 0;
     } else {
 		cout << "Failure" << endl;
