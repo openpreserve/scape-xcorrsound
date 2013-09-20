@@ -28,7 +28,7 @@ BUILD DEBIAN PACKAGE
 
     cpack -G DEB
 
-    Now the .deb package file in the build directory.
+    Now the .deb package file is in the build directory.
 
 USE
 
