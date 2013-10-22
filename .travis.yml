@@ -8,3 +8,9 @@ before_script:
 script:
   - make package
   - cpack -G DEB
+after_success:
+  - sudo dpkg -i scape-xcorrsound*deb
+  - ls -l scape-xcorrsound*deb
+  - overlap-analysis -h
+  - sound-match -h
+  - waveform-compare -h
