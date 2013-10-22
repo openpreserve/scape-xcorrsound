@@ -5,4 +5,6 @@ install: "sudo apt-get install libfftw3-dev libboost-all-dev"
 before_script:
   - mkdir build && cd build
   - cmake ..
-script: "make package"
+script:
+  - make package
+  - cpack -G DEB
