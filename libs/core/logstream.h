@@ -3,6 +3,7 @@
 
 #include "stdint.h"
 #include <iostream>
+#include <cstdio>
 
 class logstreambuffer : public std::basic_streambuf<char, std::char_traits<char> > {
 private:
