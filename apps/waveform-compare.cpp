@@ -103,7 +103,7 @@ void init(int argc, char *argv[]) {
         ("threshold", po::value<double>(), "Threshold value, default 0.98")
         ("channel", po::value<int32_t>(), "Channel, default 0")
         ;
-    
+
     po::positional_options_description positional;
     positional.add("input-files", -1);
 
@@ -165,7 +165,7 @@ void init(int argc, char *argv[]) {
 
 }
 
-pair<int64_t, double> 
+pair<int64_t, double>
 compareBlock(proxyFFT<int16_t, double> &aFFT, proxyFFT<int16_t, double> &bFFT,
              vector<uint64_t> &aSquarePrefixSum, vector<uint64_t> &bSquarePrefixSum) {
 
@@ -180,7 +180,7 @@ compareBlock(proxyFFT<int16_t, double> &aFFT, proxyFFT<int16_t, double> &bFFT,
     // results are unreliable if there is not enough 'overlap', hence -1000.
     for (size_t i = 0; i < result.size()-1000; ++i) {
         double val = result[i].real();
-        double norm = computeNormFactor(aSquarePrefixSum, bSquarePrefixSum, 
+        double norm = computeNormFactor(aSquarePrefixSum, bSquarePrefixSum,
                                         aSquarePrefixSum.begin() + i, aSquarePrefixSum.end(),
                                         bSquarePrefixSum.begin(), bSquarePrefixSum.end() - i);
 
@@ -238,6 +238,21 @@ int main(int argc, char *argv[]) {
         aStream.read(samplesPrBlock, aSamples);
         bStream.read(samplesPrBlock, bSamples);
 
+        if (aSamples.size() == 0 && bSamples.size() == 0) {
+            // reached the end of both of the samples
+            break;
+        }
+
+        // Pad the blocks with silence - this will only pad the last block, so
+        // that for short files, shorter than one block, the correlation is
+        // performed, rather than terminating the loop early in the following
+        // break, leaving minimumVal as 2, and indicating success.
+        // Because we're looping until the end of both samples, this will pad
+        // out a shorter sample with silence (which will probably yield a
+        // correlation failure)
+        aSamples.resize(samplesPrBlock, 0);
+        bSamples.resize(samplesPrBlock, 0);
+
         if (aSamples.size() < samplesPrBlock/2 || bSamples.size() < samplesPrBlock) {
             // not enough samples for another reliable check.
             break;
@@ -246,7 +261,7 @@ int main(int argc, char *argv[]) {
         prefixSquareSum(aSamples, aSquarePrefixSum);
         prefixSquareSum(bSamples, bSquarePrefixSum);
 
-        // we count the average of absolute values 
+        // we count the average of absolute values
         // if the average is close to 0, then we decide it is silence
 
         size_t absSumA = 0; size_t absSumB = 0;
@@ -257,7 +272,7 @@ int main(int argc, char *argv[]) {
         for (size_t i = 0; i < bSamples.size(); ++i) {
             absSumB += (bSamples[i]>=0)?bSamples[i]:-bSamples[i];
         }
-	
+
         double avgA = static_cast<double>(absSumA)/aSamples.size();
         double avgB = static_cast<double>(absSumB)/bSamples.size();
 
@@ -265,7 +280,7 @@ int main(int argc, char *argv[]) {
             silence = true;
         } else if (avgA <= 5.0 || avgB <= 5.0) {
             success = false;
-        } 
+        }
 
         bool compare = !silence;
 
@@ -281,7 +296,7 @@ int main(int argc, char *argv[]) {
             maxVal = tmp.second;
 
             tmp = compareBlock(bFFT, aFFT, bSquarePrefixSum, aSquarePrefixSum);
-	
+
             if (tmp.second > maxVal + 1e-6) {
                 maxIdx = -tmp.first;
                 maxVal = tmp.second;
@@ -312,7 +327,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (aSamples.size() < samplesPrBlock || bSamples.size() < samplesPrBlock) { 
+        if (aSamples.size() < samplesPrBlock || bSamples.size() < samplesPrBlock) {
             // we don't check the last block. Is this ok?
             done = true;
         }
@@ -338,9 +353,9 @@ int main(int argc, char *argv[]) {
 		return 1;
 		/*
 		  cout << "block " << blockFailure << ":" << endl;
-		  cout << "Time: " << getTimestampFromSeconds(blockFailure*5-5) << " - " 
+		  cout << "Time: " << getTimestampFromSeconds(blockFailure*5-5) << " - "
 		  << getTimestampFromSeconds(blockFailure*5) << " did not match properly" << endl;
 		*/
     }
-	
+
 }
