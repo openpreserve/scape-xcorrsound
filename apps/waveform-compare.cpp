@@ -22,15 +22,18 @@ logstream ls(5, "waveform-compare.log");
 // input parameters
 string input1, input2;
 bool verbose;
+bool padShortBlock = false;
 uint32_t secondsPrBlock = 1;
 uint32_t channel = 0;
 double threshold = 0.97;
 
 void printUsage() {
     cout << "Usage: waveform-compare <first.wav> <second.wav> [--channel=c] [--block-size=N] [--threshold=X]" << endl;
+    cout << "       [--pad-short-block]" << endl;
     cout << "Where N is the (integer) number of seconds pr block and X is the threshold in" << endl;
     cout << "[0,1] and c is the channel starting from 0. By default N=5, X=0.98 and c = 0." << endl;
     cout << "Channel c is the channel as specified by the wav format." << endl;
+    cout << "Samples shorter than the block length can be padded with silence to improve the correlation." << endl;
 }
 
 void printVersion() {
@@ -102,6 +105,7 @@ void init(int argc, char *argv[]) {
 	("block-size", po::value<int32_t>(), "Block size in seconds (must be integer) when comparing, default is 5")
         ("threshold", po::value<double>(), "Threshold value, default 0.98")
         ("channel", po::value<int32_t>(), "Channel, default 0")
+        ("pad-short-block", "Pad short blocks with silence, default false")
         ;
 
     po::positional_options_description positional;
@@ -161,6 +165,12 @@ void init(int argc, char *argv[]) {
     } else {
         std::cout << generic << std::endl;
         exit(1);
+    }
+
+    if (vm.count("pad-short-block")) {
+        padShortBlock = true;
+    } else {
+        padShortBlock = false;
     }
 
 }
@@ -240,21 +250,30 @@ int main(int argc, char *argv[]) {
 
         if (aSamples.size() == 0 && bSamples.size() == 0) {
             // reached the end of both of the samples
+            if (verbose) {
+                cout << "finished: reached end of both samples" << endl;
+            }
             break;
         }
 
-        // Pad the blocks with silence - this will only pad the last block, so
-        // that for short files, shorter than one block, the correlation is
-        // performed, rather than terminating the loop early in the following
-        // break, leaving minimumVal as 2, and indicating success.
-        // Because we're looping until the end of both samples, this will pad
-        // out a shorter sample with silence (which will probably yield a
-        // correlation failure)
-        aSamples.resize(samplesPrBlock, 0);
-        bSamples.resize(samplesPrBlock, 0);
+        if (padShortBlock) {
+            // If this correlation involves 'short' files, shorter than one
+            // block, pad the blocks with silence - this will only pad the last
+            // block, so that for short files, shorter than one block, the
+            // correlation is performed, rather than terminating the loop early
+            // in the following break, leaving minimumVal as 2, and indicating
+            // success.  Because we're looping until the end of both samples,
+            // this will pad out a shorter sample with silence (which will
+            // probably yield a correlation failure)
+            aSamples.resize(samplesPrBlock, 0);
+            bSamples.resize(samplesPrBlock, 0);
+        }
 
         if (aSamples.size() < samplesPrBlock/2 || bSamples.size() < samplesPrBlock) {
             // not enough samples for another reliable check.
+            if (verbose) {
+                cout << "finished: not enough samples for another reliable check" << endl;
+            }
             break;
         }
 
@@ -308,13 +327,25 @@ int main(int argc, char *argv[]) {
                 firstOffset = maxIdx;
                 minimumVal = maxVal;
                 if (firstMaxVal < threshold) {
+                    if (verbose) {
+                        cout << "failed: threshold crossed in first block (" << firstMaxVal << ")" << endl;
+                    }
                     success = false;
                     blockFailure = block;
                     blockFailureVal = maxVal;
                     blockFailureOffset = maxIdx;
                 }
             } else {
-                if (maxIdx - firstOffset > 500 || firstOffset - maxIdx > 500 || maxVal < threshold) {
+                int64_t offsetDistance = abs(maxIdx - firstOffset);
+                bool offsetDistanceExceeded = offsetDistance > 500;
+                bool thresholdCrossed = maxVal < threshold;
+                if (offsetDistanceExceeded || thresholdCrossed) {
+                    if (verbose && offsetDistanceExceeded) {
+                        cout << "failed: offset distance exceeded (" << offsetDistance << ")" << endl;
+                    }
+                    if (verbose && thresholdCrossed) {
+                        cout << "failed: threshold crossed (" << maxVal << ")" << endl;
+                    }
                     // check to see that the offset between blocks is not too large.
                     success = false;
                     blockFailure = block;
@@ -329,6 +360,9 @@ int main(int argc, char *argv[]) {
 
         if (aSamples.size() < samplesPrBlock || bSamples.size() < samplesPrBlock) {
             // we don't check the last block. Is this ok?
+            if (verbose) {
+                cout << "finished: at last block" << endl;
+            }
             done = true;
         }
         if (verbose) {
@@ -341,16 +375,16 @@ int main(int argc, char *argv[]) {
     }
 
     if (success) {
-		cout << "Success" << endl;
-		cout << "Offset: " << firstOffset << endl;
-        std::cout << "Similarity: " << minimumVal << std::endl;
-		return 0;
+      cout << "Success" << endl;
+      cout << "Offset: " << firstOffset << endl;
+      cout << "Similarity: " << minimumVal << endl;
+      return 0;
     } else {
-		cout << "Failure" << endl;
-		cout << "Block: " << blockFailure << endl;
-        cout << "Value in block: " << blockFailureVal << endl;
-        cout << "Offset in block: " << blockFailureOffset << " (normal: " << firstOffset << ")" << endl;
-		return 1;
+      cout << "Failure" << endl;
+      cout << "Block: " << blockFailure << endl;
+      cout << "Value in block: " << blockFailureVal << endl;
+      cout << "Offset in block: " << blockFailureOffset << " (normal: " << firstOffset << ")" << endl;
+      return 1;
 		/*
 		  cout << "block " << blockFailure << ":" << endl;
 		  cout << "Time: " << getTimestampFromSeconds(blockFailure*5-5) << " - "
