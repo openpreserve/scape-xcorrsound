@@ -12,6 +12,7 @@ Note that all the tools will need write access to a file called <tool>.log where
 INSTALL
 
     The tools depend on FFTW3 and Boost program options. These can be found as debian packages.
+    And as rpm packages. See install_dependencies.sh
 
     Download the repository, change directory to the repository and run:
 
