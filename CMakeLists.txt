@@ -13,8 +13,8 @@ find_package(FFTW)
 #find_package (LibAVFormat 53.21.1 REQUIRED)
 #find_package (LibAVUtil 51.22.1 REQUIRED)
 
-include_directories(${FFTW_INCLUDES} ${Boost_INCLUDE_DIR} libs/core libs/sound_index tpie ${CMAKE_CURRENT_BINARY_DIR}/tpie)
-#include_directories(${FFTW_INCLUDES} ${Boost_INCLUDE_DIR} libs/core libs/sound_index)
+#include_directories(${FFTW_INCLUDES} ${Boost_INCLUDE_DIR} libs/core libs/sound_index tpie ${CMAKE_CURRENT_BINARY_DIR}/tpie)
+include_directories(${FFTW_INCLUDES} ${Boost_INCLUDE_DIR} libs/core libs/sound_index)
 
 #include_directories (${LIBAVCODEC_INCLUDE_DIRS})
 #include_directories (${LIBAVFORMAT_INCLUDE_DIRS})
@@ -56,13 +56,13 @@ waveform-compare: Compare two wave files to determine if they represent the same
 sound-match: find the location of a small wavefile inside a big wavefile
 overlap-analysis: find the overlap between two wave files")
 
-add_subdirectory (tpie)
+#add_subdirectory (tpie)
 add_subdirectory (libs)
 add_subdirectory (apps)
 add_subdirectory (man)
 
-add_executable(tpietest tpietest.cc)
-target_link_libraries(tpietest tpie)
+#add_executable(tpietest tpietest.cc)
+#target_link_libraries(tpietest tpie)
 
 INCLUDE(CPack)
 SET(CPACK_GENERATOR "DEB")
