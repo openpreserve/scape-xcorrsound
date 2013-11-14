@@ -6,7 +6,7 @@ add_executable(ismir_query ismir_query.cc)
 add_executable(ismir_build_index ismir_build_index.cc)
 add_executable(ismir_merge ismir_merge.cc)
 
-add_executable(revindex revindex.cc)
+#add_executable(revindex revindex.cc)
 
 #add_executable(mything mything.cc)
 
@@ -21,7 +21,7 @@ target_link_libraries(ismir_query core sound_index ${Boost_LIBRARIES})
 target_link_libraries(ismir_build_index core sound_index ${Boost_LIBRARIES})
 target_link_libraries(ismir_merge core sound_index ${Boost_LIBRARIES})
 
-target_link_libraries(revindex tpie)
+#target_link_libraries(revindex tpie)
 
 #target_link_libraries(mything tpie)
 
