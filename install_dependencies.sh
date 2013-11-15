@@ -15,3 +15,7 @@ sudo apt-get install libfftw3-dev
 # sudo yum install glibc
 # sudo yum install boost-devel
 # sudo yum install fftw-devel
+
+# ON Mac OS X run
+# brew install boost
+# brew install fftw
