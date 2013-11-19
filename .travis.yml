@@ -1,16 +1,11 @@
-language: cpp
-compiler:
-  - gcc
-install: "sudo apt-get install libfftw3-dev libboost-all-dev"
+language: objective-c
+install: 
+  - brew install boost
+  - brew install fftw
 before_script:
   - mkdir build && cd build
   - cmake ..
 script:
   - make package
   - cpack -G DEB
-after_success:
-  - sudo dpkg -i scape-xcorrsound*deb
-  - ls -l scape-xcorrsound*deb
-  - overlap-analysis -h
-  - sound-match -h
-  - waveform-compare -h
+
