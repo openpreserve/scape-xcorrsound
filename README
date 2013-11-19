@@ -24,6 +24,16 @@ INSTALL
 
     You will now find all the tools in build/apps/
 
+INSTALL CENTOS (AWS linux)
+   
+    sudo yum install gcc gcc-c++ glibc boost-devel fftw-devel
+    mkdir build
+    cd build
+    sudo cmake ..
+    sudo make
+
+    You will now find all the tools in build/apps/
+    
 BUILD DEBIAN PACKAGE
 
     Inside the build directory run:
