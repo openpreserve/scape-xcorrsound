@@ -10,6 +10,6 @@ before_script:
 script:
   - make package
 after_script:
-  - overlap-analysis -h
-  - sound-match -h
-  - waveform-compare -h
+  - ./apps/overlap-analysis -h
+  - ./apps/sound-match -h
+  - ./apps/waveform-compare -h
