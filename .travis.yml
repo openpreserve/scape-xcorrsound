@@ -6,10 +6,11 @@ install:
   - brew install cmake
 before_script:
   - mkdir build && cd build
-  - cmake ..
+  - cmake .. 
 script:
-  - make package
+  - make
 after_script:
+  - cpack -G TGZ
   - ./apps/overlap-analysis -h
   - ./apps/sound-match -h
   - ./apps/waveform-compare -h
