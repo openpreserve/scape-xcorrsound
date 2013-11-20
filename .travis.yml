@@ -1,11 +1,15 @@
 language: objective-c
 install: 
+  - brew update
   - brew install boost
   - brew install fftw
+  - brew install cmake
 before_script:
   - mkdir build && cd build
   - cmake ..
 script:
   - make package
-  - cpack -G DEB
-
+after_script:
+  - overlap-analysis -h
+  - sound-match -h
+  - waveform-compare -h
