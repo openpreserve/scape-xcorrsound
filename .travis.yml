@@ -6,10 +6,10 @@ before_install:
   - wget ftp://mirrors.kernel.org/sourceware/cygwin/x86/release/boost/libboost-devel/libboost-devel-1.53.0-2.tar.bz2
 install: 
   - sudo apt-get update
-  - sudo apt-get install gcc-mingw32
+  - sudo apt-get install mingw32
   - pushd .
   - TBZ2DIR=`pwd`
-  - cd /usr/i686-w64-mingw32/
+  - cd /usr/i586-mingw32msvc/
   - sudo tar jxf $TBZ2DIR/libfftw3-devel-*.tar.bz2
   - sudo tar jxf $TBZ2DIR/libfftw3_3-*.tar.bz2
   - sudo tar jxf $TBZ2DIR/libboost1.53-*.tar.bz2
