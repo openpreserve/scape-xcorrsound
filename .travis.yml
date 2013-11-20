@@ -1,4 +1,4 @@
-language: objective-c
+language: cpp
 before_install:
   - wget ftp://mirrors.kernel.org/sourceware/cygwin/x86/release/fftw3/libfftw3-devel/libfftw3-devel-3.3.3-1.tar.bz2
   - wget ftp://mirrors.kernel.org/sourceware/cygwin/x86/release/fftw3/libfftw3_3/libfftw3_3-3.3.3-1.tar.bz2
