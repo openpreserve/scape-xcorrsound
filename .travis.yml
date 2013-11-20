@@ -1,16 +1,26 @@
 language: objective-c
+before_install:
+  - wget ftp://mirrors.kernel.org/sourceware/cygwin/x86/release/fftw3/libfftw3-devel/libfftw3-devel-3.3.3-1.tar.bz2
+  - wget ftp://mirrors.kernel.org/sourceware/cygwin/x86/release/fftw3/libfftw3_3/libfftw3_3-3.3.3-1.tar.bz2
+  - wget ftp://mirrors.kernel.org/sourceware/cygwin/x86/release/boost/libboost1.53/libboost1.53-1.53.0-2.tar.bz2
+  - wget ftp://mirrors.kernel.org/sourceware/cygwin/x86/release/boost/libboost-devel/libboost-devel-1.53.0-2.tar.bz2
 install: 
-  - brew update
-  - brew install boost
-  - brew install fftw
-  - brew install cmake
+  - sudo apt-get install gcc-mingw32
+  - pushd .
+  - cd /usr/i586-mingw32msvc/
+  - sudo tar jxf libfftw3-devel-3.3.3-1.tar.bz2
+  - sudo tar jxf libfftw3_3-3.3.3-1.tar.bz2
+  - sudo tar jxf libboost1.53-1.53.0-2.tar.bz2
+  - sudo tar jxf libboost-devel-1.53.0-2.tar.bz2
+  - popd
 before_script:
   - mkdir build && cd build
-  - cmake .. 
+  - cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake-modules/mingw32-cross-compile.cmake
 script:
   - make
 after_script:
   - cpack -G TGZ
-  - ./apps/overlap-analysis -h
-  - ./apps/sound-match -h
-  - ./apps/waveform-compare -h
+  - file ./apps/*
+  - /usr/bin/i586-mingw32msvc-objdump -x ./apps/waveform-compare.exe | grep "DLL Name"
+  - /usr/bin/i586-mingw32msvc-objdump -x ./apps/sound-match.exe | grep "DLL Name"
+  - /usr/bin/i586-mingw32msvc-objdump -x ./apps/overlap-analysis.exe | grep "DLL Name"
