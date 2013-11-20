@@ -26,3 +26,5 @@ after_script:
   - /usr/bin/i586-mingw32msvc-objdump -x ./apps/waveform-compare.exe | grep "DLL Name"
   - /usr/bin/i586-mingw32msvc-objdump -x ./apps/sound-match.exe | grep "DLL Name"
   - /usr/bin/i586-mingw32msvc-objdump -x ./apps/overlap-analysis.exe | grep "DLL Name"
+  - cp `find -name "cygboost_program_options-mt-1_53.dll" -type f /usr/i586-mingw32msvc/"` .
+  - cp `find -name "cygfftw3-3.dll" -type f /usr/i586-mingw32msvc/"` .
