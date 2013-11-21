@@ -45,10 +45,10 @@ include_directories(${FFTW_INCLUDES} ${Boost_INCLUDE_DIR} libs/core libs/sound_i
 #endif (LINUX)
 
 set(CPACK_PACKAGE_NAME scape-xcorrsound)
-set(CPACK_PACKAGE_VERSION 0.9.1)
+#set(CPACK_PACKAGE_VERSION 0.9.1)
 
 set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE amd64)
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6, libboost-program-options-dev, libfftw3-dev")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6, libboost-all-dev, libfftw3-dev")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Jesper Sindahl Nielsen <jsn@statsbiblioteket.dk>")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY 
 "This is a package of the toolsuite scape-xcorrsound. It contains three tools
