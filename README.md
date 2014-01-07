@@ -30,13 +30,13 @@ XCORRSOUND is for:
 
 ### Version 2.0.0
 
-* Feature 1
-* Feature 2
+* _waveform-block-similarity_ in the output
+* Micro site
 
 ### Roadmap
 
-* Feature 3
-* Feature 4
+* Consistent versioning
+* Demo site
 
 ## How to install and use
 
