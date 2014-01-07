@@ -28,7 +28,7 @@ XCORRSOUND is for:
 
 ## Features and roadmap
 
-### Version 0.0.1
+### Version 2.0.0
 
 * Feature 1
 * Feature 2
@@ -120,6 +120,7 @@ Output example:
   Audio Quality Assurance: An Application of Cross Correlation.
   In: iPRES 2012 – Proceedings of the 9th International Conference on Preservation of Digital Objects. Toronto 2012, 144-149.
   ISBN 978-0-9917997-0-1 (http://www.scape-project.eu/publication/audio-quality-assurance)
+
 #### Blog posts
 * http://openplanetsfoundation.com/blogs/2012-07-09-xcorrsound-waveform-compare-new-audio-quality-assurance-tool
 * http://openplanetsfoundation.com/blogs/2013-05-21-sound-challenge-and-easter-egg-goes
@@ -127,7 +128,7 @@ Output example:
 ### Licence
 
 XCORRSOUND is copyright 2012 State and University Library, Denmark
-released under [/usr/share/common-licenses/GPL-2]
+released under GPLv2, see ./COPYING or http://www.gnu.org/licenses/gpl-2.0.html
 
 ### Acknowledgements
 
