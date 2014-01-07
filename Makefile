@@ -12,7 +12,7 @@ CXX = /usr/bin/g++
 #CXX=~/third_party/llvm-build/Release+Asserts/bin/clang++ $(SAN)
 #SAN=-faddress-sanitizer -fno-omit-frame-pointer 
 OBJECT_FILES := my_utils.o
-VERSION = 0.9
+#VERSION = 2.0.0
 
 
 all: sound-match overlap-analysis waveform-compare 

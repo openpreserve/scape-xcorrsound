@@ -37,7 +37,7 @@ void printUsage() {
 }
 
 void printVersion() {
-    cout << "waveform-compare version 0.1.0" << endl;
+    cout << "waveform-compare xcorrsound version 2.0.0" << endl;
 }
 
 void printInfo() {
