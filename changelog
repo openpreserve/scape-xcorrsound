@@ -1,4 +1,4 @@
-scape-xcorrsound (1.0.2) trusty; urgency=low
+scape-xcorrsound (2.0.0) trusty; urgency=low
   * Fixed the debian packaging
   * Scape micro site
   * Install Instructions and version refs updated
