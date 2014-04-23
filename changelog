@@ -1,4 +1,87 @@
-scape-xcorrsound (2.0.0) trusty; urgency=low
-  * New upstream release with lots of bug fixes and feature improvements.
- -- Jane Doe <packager@example.com>  Mon, 21 Oct 2013 11:12:00 -0400
-  
+scape-xcorrsound (1.0.2) trusty; urgency=low
+  * Fixed the debian packaging
+  * Scape micro site
+  * Install Instructions and version refs updated
+  * README updates to match SCAPE template - work in 
+  progress
+  * Added descriptions for installing on Mac OS X
+  * Tool dependencies as rpm packages added
+  * Applied patch to remove the tpie dependency
+  * Add command line flag --pad-short-block to control the 
+  padding of samples shorter than the block length with 
+  silence. Also add diagnostics to show more detail of 
+  correlation failure if --verbose is given.
+  * Correlation of short waveforms and Cygwin build
+  * Pad short blocks read from the end of samples with 
+  silence, so that the correlation is used in the case of 
+  samples shorter than the block length (rather than exiting 
+  the loop, leaving minimumVal as 2 and indicating success).
+  * Additional includes necessary for building on Cygwin.
+  * [Travis] test .deb and binaries
+  * Added debian package to travis
+  * And corrected project language yet again.
+  * added a similarity measure output on success
+  * Removed cout stuff
+  * fixed a bug in AudioStream
+  * received updates for tpie
+  * build index now supports piping
+  * quick and dirty wavStdin reader
+  * now also compiling with TPIE and avcodec
+  * prepared fingerprint_db for 'hashing-style' queries, 
+  changed to using 64 samples skips, and various other things
+  * added minor progress info for index building
+  * files for CMake to find libavcodec
+  * Got the revindex for testing purposes. Written by 
+  Mathias Rav
+  * changing design to have several fingerprinting 
+  strategies
+  * integrationTests now works with other paths
+  * Removed the old debian specs as cmake does that job now
+  * insertion and query works
+  * ismir_build_index now working
+  * Add travis file
+  * fast comparisons
+  * Added more information on why a waveform comparison 
+  failed
+  * Wrote up man pages for the tools
+  * Added options: --threshold and --channel along with the 
+  appropriate modifications for the parameters
+  * added number of seconds pr block as a parameter to 
+  waveform-compare
+  * Renamed xcorrSound tool to the more descriptive 
+  'overlap-analysis'
+  * lets use a relational database
+  * changed some things up. Fingerprints are now proper 
+  size fx.
+  * minor corrections and another way of indexing audio
+  * fixed long long. Now int64_t
+  * added return codes to migrationQA.cpp
+  * A tool to help in creating the fingerprinting function 
+  for a data set
+  * sound index stuff. Various additions and changes. next 
+  step is to do some test runs and see if the idea works.
+  * Made a better silence detector for migrationQA
+  * Lots of changes. Next step is to normalize the sound to 
+  get more correct matches
+  * Initial go at building an audio index
+  * Fixed AudioStream to be more wav compliant. Now accepts 
+  wav files with extra parameters
+  * implemented the fingerprinting function. Need to fiddle 
+  with the magic constant to get good results
+  * migrationQA: now with negative offset and better info
+  * migrationQA: tool now works. Remember input order 
+  matters\!
+  * soundMatch now works in a streaming fashion
+ -- Jesper Sindahl Nielsen <jsn@statsbiblioteket.dk>  Wed, 23 Apr 2014 16:48:08 +0200
+
+scape-xcorrsound (1.0.1) trusty; urgency=low
+  * script for making the xcorrSound tarball
+  * cleaning up fftw
+  * sound match is now working
+  * Fixed bugs in cross correlation
+ -- Jesper Sindahl Nielsen <jsn@statsbiblioteket.dk>  Mon, 14 Nov 2011 13:54:48 +0000
+
+scape-xcorrsound (1.0.0) trusty; urgency=low
+  * Initial version
+ -- Jesper Sindahl Nielsen <jsn@statsbiblioteket.dk>  Mon, 07 Nov 2011 14:34:30 +0000
+ 
