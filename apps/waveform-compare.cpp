@@ -13,6 +13,8 @@
 #include "logstream.h"
 #include "my_utils.h"
 
+#include "cmake_config.h"
+
 using namespace std;
 
 namespace po = boost::program_options;
@@ -37,7 +39,7 @@ void printUsage() {
 }
 
 void printVersion() {
-    cout << "waveform-compare xcorrsound version 2.0.0" << endl;
+    cout << "waveform-compare xcorrsound version " << XCORRSOUND_VERSION << endl;
 }
 
 void printInfo() {
