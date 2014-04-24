@@ -21,7 +21,7 @@ ln -fs /vagrant/demosite /var/www
 
 
 # Install tools for downloading and building xcorrsound
-apt-get install -y make cmake
+apt-get install -y make cmake ruby-ronn
 apt-get install -y libfftw3-dev libboost-all-dev
 
 /vagrant/demosite/install_xcorrsound.sh
