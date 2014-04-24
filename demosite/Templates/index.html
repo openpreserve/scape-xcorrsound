@@ -1,0 +1,180 @@
+<html>
+<head>
+<meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Demo Pagelyzer - Image based</title>
+  <link rel="stylesheet" href="../StyleJS/css/style.css">
+
+<script src="../StyleJS/ajax.js"></script>
+
+<script>
+
+/**Ajax Request (Submits the form below through AJAX
+ *               and then calls the ajax_response function)
+ */
+
+
+function resetForm(){
+    document.getElementById('form1').reset();
+	resetResults();
+	 
+}
+
+function resetResults()
+{
+	document.getElementById("content").innerHTML="";
+
+	document.getElementById("progressBar").className="";
+	
+	document.getElementById("progressBar").innerHTML="";
+}
+
+function ajax_request() {
+
+	resetResults();
+
+   document.getElementById("progressBar").className="spinner";
+  var url1 = document.getElementById("url1").value;//by id
+  var url2 = document.getElementById("url2").value;//by id
+
+  var submitTo = 'check.php?url1=' +encodeURIComponent(url1) + "&url2=" + encodeURIComponent(url2);
+
+  http('POST', submitTo, ajax_response, document.form1);
+
+}
+
+
+/**Ajax Response (Called when ajax data has been retrieved)
+ *
+ * @param   object  data   Javascript (JSON) data object received
+ *                         through ajax call
+ */
+function ajax_response(data) {
+	
+var score="";
+  for(var key in data) {
+    score+= data[key];
+  }
+	score = score.substring(0, score.length - 1);
+	document.getElementById("content").innerHTML = "Score: " + parseFloat(score).toFixed(2);
+	
+	if(parseFloat(score) > 0)
+	{
+		  document.getElementById("progressBar").className="OK";
+		  document.getElementById("progressBar").innerHTML="<br/><br/><br/>SIMILAR";
+		  
+	}
+	else{
+		  document.getElementById("progressBar").className="NOTOK";
+		  document.getElementById("progressBar").innerHTML="<br/><br/><br/>DISSIMILAR";
+	}
+}
+
+
+</script>
+
+
+</head>
+<body>
+	
+<div id="scape" class="sign-up">
+
+
+<table width="100%">
+	<tr>
+		<td width="50%">
+			 <img src="http://www.alliancepermanentaccess.org/wp-content/uploads/2012/09/SCAPE_Logo_Large_with_Tagline_png-300x114.jpg"/>
+		</td>
+ 		<td width="50%">
+	 		<h1 class="sign-up-title">Demo of Pagelyzer</h1>
+		</td>
+	
+	</tr>
+</table>
+
+	
+	
+<br/>
+<br/>
+<br/>
+<br/>
+	
+<div class="wrapper">
+	<ul>
+  	<li  style="list-style:none;">
+    		<input type="radio" name="custom_type" value="public" class="styled" checked=true  disabled=true/>
+    		Image Based
+    		<input type="radio" name="custom_type" value="private" id="custom_venuetype_private" class="styled" disabled=true/>
+   		 Content Based
+		<input type="radio" name="custom_type"  value="private" id="custom_venuetype_private" class="styled" disabled=true/>
+    		Hybrid
+  	</li>
+	</ul>
+</div>
+
+	
+<br/>
+<br/>
+<br/>
+<br/>
+	
+  <form name="form1" id="form1" >
+	<table width="100%">
+    		<tr>
+        	<td>
+        	 	<input type="text" id="url1" class="sign-up-input" placeholder="First Url" onkeypress="resetResults()">
+        	</td>
+       		<td>
+        	 	<input type="text"  id="url2" class="sign-up-input" placeholder="Second Url" onkeypress="resetResults()">
+       		 </td>
+		
+    		</tr>
+	</table>
+	
+	
+	<div class="buttonHolder">
+		<input type="button"  class="sign-up-button"  onclick="ajax_request()" value="Let's Compare">
+  
+	  	<input type="button"  class="reset-button"  onclick="resetForm()" value="Reset"><br><br>
+	</div>	
+
+ 
+  
+* Please enter valid Urls <p/>
+* Remember that this demo aims to test the correctness of the tool, not the performance.
+  <hr>
+	<table width="100%">
+    	<tr>
+		<td width="50%">
+			 <div id="progressBar">
+			 	
+			 </div>
+		</td>
+		 <td width="50%">
+			 <div id="content"  class="result-title">
+					</div>
+		</td>
+   	</tr>
+	</table>
+
+</form>
+		
+</div>	
+		
+<div id="links" class="sign-up">
+	 <h1 class="sign-up-title">Related Links</h1>
+	 <ul class="list">
+		  <li> Pagelyzer at Wiki <a href="http://wiki.opf-labs.org/display/TR/Pagelyzer">here</a> </li>
+		  <li> Pagelyzer at Github <a href="https://github.com/openplanets/pagelyzer"> here </a></li>
+		  <li> Pagelyzer blog post: coming soon</li>
+		  <li> MarcAlizer (supervised framework in Pagelyzer) at Github <a href="https://github.com/lechervy/MarcAlizer/"> here </a></li>
+		  <li> Pagelyzer scability test results (image based) by IMF  <a href="http://www.openplanetsfoundation.org/blogs/2013-07-26-browser-screenshot-comparison-tool"> here </a></li>
+		  <li> For any question or further information please contact to zeynep.pehlivan@lip6.fr or marc.law@lip6.fr or andres.sanoja@lip6.fr</a></li>
+	</ul> 
+</div>
+	
+		
+
+</body>
+</html>
+
