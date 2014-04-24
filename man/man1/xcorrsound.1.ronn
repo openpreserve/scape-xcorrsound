@@ -1,0 +1,25 @@
+xcorrsound(1) -- Compare Sound Waves using Cross Correlation.
+
+## DESCRIPTION
+
+The xcorrSound package contains several tools.
+
+* overlap-analysis(1) is a tool to find the overlap between two audio files.
+* waveform-compare(1) is a tool that splits two audio files into equal sized blocks and outputs the correlation for each block (a_i,b_i), if a and b was the input.
+* sound-match(1) is a tool to find the location of a small wavefile inside a big wavefile
+
+The tools all make use of cross correlation, which can be computed through the Fourier transform.
+
+Note that all the tools will need write access to a file called <tool>.log where various information about a run will be stored.
+
+The automisation of manual processes offers a big performance improvement.
+
+* you can find overlaps between audio files automatically
+* you can perform quality assurance of all the files automatically after a mass audio file migration
+
+## COPYRIGHT
+
+XCORRSOUND is copyright 2012 State and University Library, Denmark
+released under GPLv2, see ./COPYING or http://www.gnu.org/licenses/gpl-2.0.html
+
+Part of this work was supported by the European Union in the 7th Framework Program, IST, through the SCAPE project, Contract 270137.
