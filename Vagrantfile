@@ -7,7 +7,7 @@ VAGRANTFILE_API_VERSION = "2"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # Run the provisioning script
-  #config.vm.provision :shell, :path => "./demosite/bootstrap.sh"
+  config.vm.provision :shell, :path => "./demosite/bootstrap.sh"
 
   config.vm.box = "hashicorp/precise64"
   config.vm.network :forwarded_port, :host => 2020, :guest => 80
@@ -29,8 +29,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
     vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
     vb.customize ["modifyvm", :id, "--nictype1", "virtio"]
-    vb.customize ["modifyvm", :id, "--rtcuseutc", "off"]
-
   end
   config.vm.network :public_network, :nictype => 'virtio', :type => "dhcp", :use_dhcp_assigned_default_route => true
 
