@@ -18,7 +18,9 @@ datadir="$SCRIPT_PATH/data"
 cd "$datadir" && find -type f -not -name '*.wav' | xargs rm
 
 
-gitServer=https://github.com/statsbiblioteket/xcorrsound-test-files.git
-echo "Getting demo site sample content from $gitServer"
-rm -rf xcorrsound-test-files/
-git clone $gitServer
+
+#This takes forever, so skip it
+#gitServer=https://github.com/statsbiblioteket/xcorrsound-test-files.git
+#echo "Getting demo site sample content from $gitServer"
+#rm -rf xcorrsound-test-files/
+#git clone $gitServer
