@@ -22,7 +22,13 @@
         </tr>
     </table>
 
-    <br/> <br/> <br/> <br/>
+    <br/>
+    Waveform-compare is a tool that splits two audio files into equal sized blocks and outputs the correlation for each
+    block (a_i,b_i), if a and b was the input.
+
+    This program produces output that can be used to do quality assurance.
+
+    <br/> <br/> <br/>
 
     <form name="compare_form" id="compare_form" action="../xcorrsound.php" method="post" enctype="multipart/form-data">
 
@@ -31,12 +37,12 @@
             <tr>
                 <td width="350px">
                     <div class="input-button">
-                        <label>First wave file</label>
+                        <label for="demo_select_1">First wave file</label>
                         <br/>
                         <select name="demo_select_1" id="demo_select_1" onchange="reset_file_select_1()">
                             <option value="">No selection...</option>
-                            <option selected value="sample/original.wav">Original</option>
-                            <option value="sample/complete_garbage.wav">Complete garbage</option>
+                            <option selected value="/vagrant/demosite/sample/before.wav">Before migration</option>
+                            <option value="/vagrant/demosite/sample/after.wav">After migration</option>
                         </select>
                         <br/><br/>
                         <input type="file" name="file_select_1" id="file_select_1" onchange="reset_demo_select_1()">
@@ -44,12 +50,12 @@
                 </td>
                 <td width="350px">
                     <div class="input-button">
-                        <label>Second wave file</label>
+                        <label for="demo_select_2">Second wave file</label>
                         <br/>
                         <select name="demo_select_2" id="demo_select_2" onchange="reset_file_select_2()">
                             <option value="">No selection...</option>
-                            <option selected value="sample/original.wav">Original</option>
-                            <option value="sample/complete_garbage.wav">Complete garbage</option>
+                            <option selected value="/vagrant/demosite/sample/before.wav">Before migration</option>
+                            <option value="/vagrant/demosite/sample/after.wav">After migration</option>
                         </select>
                         <br/><br/>
                         <input type="file" name="file_select_2" id="file_select_2" onchange="reset_demo_select_2()">

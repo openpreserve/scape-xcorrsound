@@ -22,9 +22,15 @@
         </tr>
     </table>
 
-    <br/> <br/> <br/> <br/>
+    <br/>
 
+    Overlap-analysis finds the overlap between the end of the first file and the beginning of the second file.
+
+    It produces an offset and a value, the closer to 1 the value is the more reliable the match is.
+
+    <br/> <br/> <br/>
     <form name="compare_form" id="compare_form" action="../xcorrsound.php" method="post" enctype="multipart/form-data">
+
 
         <h1 class="sign-up-title">Choose a demo wave file, or upload your own</h1>
         <table>
@@ -35,8 +41,7 @@
                         <br/>
                         <select name="demo_select_1" id="demo_select_1" onchange="reset_file_select_1()">
                             <option value="">No selection...</option>
-                            <option selected value="sample/original.wav">Original</option>
-                            <option value="sample/complete_garbage.wav">Complete garbage</option>
+                            <option selected value="sample/0-60.wav">0-60 seconds</option>
                         </select>
                         <br/><br/>
                         <input type="file" name="file_select_1" id="file_select_1" onchange="reset_demo_select_1()">
@@ -48,8 +53,7 @@
                         <br/>
                         <select name="demo_select_2" id="demo_select_2" onchange="reset_file_select_2()">
                             <option value="">No selection...</option>
-                            <option selected value="sample/original.wav">Original</option>
-                            <option value="sample/complete_garbage.wav">Complete garbage</option>
+                            <option selected value="sample/45-100.wav">45-100 seconds</option>
                         </select>
                         <br/><br/>
                         <input type="file" name="file_select_2" id="file_select_2" onchange="reset_demo_select_2()">
@@ -57,6 +61,7 @@
                 </td>
             </tr>
         </table>
+        <br/>
         <br/>
 
         <div class="buttonHolder">
@@ -69,10 +74,14 @@
             <li>This tests xcorrsound functionality, but not performance which is affected by network bandwidth and
                 server load.
             </li>
+            <li>It produces an offset in seconds and a match quality value</li>
+            <li>The closer to 1 the value is the more reliable the match is.</li>
+            <li>The offset tells you how many seconds of audio is duplicated, ie. exist both in the end of the first file and the start of the second file</li>
         </ul>
         <br/>
 
         <hr>
+
 
         <table>
             <tr>
