@@ -1,1 +1,7 @@
 build/
+.vagrant/
+.idea/
+*.iml
+*.ipr
+*.iws
+*~
