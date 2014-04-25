@@ -15,13 +15,15 @@ echo " post_max_size = 192M" >> /etc/php5/apache2/php.ini
 # on the host machine to be immediately available of the VM.
 /etc/init.d/apache2 restart
 rm -rf /var/www
-ln -fs /vagrant/demosite /var/www
+ln -fs /vagrant/demosite/site /var/www
 
 
 
 
 # Install tools for downloading and building xcorrsound
-apt-get install -y make cmake ruby-ronn
+apt-get install -y make cmake ruby-ronn git
 apt-get install -y libfftw3-dev libboost-all-dev
 
 /vagrant/demosite/install_xcorrsound.sh
+
+/vagrant/demosite/getTestData.sh
