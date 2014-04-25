@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 # Add openplanets Bintray deb repo and udate apt repos
-echo "deb http://dl.bintray.com/openplanets/opf-debian /" >> /etc/apt/sources.list
 apt-get update
 
 # Install apache 2 and PHP 5 for demo site

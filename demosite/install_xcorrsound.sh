@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 cd /vagrant
-mkdir build
+mkdir -p build
 cd build
-rm -r *
+touch test && rm -r *
 cmake ..
 make
 cpack -G DEB
