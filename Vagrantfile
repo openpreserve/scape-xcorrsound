@@ -21,7 +21,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provider :virtualbox do |vb|
     vb.name = "scape-demos-dev"
     vb.memory = 1024
-    vb.cpus = 2
+    vb.cpus = 1
   end
 
   #These network things are nessesary to make ubuntu work fast
