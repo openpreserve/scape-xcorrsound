@@ -299,8 +299,6 @@ int main(int argc, char *argv[]) {
 
         if (avgA <= 5.0 && avgB <= 5.0) {
             silence = true;
-        } else if (avgA <= 5.0 || avgB <= 5.0) {
-            success = false;
         }
 
         bool compare = !silence;
