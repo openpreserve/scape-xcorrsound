@@ -74,10 +74,10 @@ Output example:
     Subchunk2Size: 57600000
     ----------------------- wav subchunk end -----------------------
 
-## Licence
+## License
 
 XCORRSOUND is copyright 2012 State and University Library, Denmark
-released under GPLv2, see ./COPYING or http://www.gnu.org/licenses/gpl-2.0.html
+released under GPLv2, see [COPYING](https://github.com/openplanets/scape-xcorrsound/blob/master/COPYING) or http://www.gnu.org/licenses/gpl-2.0.html
 
 ## Features
 
