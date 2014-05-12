@@ -19,7 +19,7 @@ xcorrSound brings the following benefits:
 * precision in the overlap analysis
 * automated processes
 * resource efficiency
-* open source – freely available
+* open source: freely available
 * easy to install and integrate into a workflow (command line tool)
 * leads to an improved and optimised end user experience
 
@@ -40,7 +40,7 @@ Publications
 
 ### Conference paper
 
-* Bolette Ammitzbøll Jurik and Jesper Sindahl Nielsen: [Audio Quality Assurance: An Application of Cross Correlation](http://www.scape-project.eu/publication/audio-quality-assurance). In: iPRES 2012 – Proceedings of the 9th International Conference on Preservation of Digital Objects. Toronto 2012, 144-149. ISBN 978-0-9917997-0-1 
+* Bolette Ammitzbï¿½ll Jurik and Jesper Sindahl Nielsen: [Audio Quality Assurance: An Application of Cross Correlation](http://www.scape-project.eu/publication/audio-quality-assurance). In: iPRES 2012 ï¿½ Proceedings of the 9th International Conference on Preservation of Digital Objects. Toronto 2012, 144-149. ISBN 978-0-9917997-0-1 
 
 ### Blog posts
 
