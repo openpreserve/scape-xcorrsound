@@ -50,8 +50,6 @@ public:
     log_level(int32_t _n) : n(_n) {}
 };
 
-extern logstream ls;
-
 log_level log_debug();
 log_level log_information();
 log_level log_fatal();
