@@ -271,7 +271,7 @@ int main(int argc, char *argv[]) {
             bSamples.resize(samplesPrBlock, 0);
         }
 
-        if (aSamples.size() < samplesPrBlock/2 || bSamples.size() < samplesPrBlock) {
+        if (aSamples.size() < samplesPrBlock/2 || bSamples.size() < samplesPrBlock/2) {
             // not enough samples for another reliable check.
             if (verbose) {
                 cout << "finished: not enough samples for another reliable check" << endl;
@@ -285,7 +285,7 @@ int main(int argc, char *argv[]) {
         // we count the average of absolute values
         // if the average is close to 0, then we decide it is silence
 
-        size_t absSumA = 0; size_t absSumB = 0;
+        uint64_t absSumA = 0; uint64_t absSumB = 0;
         bool silence = false;
         for (size_t i = 0; i < aSamples.size(); ++i) {
             absSumA += (aSamples[i]>=0)?aSamples[i]:-aSamples[i];
@@ -375,21 +375,16 @@ int main(int argc, char *argv[]) {
     }
 
     if (success) {
-      cout << "Success" << endl;
-      cout << "Offset: " << firstOffset << endl;
-      cout << "Similarity: " << minimumVal << endl;
-      return 0;
+        cout << "Success" << endl;
+        cout << "Offset: " << firstOffset << endl;
+        cout << "Similarity: " << minimumVal << endl;
+        return 0;
     } else {
-      cout << "Failure" << endl;
-      cout << "Block: " << blockFailure << endl;
-      cout << "Value in block: " << blockFailureVal << endl;
-      cout << "Offset in block: " << blockFailureOffset << " (normal: " << firstOffset << ")" << endl;
-      return 1;
-		/*
-		  cout << "block " << blockFailure << ":" << endl;
-		  cout << "Time: " << getTimestampFromSeconds(blockFailure*5-5) << " - "
-		  << getTimestampFromSeconds(blockFailure*5) << " did not match properly" << endl;
-		*/
+        cout << "Failure" << endl;
+        cout << "Block: " << blockFailure << endl;
+        cout << "Value in block: " << blockFailureVal << endl;
+        cout << "Offset in block: " << blockFailureOffset << " (normal: " << firstOffset << ")" << endl;
+        return 1;
     }
 
 }
