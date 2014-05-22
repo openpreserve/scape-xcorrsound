@@ -13,6 +13,11 @@ logstreambuffer::logstreambuffer(int32_t _level, const char *filename) {
     setp(buf, buf+buf_sz);
     this->print_level = _level;
     logfile = fopen(filename, "a");
+    if (logfile == NULL) {
+        logfile = stderr;
+        std::cerr << "Could not open file '" << filename << "' for logging."
+                  << std::endl << "Using stderr for logging instead" << std::endl;
+    }
 }
 
 logstreambuffer::~logstreambuffer() {
@@ -85,20 +90,20 @@ logstream& operator<<(logstream &ls, log_level ll) {
     ls.set_level(ll.n);
     switch (ll.n) {
     case logstream::DEBUG:
-	ls << std::endl << " --- DEBUG --- " << std::endl;
-	break;
+        ls << std::endl << " --- DEBUG --- " << std::endl;
+        break;
     case logstream::INFORMATION:
-	ls << std::endl << " --- INFORMATIONAL ---" << std::endl;
-	break;
+        ls << std::endl << " --- INFORMATIONAL ---" << std::endl;
+        break;
     case logstream::FATAL:
-	ls << std::endl << " --- FATAL ---" << std::endl;
-	break;
+        ls << std::endl << " --- FATAL ---" << std::endl;
+        break;
     case logstream::ERROR:
-	ls << std::endl << " --- ERROR ---" << std::endl;
-	break;
+        ls << std::endl << " --- ERROR ---" << std::endl;
+        break;
     case logstream::WARNING:
-	ls << std::endl << " --- WARNING ---" << std::endl;
-	break;
+        ls << std::endl << " --- WARNING ---" << std::endl;
+        break;
     }
     return ls;
 }

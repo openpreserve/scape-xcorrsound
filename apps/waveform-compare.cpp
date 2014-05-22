@@ -19,7 +19,7 @@ using namespace std;
 
 namespace po = boost::program_options;
 
-logstream ls(5, "waveform-compare.log");
+logstream ls(logstream::INFORMATION, "waveform-compare.log");
 
 // input parameters
 string input1, input2;
