@@ -1,0 +1,8 @@
+#ifndef CMAKE_CONFIG_H
+#define CMAKE_CONFIG_H
+
+// Use this file to get cmake properties into the build
+#define XCORRSOUND_VERSION "@CPACK_PACKAGE_VERSION@"
+
+#endif
+

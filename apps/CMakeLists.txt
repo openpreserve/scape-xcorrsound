@@ -1,3 +1,10 @@
+configure_file (
+  "cmake_config.h.in"
+  "cmake_config.h"
+  )
+include_directories ("${CMAKE_CURRENT_BINARY_DIR}")
+
+
 add_executable(overlap-analysis overlap-analysis.cpp)
 add_executable(sound-match sound_match.cpp sound_match.h)
 add_executable(waveform-compare waveform-compare.cpp)

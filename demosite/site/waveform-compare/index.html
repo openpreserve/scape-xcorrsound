@@ -1,0 +1,107 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <title>Demonstration of waveform compare — an xcorrsound tool</title>
+    <link rel="stylesheet" href="../StyleJS/css/style.css">
+
+    <script src="../StyleJS/ajax.js"></script>
+
+    <script src="../xcorrsound.js"></script>
+</head>
+
+<body>
+
+<div id="scape" class="sign-up">
+    <table>
+        <tr>
+            <td width="50%"><img src="../images/logo.png"/></td>
+            <td width="50%">
+                <h1 class="sign-up-title">Demonstration of waveform compare — an xcorrsound tool</h1>
+            </td>
+        </tr>
+    </table>
+
+    <br/>
+    Waveform-compare is a tool that splits two audio files into equal sized blocks and outputs the correlation for each
+    block (a_i,b_i), if a and b was the input.
+
+    This program produces output that can be used to do quality assurance.
+
+    <br/> <br/> <br/>
+
+    <form name="compare_form" id="compare_form" action="../xcorrsound.php" method="post" enctype="multipart/form-data">
+
+        <h1 class="sign-up-title">Choose a demo wave file, or upload your own</h1>
+        <table>
+            <tr>
+                <td width="350px">
+                    <div class="input-button">
+                        <label for="demo_select_1">First wave file</label>
+                        <br/>
+                        <select name="demo_select_1" id="demo_select_1" onchange="reset_file_select_1()">
+                            <option value="">No selection...</option>
+                            <option selected value="/vagrant/demosite/sample/before.wav">Before migration</option>
+                            <option value="/vagrant/demosite/sample/after.wav">After migration</option>
+                        </select>
+                        <br/><br/>
+                        <input type="file" name="file_select_1" id="file_select_1" onchange="reset_demo_select_1()">
+                    </div>
+                </td>
+                <td width="350px">
+                    <div class="input-button">
+                        <label for="demo_select_2">Second wave file</label>
+                        <br/>
+                        <select name="demo_select_2" id="demo_select_2" onchange="reset_file_select_2()">
+                            <option value="">No selection...</option>
+                            <option selected value="/vagrant/demosite/sample/before.wav">Before migration</option>
+                            <option value="/vagrant/demosite/sample/after.wav">After migration</option>
+                        </select>
+                        <br/><br/>
+                        <input type="file" name="file_select_2" id="file_select_2" onchange="reset_demo_select_2()">
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <br/>
+
+        <div class="buttonHolder">
+            <input type="button" class="sign-up-button" onclick="ajax_request('waveform-compare')"
+                   value="Compare Waveforms">
+            <input type="button" class="reset-button" onclick="resetForm()" value="Reset">
+        </div>
+
+        <br/>
+        <ul class="list">
+            <li>This tests xcorrsound functionality, but not performance which is affected by network bandwidth and
+                server load.
+            </li>
+        </ul>
+        <br/>
+
+        <hr>
+
+        <table>
+            <tr>
+                <td width="50%">
+                    <div id="content" class="result-title"></div>
+                </td>
+                <td width="50%">
+                    <div id="progressBar"></div>
+                </td>
+            </tr>
+        </table>
+    </form>
+
+</div>
+
+<div id="links" class="sign-up">
+    <h1 class="sign-up-title">Related Links</h1>
+    <ul class="list">
+        <li><a href="https://github.com/openplanets/xcorrsound">Xcorrsound at Github</a></li>
+        <li>Xcorrsound blog post: coming soon</li>
+        <li>For any question or further information, please contact Bolette Jurik at statsbiblioteket.dk</li>
+    </ul>
+</div>
+</body>
+</html>

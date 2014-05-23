@@ -1,0 +1,19 @@
+<?php
+
+require_once "json/JSON.php";
+
+//create a new instance of Services_JSON
+$json = new Services_JSON();
+
+//convert php object to json 
+$value = array('foo', 'bar', array(1, 2, 'baz'), array(3, array(4)));
+$output = $json->encode($value);
+
+print($output);
+// prints: ["foo","bar",[1,2,"baz"],[3,[4]]]
+
+// accept incoming POST data, assumed to be in JSON notation
+$input = file_get_contents('php://input', 1000000);
+$value = $json->decode($input);
+
+?>

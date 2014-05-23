@@ -29,7 +29,7 @@ using namespace std;
 
 int hz, channels;
 
-logstream ls(3, "overlap-analysis.log");
+logstream ls(logstream::INFORMATION, "overlap-analysis.log");
 
 struct wav_header {
     unsigned char ChunkID[4];

@@ -1,17 +1,18 @@
-.TH sound-match 1  "January 7, 2014" "version 2.0.0" "USER COMMANDS"
-.SH NAME
-sound-match \- A tool to find occurences of an audio clip in an audio file
-.SH SYNOPSIS
-.B sound-match <needle.wav> <haystack.wav>
+sound-match(1) -- A tool to find occurences of an audio clip in an audio file
+=============================================
 
-.SH DESCRIPTION
+## SYNOPSIS
+
+sound-match <needle.wav> <haystack.wav>
+
+## DESCRIPTION
 
 The tools all make use of cross correlation, which can be computed through the fourier transform.
 
 Note that all the tools will need access to write to a file called <tool>.log where various information about a run will be stored.
 
 
-.SH EXIT STATUS
+## RETURN VALUES
 sound-match returns 0 unless some error occured.
-.SH AUTHOR
+## AUTHOR
 Jesper Sindahl Nielsen <jsn@statsbiblioteket.dk>
