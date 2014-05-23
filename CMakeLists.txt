@@ -37,7 +37,7 @@ endif(NOT RONN_TOOL)
 
 
 set(CPACK_PACKAGE_NAME scape-xcorrsound)
-set(CPACK_PACKAGE_VERSION 2.0.0)
+set(CPACK_PACKAGE_VERSION 2.0.1)
 set(COPYRIGHT_HOLDER "State and University Library")
 
 # Debian package stuff
