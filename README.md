@@ -50,6 +50,7 @@ To install you need:
 ### Download
 
 You can download the debian package from https://bintray.com/openplanets/opf-debian/xcorrsound_amd64
+or from https://github.com/openplanets/scape-xcorrsound/releases/tag/v2.0.0
 
 ### Install instructions
 
