@@ -2,6 +2,8 @@ cmake_minimum_required (VERSION 2.6)
 project (scape-xcorrsound)
 
 
+set(CMAKE_BUILD_TYPE Release)
+
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake-modules/")
 
 set(CPACK_STRIP_FILES "apps/")
@@ -78,3 +80,4 @@ add_subdirectory (man)
 
 INCLUDE(CPack)
 SET(CPACK_GENERATOR "DEB")
+

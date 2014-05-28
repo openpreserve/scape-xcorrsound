@@ -5,9 +5,10 @@ mkdir -p build
 cd build
 touch test && rm -r *
 cmake ..
-make
+make VERBOSE=1
 cpack -G DEB
 
+sudo apt-get -y remove scape-xcorrsound
 # Install xcorrsound package
 dpkg -i scape-xcorrsound*deb
 
