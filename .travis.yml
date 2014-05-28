@@ -1,7 +1,7 @@
 language: cpp
 compiler:
   - gcc
-install: "sudo apt-get install libfftw3-dev libboost-all-dev"
+install: "sudo apt-get install libfftw3-dev libboost-all-dev make cmake ruby-ronn git"
 before_script:
   - mkdir build && cd build
   - cmake ..
