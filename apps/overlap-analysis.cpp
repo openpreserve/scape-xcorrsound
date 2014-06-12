@@ -160,7 +160,7 @@ double computeNormFactor(ll *spa1, ll *spa2, size_t j, size_t a1Size, size_t a2S
     // still using left samples.
     ll a1End = spa1[a1Size-2];
     ll a1Start = 0;
-    if (a1Size-j-4 >= 0) {
+    if (static_cast<int64_t>(a1Size)-static_cast<int64_t>(j)-4 >= 0) {
 	a1Start = spa1[a1Size-j-4];
     }
 
