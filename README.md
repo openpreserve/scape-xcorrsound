@@ -78,6 +78,10 @@ Output example:
     Subchunk2Size: 57600000
     ----------------------- wav subchunk end -----------------------
 
+### xcorrSound Demo Site
+
+[http://scape.opf-labs.org/xcorrsound/index.html](http://scape.opf-labs.org/xcorrsound/index.html)
+
 ## Building xcorrSound
 
 To install follow these steps:
