@@ -2,6 +2,10 @@ xcorrSound Installation & Use
 =============================
 *Improve Your Digital Audio Recordings*
 
+### xcorrSound Demo Site
+
+[http://scape.opf-labs.org/xcorrsound/index.html](http://scape.opf-labs.org/xcorrsound/index.html)
+
 ## Installation Guide
 
 ### Requirements
@@ -77,10 +81,6 @@ Output example:
     Subchunk2ID: data
     Subchunk2Size: 57600000
     ----------------------- wav subchunk end -----------------------
-
-### xcorrSound Demo Site
-
-[http://scape.opf-labs.org/xcorrsound/index.html](http://scape.opf-labs.org/xcorrsound/index.html)
 
 ## Building xcorrSound
 
