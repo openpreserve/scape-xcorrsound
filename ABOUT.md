@@ -11,6 +11,10 @@ xcorrSound consists of four tools:
 * waveform-compare splits two audio files into equal sized blocks and outputs the correlation for each block
 * sound-index builds an index for sound-match to work within
 
+### xcorrSound Demo Site
+
+[http://scape.opf-labs.org/xcorrsound/index.html](http://scape.opf-labs.org/xcorrsound/index.html)
+
 What Can xcorrSound Do For Me?
 ------------------------------
 The automisation of manual processes offers an important performance improvement.

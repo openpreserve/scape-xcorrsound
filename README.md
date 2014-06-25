@@ -2,10 +2,6 @@ xcorrSound Installation & Use
 =============================
 *Improve Your Digital Audio Recordings*
 
-### xcorrSound Demo Site
-
-[http://scape.opf-labs.org/xcorrsound/index.html](http://scape.opf-labs.org/xcorrsound/index.html)
-
 ## Installation Guide
 
 ### Requirements
