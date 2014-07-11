@@ -44,12 +44,14 @@ Publications
 
 ### Conference paper
 
-* Bolette Ammitzb�ll Jurik and Jesper Sindahl Nielsen: [Audio Quality Assurance: An Application of Cross Correlation](http://www.scape-project.eu/publication/audio-quality-assurance). In: iPRES 2012 � Proceedings of the 9th International Conference on Preservation of Digital Objects. Toronto 2012, 144-149. ISBN 978-0-9917997-0-1 
+* Bolette Ammitzbøll Jurik and Jesper Sindahl Nielsen: [Audio Quality Assurance: An Application of Cross Correlation](http://www.scape-project.eu/publication/audio-quality-assurance). In: iPRES 2012 Proceedings of the 9th International Conference on Preservation of Digital Objects. Toronto 2012, 144-149. ISBN 978-0-9917997-0-1
 
 ### Blog posts
 
 * [http://openplanetsfoundation.com/blogs/2012-07-09-xcorrsound-waveform-compare-new-audio-quality-assurance-tool](http://openplanetsfoundation.com/blogs/2012-07-09-xcorrsound-waveform-compare-new-audio-quality-assurance-tool)
 * [http://openplanetsfoundation.com/blogs/2013-05-21-sound-challenge-and-easter-egg-goes](http://openplanetsfoundation.com/blogs/2013-05-21-sound-challenge-and-easter-egg-goes)
+* [http://openplanetsfoundation.org/blogs/2014-01-21-developing-audio-qa-workflow-using-hadoop-part-i](http://openplanetsfoundation.org/blogs/2014-01-21-developing-audio-qa-workflow-using-hadoop-part-i)
+* [http://openplanetsfoundation.org/blogs/2014-02-03-developing-audio-qa-workflow-using-hadoop-part-ii](http://openplanetsfoundation.org/blogs/2014-02-03-developing-audio-qa-workflow-using-hadoop-part-ii)
 
 
 Credits
