@@ -22,12 +22,6 @@
         </tr>
     </table>
 
-    <br/>
-    Waveform-compare is a tool that splits two audio files into equal sized blocks and outputs the correlation for each
-    block (a_i,b_i), if a and b was the input.
-
-    This program produces output that can be used to do quality assurance.
-
     <br/> <br/> <br/>
 
     <form name="compare_form" id="compare_form" action="../xcorrsound.php" method="post" enctype="multipart/form-data">
@@ -72,12 +66,6 @@
         </div>
 
         <br/>
-        <ul class="list">
-            <li>This tests xcorrsound functionality, but not performance which is affected by network bandwidth and
-                server load.
-            </li>
-        </ul>
-        <br/>
 
         <hr>
 
@@ -92,6 +80,20 @@
             </tr>
         </table>
     </form>
+    <br/>
+    Waveform-compare compares two audio files and outputs the similarity.
+    The tool can be used in quality assurance.
+    <br/>
+    The tool outputs "success" or "failure", depending on similarity for the best match (default threshold is 0.98),
+    as well as offset (in seconds?) and similarity (between 0 and 1) for best match.
+    <br/>
+    For more on algorithm and output, see <a href="http://openplanets.github.io/scape-xcorrsound/">the xcorrSound web site</a>.
+    <br/>
+    <ul class="list">
+        <li>This tests xcorrsound functionality, but not performance which is affected by network bandwidth and
+            server load.
+        </li>
+    </ul>
 
 </div>
 

@@ -119,6 +119,12 @@ Now you should have a working xcorrSound installation and test files. Try
 
     waveform-compare /vagrant/demosite/sample/P1_1800_2000_040712_001.mp3.mpeg321.short.wav /vagrant/demosite/sample/P1_1800_2000_040712_001.mp3.ffmpeg.short.wav
 
+from the commandline or access
+
+    http://localhost:2020/
+
+from your browser.
+
 ## License
 
 XCORRSOUND is copyright 2012 State and University Library, Denmark
