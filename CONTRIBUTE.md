@@ -14,26 +14,27 @@ To build you require:
 * C++
 * cmake
 
-And the tools depend on FFTW3 and Boost program options. These can be found as debian packages.
+The tools depend on FFTW3 and Boost program options. These can be found as debian packages.
 And as rpm packages. On Mac OS X the dependencies can be installed using Homebrew (http://brew.sh).
-See install_dependencies.sh
+To build you also need ronn / ruby-ronn / rubygem-ronn
 
 Preparations Debian/Ubuntu:
 
-    sudo apt-get install libfftw3-dev libboost-all-dev
+    sudo apt-get install libfftw3-dev libboost-all-dev ruby-ronn
 
 Preparations Centos/Fedora:
 
-    sudo yum install gcc gcc-c++ glibc boost-devel fftw-devel
+    sudo yum install gcc gcc-c++ glibc boost-devel fftw-devel rubygem-ronn
 
 Preparations Mac OS X run
 
     brew install boost
     brew install fftw
+    brew install ronn ??? NOT TESTED
 
 ### Build
 
-To buil the xcorrSound tool suite follow these steps:
+To build the xcorrSound tool suite follow these steps:
 Download the repository, change directory to the repository and run:
 
     mkdir build
@@ -68,5 +69,5 @@ To increase the chances of your changes being accepted and merged into the offic
 
 ## Roadmap
 
-* Consistent versioning
-* Demo site
+* Demo site updates
+* User stories on Micro site

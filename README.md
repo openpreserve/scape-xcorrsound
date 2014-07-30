@@ -11,10 +11,6 @@ To install you need:
 * FFTW and
 * Boost
 
-To build you also need
-
-* ronn / ruby-ronn / rubygem-ronn
-
 ### Download
 
 You can download the debian package from [https://github.com/openplanets/scape-xcorrsound/releases](https://github.com/openplanets/scape-xcorrsound/releases)
@@ -77,35 +73,6 @@ Output example:
     Subchunk2ID: data
     Subchunk2Size: 57600000
     ----------------------- wav subchunk end -----------------------
-
-## Building xcorrSound
-
-To install follow these steps:
-
-The tools depend on FFTW3, Boost and Ronn program options. These can be found as debian packages.
-And as rpm packages. On Mac OS X the dependencies can be installed using
-Homebrew (http://brew.sh). See install_dependencies.sh
-
-Download the repository, change directory to the repository and run:
-
-    mkdir build
-    cd build
-    cmake ..
-    make
-
-You will now find all the tools in build/apps/
-
-### Building xcorrSound Debian Package
-
-Inside the build directory run:
-
-    cpack -G DEB
-
-Now the .deb package file is in the build directory.
-To install
-
-    sudo dpkg -i scape-xcorrsound*deb
-
 
 ## Using Vagrant
 
