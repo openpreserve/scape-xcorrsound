@@ -37,6 +37,7 @@
                             <option value="">No selection...</option>
                             <option selected value="/vagrant/demosite/sample/Zapac-Test-Drive-ffmpeg-10secs.wav">Zapac-Test-Drive-ffmpeg-10secs.wav</option>
                             <option value="/vagrant/demosite/sample/Zapac-Test-Drive-mpg321-10secs.wav">Zapac-Test-Drive-mpg321-10secs.wav</option>
+                            <option value="/vagrant/demosite/sample/Zapac-Test-Drive-ffmpeg-10secs-amplify5.wav">Zapac-Test-Drive-ffmpeg-10secs-amplify5.wav</option>
                         </select>
                         <br/><br/>
                         <input type="file" name="file_select_1" id="file_select_1" onchange="reset_demo_select_1()">
@@ -48,8 +49,9 @@
                         <br/>
                         <select name="demo_select_2" id="demo_select_2" onchange="reset_file_select_2()">
                             <option value="">No selection...</option>
-                            <option selected value="/vagrant/demosite/sample/Zapac-Test-Drive-ffmpeg-10secs.wav">Zapac-Test-Drive-ffmpeg-10secs.wav</option>
+                            <option value="/vagrant/demosite/sample/Zapac-Test-Drive-ffmpeg-10secs.wav">Zapac-Test-Drive-ffmpeg-10secs.wav</option>
                             <option value="/vagrant/demosite/sample/Zapac-Test-Drive-mpg321-10secs.wav">Zapac-Test-Drive-mpg321-10secs.wav</option>
+                            <option selected value="/vagrant/demosite/sample/Zapac-Test-Drive-ffmpeg-10secs-amplify5.wav">Zapac-Test-Drive-ffmpeg-10secs-amplify5.wav</option>
                         </select>
                         <br/><br/>
                         <input type="file" name="file_select_2" id="file_select_2" onchange="reset_demo_select_2()">
@@ -85,13 +87,18 @@
     The tool can be used in quality assurance.
     <br/>
     The tool outputs "success" or "failure", depending on similarity for the best match (default threshold is 0.98),
-    as well as offset (in seconds?) and similarity (between 0 and 1) for best match.
+    as well as offset (in microseconds?) and similarity (between 0 and 1) for best match, and in case of failure the block
+    where the failure occurred.
     <br/>
     For more on algorithm and output, see <a href="http://openplanets.github.io/scape-xcorrsound/">the xcorrSound web site</a>.
     <br/>
     <ul class="list">
         <li>This tests xcorrsound functionality, but not performance which is affected by network bandwidth and
             server load.
+        </li>
+        <li>The samples are derived from "Test Drive by Zapac [Attribution Noncommercial (3.0)]" from ccMixter.org.
+            ccMixter is a community music site featuring remixes licensed under Creative Commons.
+            <a href="http://ccmixter.org/files/Zapac/26047">ccmixter.org/files/Zapac/26047</a>
         </li>
     </ul>
 
