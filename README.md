@@ -74,24 +74,6 @@ Output example:
     Subchunk2Size: 57600000
     ----------------------- wav subchunk end -----------------------
 
-## Using Vagrant
-
-The project includes a Vagrant config file, which uses Virtual Box to start an Ubuntu 12.04 instance from which you can build and use the tool. This should work on any environment that supports Vagrant and Virtual Box. When you have Vagrant and Virtual Box installed, the following should work:
-
-    vagrant up
-    vagrant ssh
-    sudo /vagrant/demosite/install_xcorrsound.sh
-
-Now you should have a working xcorrSound installation and test files. Try
-
-    waveform-compare /vagrant/demosite/sample/P1_1800_2000_040712_001.mp3.mpeg321.short.wav /vagrant/demosite/sample/P1_1800_2000_040712_001.mp3.ffmpeg.short.wav
-
-from the commandline or access
-
-    http://localhost:2020/
-
-from your browser.
-
 ## License
 
 XCORRSOUND is copyright 2012 State and University Library, Denmark
