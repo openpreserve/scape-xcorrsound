@@ -1,19 +1,25 @@
-#include <vector>
-#include <complex>
-#include <iostream>
-#include <algorithm>
-#include "cross_correlation.h"
 #include "AudioFile.h"
-#include "stdint.h"
-#include <iomanip>
-#include "my_utils.h"
 #include "AudioStream.h"
+#include "cmake_config.h"
+#include "cross_correlation.h"
+#include "my_utils.h"
+#include "stdint.h"
+#include <algorithm>
+#include <complex>
+#include <cstring>
 #include <iomanip>
+#include <iomanip>
+#include <iostream>
 #include <utility>
+#include <vector>
 
 static const double THRESHHOLD = 0.1;
 
 using namespace std;
+
+void printVersion() {
+    cout << "sound-match xcorrsound version " << XCORRSOUND_VERSION << endl;
+}
 
 namespace {
 
@@ -163,7 +169,8 @@ void match(AudioFile &needle, AudioFile &haystack, std::vector<pair<size_t, doub
 }
 
 void printUsage() {
-    std::cout << "Usage: ./soundMatch <needle.wav> <haystack.wav>" << std::endl;
+    std::cout << "Usage: ./soundMatch <needle.wav> <haystack.wav>" << std::endl << std::endl;
+    std::cout << "./soundMatch --version prints the version of the xcorrsound package" << std::endl;
 }
 
 /**
@@ -183,7 +190,14 @@ inline void read(vector<int16_t> &res, size_t channel, FILE *fp, size_t sz) {
 int main(int argc, char **argv) {
 
     std::vector<pair<size_t, double> > res;
-    
+
+    for (int i = 1; i < argc; ++i) {
+        if (!strcmp("--version", argv[i])) {
+            printVersion();
+            exit(0);
+        }
+    }
+
     if (argc != 3) {printUsage(); return 1;}
  
     AudioFile needle(argv[1]);

@@ -4,6 +4,7 @@
 #include <vector>
 #include <fftw3.h>
 #include <complex>
+#include <cstring>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -16,6 +17,8 @@
 #include "my_utils.h"
 
 #include "logstream.h"
+
+#include "cmake_config.h"
 
 static const double THRESHOLD = 0.2;
 static const double EPS = 1e-6;
@@ -37,12 +40,12 @@ struct wav_header {
     unsigned char Format[4];
     
     void print() {
-	ls << log_information();
-	ls << "----------------------- wav header start -----------------------" << endl;
-	ls << "ChunkID: " << ChunkID << endl;
-	ls << "ChunkSize: " << ChunkSize << endl;
-	ls << "Format: " << Format << endl;
-	ls << "----------------------- wav header end -----------------------" << endl;
+        ls << log_information();
+        ls << "----------------------- wav header start -----------------------" << endl;
+        ls << "ChunkID: " << ChunkID << endl;
+        ls << "ChunkSize: " << ChunkSize << endl;
+        ls << "Format: " << Format << endl;
+        ls << "----------------------- wav header end -----------------------" << endl;
     }
 
 };
@@ -60,22 +63,26 @@ struct wav_subchunk {
     uint32_t Subchunk2Size;
 
     void print() {
-	ls << log_information();
-	ls << "----------------------- wav subchunk start -----------------------" << endl;
-	ls << "Subchunk1ID: " << Subchunk1ID << endl;
-	ls << "Subchunk1Size: " << Subchunk1Size << endl;
-	ls << "AudioFormat: " << AudioFormat << endl;
-	ls << "NumChannels: " << NumChannels << endl;
-	ls << "SampleRate: " << SampleRate << endl;
-	ls << "ByteRate: " << ByteRate << endl;
-	ls << "BlockAlign: " << BlockAlign << endl;
-	ls << "BitsPerSample: " << BitsPerSample << endl;
-	ls << "Subchunk2ID: " << Subchunk2ID << endl;
-	ls << "Subchunk2Size: " << Subchunk2Size << endl;
-	ls << "----------------------- wav subchunk end -----------------------" << endl;
+        ls << log_information();
+        ls << "----------------------- wav subchunk start -----------------------" << endl;
+        ls << "Subchunk1ID: " << Subchunk1ID << endl;
+        ls << "Subchunk1Size: " << Subchunk1Size << endl;
+        ls << "AudioFormat: " << AudioFormat << endl;
+        ls << "NumChannels: " << NumChannels << endl;
+        ls << "SampleRate: " << SampleRate << endl;
+        ls << "ByteRate: " << ByteRate << endl;
+        ls << "BlockAlign: " << BlockAlign << endl;
+        ls << "BitsPerSample: " << BitsPerSample << endl;
+        ls << "Subchunk2ID: " << Subchunk2ID << endl;
+        ls << "Subchunk2Size: " << Subchunk2Size << endl;
+        ls << "----------------------- wav subchunk end -----------------------" << endl;
     }
 
 };
+
+void printVersion() {
+    cout << "overlap-analysis xcorrsound version " << XCORRSOUND_VERSION << endl;
+}
 
 void printUsage() {
     cout << "Usage:" << endl;
@@ -87,7 +94,10 @@ void printUsage() {
     cout << "4: warning" << endl;
     cout << "5: debug" << endl;
     cout << "Logging information will be appended to the file overlap-analysis.log" << endl;
-    cout << "Make sure the process has write access to that file." << endl;
+    cout << "Make sure the process has write access to that file." << endl << endl;
+
+    cout << "./overlap-analysis --version" << endl;
+    cout << "Print the version number for the xcorrsound package" << std::endl << std::endl;
     exit(1);
 }
 
@@ -313,9 +323,17 @@ void doWork(int16_t *a1, int16_t *a2, size_t a1Size, size_t a2Size, size_t a1Pad
 }
 
 void doFromFile(int argc, char *argv[]) {
+
+    for (int i = 1; i < argc; ++i) {
+        if (!strcmp("--version", argv[i])) {
+            printVersion();
+            exit(0);
+        }
+    }
+
     if (argc < 3) {
-	printUsage();
-	return;
+        printUsage();
+        return;
     }
 
     time_t tmp = time(NULL);
@@ -325,10 +343,10 @@ void doFromFile(int argc, char *argv[]) {
     string file1(argv[1]), file2(argv[2]);
 
     if (argc >= 4 && argv[3][0] == 'v' && argv[3][1] != '\0') {
-	int level = argv[3][1]-'0';
-	if (level >= 1 && level <= 5) {
-	    ls.set_print_level(level);
-	}
+        int level = argv[3][1]-'0';
+        if (level >= 1 && level <= 5) {
+            ls.set_print_level(level);
+        }
     }
     
     ifstream f1,f2;
