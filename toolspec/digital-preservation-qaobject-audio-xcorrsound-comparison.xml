@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<tool xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://scape-project.eu/tool tool-1.1_draft.xsd" xmlns="http://scape-project.eu/tool"
+          schemaVersion="1.0" name="xcorrSound" version="2.0.2" homepage="http://openplanets.github.io/scape-xcorrsound/">
+    <license name="Apache-2.0" type="FLOSS" uri="http://opensource.org/licenses/Apache-2.0"/>
+
+    <installation>
+        <operatingSystem operatingSystemName="Debian">
+            <packageManager type="Dpkg">
+                <config>default-jre</config>
+                <source>deb http://ftp.de.debian.org/debian wheezy main</source>
+            </packageManager>
+            <dependency name="default-jre">
+                <license name="GPL-2.0" type="FLOSS" uri="http://opensource.org/licenses/GPL-2.0"/>
+            </dependency>
+            <dependency name="dcraw">
+                <license name="GPL-2.0" type="FLOSS" uri="http://opensource.org/licenses/GPL-2.0"/>
+            </dependency>
+        </operatingSystem>
+    </installation>
+
+    <operations>
+        <operation name="waveform-compare">
+            <description>Compares two wave files</description>
+            <command>waveform-compare ${params} ${wave1} ${wave2}</command>
+            <inputs>
+                <input name="wave1" required="true">
+                    <description>Reference to input file 1</description>
+                </input>
+                <input name="wave2" required="true">
+                    <description>Reference to input file 2</description>
+                </input>
+                <parameter name="params" required="false">
+                    <description>Additional  parameters</description>
+                </parameter>
+            </inputs>
+            <outputs>
+                <stdout>
+                    <description>Output will be printed on standard out. Will use return code 0 when the files are deemed identical.</description>
+                </stdout>
+            </outputs>
+        </operation>
+    </operations>
+</tool>
+

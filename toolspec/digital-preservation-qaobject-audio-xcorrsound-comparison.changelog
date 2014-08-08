@@ -1,0 +1,24 @@
+digital-preservation-qa-audio-xcorrsound-comparison (1.0.3) unstable; urgency=low
+
+        * Component Spec added
+        * Tool Spec rename
+
+        -- SCAPE project <baj@statsbiblioteket.dk>  Wed Aug 06 12:53:00 CET 2014
+
+digital-preservation-qa-audio-xcorrsound (1.0.2) unstable; urgency=low
+
+        * Tool Spec rename.
+
+        -- SCAPE project <baj@statsbiblioteket.dk>  Thu Nov 21 12:31:18 CET 2013
+
+digital-preservation-qa-audio-xcorrsound-waveform-compare (1.0.1) unstable; urgency=low
+
+        * Tool rename.
+
+        -- SCAPE project <baj@statsbiblioteket.dk>  Fri, 25 Oct 2013 11:00:00 +0000
+
+digital-preservation-qa-audio-xcorrsound-migrationqa (1.0.0) unstable; urgency=low
+
+        * Initial Release.
+
+        -- SCAPE project <abr@statsbiblioteket.dk>  Wed, 16 Jan 2013 11:17:10 +0000

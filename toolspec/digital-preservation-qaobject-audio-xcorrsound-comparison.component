@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<components xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://scape-project.eu/component"
+            xsi:schemaLocation="http://scape-project.eu/component toolwrapper-data/src/main/resources/component-1.1_draft.xsd"
+            schemaVersion="1.1">
+    <component xsi:type="QAObjectComparison" profile="http://purl.org/DP/components#QAObjectComparison"
+               profileVersion="0.1" name="digital-preservation-qaobject-audio-xcorrsound-waveform-compare"
+               author="Bolette Jurik">
+        <license name="Apache-2.0" type="FLOSS" uri="http://opensource.org/licenses/Apache-2.0"/>
+        <acceptedMimetype>audio/wav, audio/x-wav, audio/wave, audio/x-pn-wav</acceptedMimetype>
+        <acceptedMimetype>audio/wav, audio/x-wav, audio/wave, audio/x-pn-wav</acceptedMimetype>
+        <outputMeasure name="waveform_block_similarity" uri="http://purl.org/DP/quality/measures#403"
+                       typeOfProcessingInstruction="JAVA">
+            import java.util.Scanner;
+            String AE = "";
+            Scanner s = new Scanner(STDOUT_IN);
+            if (s.hasNextLine()) {
+            AE = s.nextLine();
+            }
+        </outputMeasure>
+    </component>
+</components>
