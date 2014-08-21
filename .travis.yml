@@ -2,10 +2,11 @@ language: cpp
 compiler:
   - gcc
 install: 
-  - "sudo apt-get install libfftw3-dev libboost-all-dev make cmake ruby-ronn "
-  # the ubuntu package doesn't appear to work
+  - "sudo apt-get install libfftw3-dev libboost-all-dev make cmake "
+  # the ubuntu ruby packages appear to be too old, so install via gem
   - gem install rdiscount
   - gem install hpricot
+  - gem install ronn
 before_script:
   - mkdir build && cd build
   - cmake ..
