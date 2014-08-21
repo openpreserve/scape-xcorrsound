@@ -33,7 +33,7 @@ void printUsage() {
     cout << "Usage: waveform-compare <first.wav> <second.wav> [--channel=c] [--block-size=N] [--threshold=X]" << endl;
     cout << "       [--pad-short-block]" << endl;
     cout << "Where N is the (integer) number of seconds pr block and X is the threshold in" << endl;
-    cout << "[0,1] and c is the channel starting from 0. By default N=5, X=0.98 and c = 0." << endl;
+    cout << "[0,1] and c is the channel starting from 0. By default N=" << secondsPrBlock << ", X=" << threshold << " and c=" << channel << "." << endl;
     cout << "Channel c is the channel as specified by the wav format." << endl;
     cout << "Samples shorter than the block length can be padded with silence to improve the correlation." << endl;
 }
@@ -47,7 +47,7 @@ void printInfo() {
     cout << "This program produces output that can be used to do quality assurance." << endl;
     cout << "If the verbose flag is set the program outputs an off-set value and a" << endl;
     cout << "match value for each 'chunk' where the two audio files by default are" << endl;
-    cout << "split into 5 seconds chunks." << endl << endl;
+    cout << "split into 1 seconds chunks." << endl << endl;
 
     cout << "Output:" << endl;
     cout << "block i: <match value> <off-set>" << endl << endl;
