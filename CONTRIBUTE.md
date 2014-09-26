@@ -55,6 +55,10 @@ To install
 
     sudo dpkg -i scape-xcorrsound*deb
 
+### Create Taverna workflows and Components
+
+[toolspec/](toolspec/)
+
 ## Contribute
 
 1. [Fork the GitHub project](https://help.github.com/articles/fork-a-repo)

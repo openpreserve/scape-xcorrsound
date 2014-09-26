@@ -69,6 +69,10 @@ Publications
 
 * [http://www.slideshare.net/SCAPEproject/scape-information-day-sb-migration-xcorr-sound](www.slideshare.net/SCAPEproject/scape-information-day-sb-migration-xcorr-sound)
 
+### Components
+
+* [Pack: Audio Video Quality Assurance](http://www.myexperiment.org/packs/597.html)
+
 Credits
 -------
 
