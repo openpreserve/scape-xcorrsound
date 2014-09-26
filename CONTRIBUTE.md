@@ -57,7 +57,7 @@ To install
 
 ### Create Taverna workflows and Components
 
-[toolspec/](toolspec/)
+[toolspec/README.md](toolspec/README.md)
 
 ## Contribute
 
