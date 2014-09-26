@@ -57,7 +57,7 @@ To install
 
 ### Create Taverna workflows and Components
 
-[toolspec/README.md](toolspec/README.md)
+See toolspecs and README in [toolspec/](https://github.com/openplanets/scape-xcorrsound/toolspec/) directory.
 
 ## Contribute
 
