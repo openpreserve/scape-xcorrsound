@@ -1,3 +1,9 @@
+digital-preservation-qa-audio-xcorrsound-comparison (2.0.0) stable; urgency=low
+
+        * Two operations and components added
+
+        -- SCAPE project <baj@statsbiblioteket.dk>  Fri Sep 26 10:41:29 CEST 2014
+
 digital-preservation-qa-audio-xcorrsound-comparison (1.0.3) unstable; urgency=low
 
         * Component Spec added

@@ -40,6 +40,43 @@
                 </stdout>
             </outputs>
         </operation>
+        <operation name="overlap-analysis">
+            <description>Finds overlap between two wave files</description>
+            <command>overlap-analysis ${wave1} ${wave2} ${loglevel}</command>
+            <inputs>
+                <input name="wave1" required="true">
+                    <description>Reference to input file 1</description>
+                </input>
+                <input name="wave2" required="true">
+                    <description>Reference to input file 2</description>
+                </input>
+                <parameter name="loglevel" required="false">
+                    <description>loglevel</description>
+                </parameter>
+            </inputs>
+            <outputs>
+                <stdout>
+                    <description>Output will be printed on standard out.</description>
+                </stdout>
+            </outputs>
+        </operation>
+        <operation name="sound-match">
+            <description>Finds occurrences of small wave file in larger wave file</description>
+            <command>sound-match ${wave-needle} ${wave-haystack}</command>
+            <inputs>
+                <input name="wave-needle" required="true">
+                    <description>Reference to small wave input file (needle)</description>
+                </input>
+                <input name="wave-haystack" required="true">
+                    <description>Reference to larger wave input file (haystack)</description>
+                </input>
+            </inputs>
+            <outputs>
+                <stdout>
+                    <description>Output will be printed on standard out.</description>
+                </stdout>
+            </outputs>
+        </operation>
     </operations>
 </tool>
 

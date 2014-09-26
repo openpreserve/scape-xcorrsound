@@ -9,13 +9,27 @@
         <acceptedMimetype>audio/wav, audio/x-wav, audio/wave, audio/x-pn-wav</acceptedMimetype>
         <acceptedMimetype>audio/wav, audio/x-wav, audio/wave, audio/x-pn-wav</acceptedMimetype>
         <outputMeasure name="waveform_block_similarity" uri="http://purl.org/DP/quality/measures#403"
-                       typeOfProcessingInstruction="JAVA">
-            import java.util.Scanner;
-            String AE = "";
-            Scanner s = new Scanner(STDOUT_IN);
-            if (s.hasNextLine()) {
-            AE = s.nextLine();
-            }
+                       typeOfProcessingInstruction="BASH">
+        </outputMeasure>
+    </component>
+    <component xsi:type="QAObjectComparison" profile="http://purl.org/DP/components#QAObjectComparison"
+               profileVersion="0.1" name="digital-preservation-qaobject-audio-xcorrsound-overlap-analysis"
+               author="Bolette Jurik">
+        <license name="Apache-2.0" type="FLOSS" uri="http://opensource.org/licenses/Apache-2.0"/>
+        <acceptedMimetype>audio/wav, audio/x-wav, audio/wave, audio/x-pn-wav</acceptedMimetype>
+        <acceptedMimetype>audio/wav, audio/x-wav, audio/wave, audio/x-pn-wav</acceptedMimetype>
+        <outputMeasure name="activity_report" uri="http://purl.org/DP/quality/measures#402"
+                       typeOfProcessingInstruction="BASH">
+        </outputMeasure>
+    </component>
+    <component xsi:type="QAObjectComparison" profile="http://purl.org/DP/components#QAObjectComparison"
+               profileVersion="0.1" name="digital-preservation-qaobject-audio-xcorrsound-sound-match"
+               author="Bolette Jurik">
+        <license name="Apache-2.0" type="FLOSS" uri="http://opensource.org/licenses/Apache-2.0"/>
+        <acceptedMimetype>audio/wav, audio/x-wav, audio/wave, audio/x-pn-wav</acceptedMimetype>
+        <acceptedMimetype>audio/wav, audio/x-wav, audio/wave, audio/x-pn-wav</acceptedMimetype>
+        <outputMeasure name="activity_report" uri="http://purl.org/DP/quality/measures#402"
+                       typeOfProcessingInstruction="BASH">
         </outputMeasure>
     </component>
 </components>
