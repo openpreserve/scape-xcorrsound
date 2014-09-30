@@ -30,3 +30,8 @@ The automatically generated scape components however use the automatically gener
 
 The 2.0.2 version of the tools already have components on myExperiment, see
 [Pack: Audio Video Quality Assurance](http://www.myexperiment.org/packs/597.html).
+
+Note the "alt" version of the waveform-compare component
+[Workflow Entry: xcorrSound_waveform-compare_alt](http://www.myexperiment.org/workflows/4479.html)
+uses the xcorrSound project debian package installation for easy testing of using Taverna components
+together with xcorrSound tools.
