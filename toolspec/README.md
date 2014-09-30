@@ -17,9 +17,14 @@ See the [scape-toolwrapper](http://openplanets.github.io/scape-toolwrapper/) REA
 
 ToolWrapper is used within the SCAPE project to allow easy finding of existing
 preservation components, easily using and combining them in preservation workflows
-using [Taverna](http://www.taverna.org.uk/) (and easily deploying them in execution platforms
-using Debian packages - there
-is however already a debian package for xcorrSound including all the tools).
+using [Taverna](http://www.taverna.org.uk/) and easily deploying them in execution platforms
+using Debian packages.
+
+### Catch
+
+There is however already a debian package for xcorrSound as part of the tool releases
+[https://github.com/openplanets/scape-xcorrsound/releases](https://github.com/openplanets/scape-xcorrsound/releases).
+The automatically generated scape components however use the automatically generated scape debian package tool.
 
 ## Components on myExperiment
 
