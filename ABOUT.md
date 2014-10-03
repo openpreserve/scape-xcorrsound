@@ -52,7 +52,7 @@ Publications
 
 ### Leaflet
 
-* [http://www.scape-project.eu/leaflets/xcorrsound-improve-your-digital-audio-recordings](www.scape-project.eu/leaflets/xcorrsound-improve-your-digital-audio-recordings)
+* [xcorrSound – Improve Your Digital Audio Recordings](www.scape-project.eu/leaflets/xcorrsound-improve-your-digital-audio-recordings)
 
 ### Conference paper
 
@@ -60,14 +60,20 @@ Publications
 
 ### Blog posts
 
-* [http://openplanetsfoundation.com/blogs/2012-07-09-xcorrsound-waveform-compare-new-audio-quality-assurance-tool](http://openplanetsfoundation.com/blogs/2012-07-09-xcorrsound-waveform-compare-new-audio-quality-assurance-tool)
-* [http://openplanetsfoundation.com/blogs/2013-05-21-sound-challenge-and-easter-egg-goes](http://openplanetsfoundation.com/blogs/2013-05-21-sound-challenge-and-easter-egg-goes)
-* [http://openplanetsfoundation.org/blogs/2014-01-21-developing-audio-qa-workflow-using-hadoop-part-i](http://openplanetsfoundation.org/blogs/2014-01-21-developing-audio-qa-workflow-using-hadoop-part-i)
-* [http://openplanetsfoundation.org/blogs/2014-02-03-developing-audio-qa-workflow-using-hadoop-part-ii](http://openplanetsfoundation.org/blogs/2014-02-03-developing-audio-qa-workflow-using-hadoop-part-ii)
+* [xcorrSound: waveform-compare New Audio Quality Assurance Tool](http://openplanetsfoundation.com/blogs/2012-07-09-xcorrsound-waveform-compare-new-audio-quality-assurance-tool)
+* [Sound Challenge: And the Easter Egg goes to ...](http://openplanetsfoundation.com/blogs/2013-05-21-sound-challenge-and-easter-egg-goes)
+* [Developing an Audio QA workflow using Hadoop: Part I](http://openplanetsfoundation.org/blogs/2014-01-21-developing-audio-qa-workflow-using-hadoop-part-i)
+* [Developing an Audio QA workflow using Hadoop: Part II](http://openplanetsfoundation.org/blogs/2014-02-03-developing-audio-qa-workflow-using-hadoop-part-ii)
+* [Scape Demonstration: Migration of audio using xcorrSound](http://openplanetsfoundation.org/blogs/2014-09-30-scape-demonstration-migration-audio-using-xcorrsound)
 
 ### SlideShare
 
-* [http://www.slideshare.net/SCAPEproject/scape-information-day-sb-migration-xcorr-sound](www.slideshare.net/SCAPEproject/scape-information-day-sb-migration-xcorr-sound)
+* [Audio Quality Assurance. An application of cross correlation](http://www.slideshare.net/SCAPEproject/audio-quality-assurance-an-application-of-cross-correlation)
+* [Migration of audio files using Hadoop - and Taverna - and xcorrSound waveform-compare](www.slideshare.net/SCAPEproject/scape-information-day-sb-migration-xcorr-sound)
+
+### Vimeo
+
+* [Scape Demonstration: Migration of audio using xcorrSound by Bolette Ammitzbøll Jurik](https://vimeo.com/107573486)
 
 ### Components
 
