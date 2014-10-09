@@ -45,7 +45,45 @@ which enabled improvement of the end users' listening experience.
 
 Algorithms
 ----------
-TODO
+All the implemented algorithms rely on the [Cross Correlation](http://en.wikipedia.org/wiki/Cross-correlation) procedure. 
+
+### Waveform compare
+
+The input is two wav files of the same length (n), sample-rate, bit-rate
+and so on. The output is a real value between 0 and 1 indicating how
+similar the two files are (content-wise) where 0 indicates no
+similarity and 1 indicates they are identical.
+
+The algorithm splits the two files f and g into blocks f_1, f_2, ...,
+f_{n/B} and g_1, g_2, ..., g_{n/B} all with the same length B. That
+is, the first block consists of the first B samples, the second block
+of the following B samples from the respective files, and so on. Then
+cross correlation is applied on all corresponding blocks, f_i and
+g_i. The peak value of the cross correlation tells how much to shift
+one block in time to achieve the best match value -- we call this the
+offset of the block. If there is a block where the offset is more than
+500 samples away from the offset of the first block, then an error is
+reported and f and g are deemed different. Otherwise a the minimum
+match value among the blocks is reported as well as the offset in that
+block.
+
+This algorithm has a low memory use that is proportional to the size
+of the blocks.
+
+### Overlap analysis
+
+ The input is two wav files such that the last part (unknown how much)
+of the first appears as the first part (also unknown how much) of the
+second file -- content-wise.  The input is two wav files of the same
+length (n), sample-rate, bit-rate and so on. The output is a length
+and a real value between 0 and 1 indicating how good the match is.
+
+The algorithm does one cross correlation computation of the two input
+files and outputs the peak position and value. This means the memory
+usage is proportional to the size of the input files which is quite
+memory intensive compared to the input. The use case for this tool is
+to find small overlaps e.g. a few minutes.
+
 
 Publications
 ------------
