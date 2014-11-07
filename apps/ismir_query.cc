@@ -26,15 +26,17 @@ void init(int argc, char *argv[]) {
 
     std::string dbname;
     std::string queryFile;
-
+    std::string processedQueryFile;
+    
     po::options_description generic("Program options");
     generic.add_options()
         ("help,h", "Print help message and return, everything else is ignored");
     
     po::options_description hidden("Settings");
     hidden.add_options()
-        ("query,q", po::value<std::string>(), "Audio query file")
-        ("dbname,d", po::value<std::string>(), "Database name");
+	("query,q", po::value<std::string>(), "Audio query file")
+	("dbname,d", po::value<std::string>(), "Database name")
+	("processed-query,p", po::value<std::string>(), "Preprocessed query file");
 
     po::options_description all("Allowed options");
     all.add(generic).add(hidden);
@@ -54,16 +56,24 @@ void init(int argc, char *argv[]) {
         exit(0);
     }
 
+    bool queryExists = false;
+
     if (vm.count("query")) {
         queryFile = vm["query"].as<std::string>();
+	queryExists = true;
     } else {
         std::cout << "A query file must be provided" << std::endl;
         exit(1);
     }
 
+    if (vm.count("processed-query")) {
+	processedQueryFile = vm["processed-query"].as<std::string>();
+    } else {
+	queryExists = true;
+    }
+
     if (vm.count("dbname")) {
         dbname = vm["dbname"].as<std::string>();
-	
     } else {
         std::cout << "dbname must be provided" << std::endl;
         exit(1);

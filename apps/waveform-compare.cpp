@@ -216,6 +216,7 @@ int main(int argc, char *argv[]) {
     AudioFile a(input1.c_str());
     AudioFile b(input2.c_str());
 
+    // TODO: Better input validation.
     if (channel >= a.getNumberOfChannels() || channel >= b.getNumberOfChannels()) {
 		ls << log_error() << "Error, channel not available" << endl;
 		return 1;

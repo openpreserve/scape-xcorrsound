@@ -10,12 +10,17 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include <memory>
+#include <tuple>
 
 namespace si = sound_index;
 
 namespace {
 
     uint32_t macro_sz = 256;
+    size_t fpSkip = 50; // skip this much into fingerprint array.
+    size_t nearRange = 150; // how far to look around a position that
+			    // is significantly different from noise.
 
     uint32_t hammingLookup16(uint32_t n) {
         uint16_t a = n & 0xFFFF;
@@ -59,7 +64,99 @@ namespace {
         mapFile = ss.str();
     }
 
+    // percentage error. Break if in the 'noise zone'.
+    // only check every now and then (i % 5)
+    // and we must have a decent baseline, i.e. at least 10% through computation.
+    // this is a heuristic to terminate early if we can see
+    // there will not be a match here.
+    std::pair<bool, int32_t> hammingEarlyTerminate(std::vector<uint32_t> &fingerprints, std::vector<uint32_t> &db, size_t start) {
+	
+	int32_t dist = 0;
+	for (size_t i = 0 ; i < macro_sz; ++i) {
 
+	    uint32_t x = fingerprints[i+fpSkip] ^ db[i+start];
+	    uint32_t cnt = __builtin_popcountll(x);
+	    dist += cnt;	    
+	    
+	    if ((i % 5) == 0 && i > macro_sz / 10) {
+		double bitsSeenSoFar = i*sizeof(uint32_t)*8;
+		double errorPercentage = dist / bitsSeenSoFar;
+		if (errorPercentage > 0.43 && errorPercentage < 0.537) {
+		    return std::make_pair(true, dist);
+		}
+	    }
+	}
+	return std::make_pair(false, dist);
+    }
+
+    int32_t fullHamming(std::vector<uint32_t> &fingerprints, std::vector<uint32_t> &db, size_t start) {
+
+	int32_t dist = 0;
+	for (size_t i = 0 ; i < macro_sz; ++i) {
+	    uint32_t x = fingerprints[i+fpSkip] ^ db[i+start];
+	    uint32_t cnt = __builtin_popcountll(x);
+	    dist += cnt;	    
+	}
+	return dist;
+	
+    }
+
+    std::pair<int32_t, size_t> fullCheck(std::vector<uint32_t> &fp, std::vector<uint32_t> &window) {
+
+	int32_t bestDist = std::numeric_limits<int32_t>::max();
+	size_t bestIdx = std::numeric_limits<size_t>::max();
+	if (window.size() < macro_sz) return std::make_pair(bestDist, bestIdx);
+	for (size_t i = 0; i < window.size() - macro_sz; ++i) {
+	    int32_t dist = fullHamming(fp, window, i);
+	    if (dist < bestDist) {
+		bestDist = dist;
+		bestIdx = i;
+	    }
+	}
+	return std::make_pair(bestDist, bestIdx);
+    }
+
+    // checks +/- 100 around pos.
+    std::pair<int32_t, size_t> checkNearPos(std::vector<uint32_t> &fp, std::string dbFilename, size_t pos, std::vector<uint32_t> &db, size_t posInDb) {
+
+	if (posInDb > nearRange && posInDb < db.size()-nearRange-macro_sz) {
+	    std::vector<uint32_t> window(db.begin()+posInDb-nearRange, db.begin()+posInDb+nearRange+macro_sz);
+	    int32_t dist = 0;
+	    size_t idx = 0;
+
+	    std::tie(dist, idx) = fullCheck(fp, window);
+
+	    return std::make_pair(dist, idx + posInDb-nearRange);
+	}
+	
+	size_t begin = 0;
+	size_t end = pos + nearRange + macro_sz;
+	if (pos > nearRange) begin = pos - nearRange;
+
+	std::ifstream fin(dbFilename.c_str(), std::ifstream::in | std::ifstream::binary);
+	fin.seekg(0, std::ios_base::end);
+	size_t fileEnd = fin.tellg();
+	if (end*4 > fileEnd) {
+	    end = fileEnd/4;
+	}
+	fin.seekg(sizeof(uint32_t)*begin);
+
+	std::unique_ptr<uint32_t[]> buf(new uint32_t[end-begin]);
+	fin.read((char*) buf.get(), sizeof(uint32_t)*(end-begin));
+
+	std::vector<uint32_t> window(end-begin, 0);
+	for (size_t i = 0; i < end-begin; ++i) {
+	    window[i] = buf[i];
+	}
+	int32_t dist = 0;
+	size_t idx = 0;
+
+	std::tie(dist, idx) = fullCheck(fp, window);
+
+	return std::make_pair(dist, idx + begin);
+
+    }
+    
 }
 
 si::fingerprint_db::fingerprint_db() {
@@ -131,6 +228,7 @@ void si::fingerprint_db::query_scan(std::string filename, std::vector<std::strin
     size_t end = 0;
     size_t pos = 0;
     size_t prevMatchPos = std::numeric_limits<size_t>::max();
+
     while (fin) {
 
         for (size_t i = 0; i < macro_sz; ++i) {
@@ -146,23 +244,26 @@ void si::fingerprint_db::query_scan(std::string filename, std::vector<std::strin
             db[i+macro_sz] = buf[i];
         }
 
-        for (size_t i = 0; i < end-macro_sz; ++i,++pos) {
-            if (pos - prevMatchPos < (this->fp_strategy->getSampleRate()) &&
-                prevMatchPos != std::numeric_limits<size_t>::max()) continue;
-            size_t dist = 0;
-            // bool atLeastOne = false;
-            size_t startJ = 50;
-            for (size_t j = startJ; j < startJ+macro_sz; ++j) {
-                uint32_t x = fingerprints[j] ^ db[i+j-startJ];
-                //uint32_t cnt = hammingLookup16(x);
-                uint32_t cnt = __builtin_popcountll(x);
-                dist += cnt;
-                // if (cnt <= 0) {
-                //     atLeastOne = true;
-                // }
-            }
+        //for (size_t i = 0; i < end-macro_sz; ++i,++pos) {
+	for (size_t i = 0; i < end-macro_sz; i+=8,pos+=8) {
+            if (pos - prevMatchPos < (this->fp_strategy->getSampleRate()/64) &&
+		prevMatchPos != std::numeric_limits<size_t>::max()) continue;
 
-            if (dist < macro_sz*sizeof(uint32_t)*0.35*8) {
+            size_t dist = 0;
+	    size_t bestMatchPos = std::numeric_limits<size_t>::max();
+	    size_t startJ = 50;
+	    bool earlyTermination = false;
+	    
+	    std::tie(earlyTermination, dist) = hammingEarlyTerminate(fingerprints, db, i);
+
+	    if (earlyTermination) continue;
+
+	    std::tie(dist, bestMatchPos) = checkNearPos(fingerprints, this->dbFilename,
+							pos, db, i);
+	    
+	    //dist = fullHamming(fingerprints, db, i);
+	    //std::tie(earlyTermination, dist) = hammingEarlyTerminate(fingerprints, db, i);
+	    if (!earlyTermination && dist < macro_sz*sizeof(uint32_t)*0.35*8) {
                 prevMatchPos = pos;
                 std::map<size_t, std::string>::iterator iter = idToFile.lower_bound(pos);
 
@@ -192,9 +293,24 @@ void si::fingerprint_db::query_scan(std::string filename, std::vector<std::strin
                 //ss << "fdsa" << std::endl;
                 ret.push_back(ss.str());
             }
+	    if (i + nearRange > end-macro_sz) {
+		size_t tmp = end-macro_sz-i;
+		i = i + tmp;
+		pos = pos + tmp;
+	    } else {
+		i+=nearRange; pos+=nearRange;
+	    }
         }
     }
+
 }
+
+void si::fingerprint_db::query_preprocessed(std::string filename, std::vector<std::string> &results) {
+
+    //TODO: make this work.
+
+}
+
 
 void si::fingerprint_db::query(std::string filename, std::vector<std::string> &results) {
     return;
