@@ -28,6 +28,8 @@ bool padShortBlock = false;
 uint32_t secondsPrBlock = 1;
 uint32_t channel = 0;
 double threshold = 0.97;
+double SILENCE_THRESHOLD = 10.0;
+
 
 void printUsage() {
     cout << "Usage: waveform-compare <first.wav> <second.wav> [--channel=c] [--block-size=N] [--threshold=X]" << endl;
@@ -298,7 +300,7 @@ int main(int argc, char *argv[]) {
         double avgA = static_cast<double>(absSumA)/aSamples.size();
         double avgB = static_cast<double>(absSumB)/bSamples.size();
 
-        if (avgA <= 5.0 && avgB <= 5.0) {
+        if (avgA <= SILENCE_THRESHOLD && avgB <= SILENCE_THRESHOLD) {
             silence = true;
         }
 
