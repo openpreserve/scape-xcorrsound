@@ -15,10 +15,12 @@ To install you need:
 ### Building from source
 
 Acquire the source code (e.g. by cloning this repository). Go to the root folder and create a build folder:
+
     cd scape-xcorrsound
     mkdir build
 
 Now let CMake do its job and create a build system and then start the compilation.
+
     cmake ..
     make
 
