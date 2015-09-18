@@ -6,6 +6,7 @@ install:
   # the ubuntu ruby packages appear to be too old, so install via gem
   - gem install rdiscount
   - gem install hpricot
+  - gem install mustache -v 0.99.6
   - gem install ronn
 before_script:
   - mkdir build && cd build
