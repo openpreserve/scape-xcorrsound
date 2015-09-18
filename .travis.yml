@@ -10,7 +10,7 @@ install:
   - gem install ronn
 before_script:
   - mkdir build && cd build
-  - cmake ..
+  - cmake  -DBoost_NO_BOOST_CMAKE=ON ..
 script:
   - make package
   - cpack -G DEB
