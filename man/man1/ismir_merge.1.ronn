@@ -1,0 +1,17 @@
+ismir_merge(1) -- A tool to merge two index files
+=============================================
+
+## SYNOPSIS
+Usage: ismir_merge [SETTINGS]
+
+## DESCRIPTION
+ismir_merge can merge two index files (to keep down the number of index files).
+
+## OPTIONS
+  -o [ --output-database ] arg Output database name, should not already exist
+  -i [ --input-databases ] arg List of input databases to merge
+
+Both input and output database names must be specified
+
+## AUTHOR
+Jesper Sindahl Nielsen <jsn@statsbiblioteket.dk>

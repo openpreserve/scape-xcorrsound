@@ -1,0 +1,16 @@
+ismir_query(1) -- A tool to look for an audio query file in an audio index.
+=============================================
+
+## SYNOPSIS
+Usage: ismir_query [SETTINGS]
+
+## DESCRIPTION
+ismir_query takes an audio query file (a wav file) and looks for it in the audio index.
+
+## OPTIONS
+  -q [ --query ] arg           Audio query file
+  -d [ --dbname ] arg          Database name
+  -p [ --processed-query ] arg Preprocessed query file
+
+## AUTHOR
+Jesper Sindahl Nielsen <jsn@statsbiblioteket.dk>

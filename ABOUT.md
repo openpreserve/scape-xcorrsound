@@ -4,16 +4,18 @@ xcorrSound
 
 What is xcorrSound?
 -------------------
-xcorrSound consists of four tools:
+xcorrSound consists of three top level tools and an audio search engine component
 
 * overlap-analysis detects overlap in two audio files
 * waveform-compare compares two audio files and outputs the similarity
-* sound-match detects occurrences of a smaller audio file (e.g. a jingle) within a larger audio file or an index of audio files
-* sound-index builds an index for sound-match to work within
+* sound-match finds occurences of an audio clip in an audio file
+* ismir is a sound search engine.
 
-### xcorrSound Demo Site
+Ismir consists of three tools
 
-[http://scape.opf-labs.org/xcorrsound/index.html](http://scape.opf-labs.org/xcorrsound/index.html)
+* ismir_build_index, which creates an index file from a wav file
+* ismir_merge, which can merge two index files (to keep down the number of index files)
+* ismir_query, which takes a wav file and looks for it in the index files
 
 What Can xcorrSound Do For Me?
 ------------------------------
@@ -29,7 +31,6 @@ xcorrSound brings the following benefits:
 
 xcorrSound Can Be Used By
 -------------------------
-
 * Institutions disseminating audio content
 * Institutions preserving audio collections
 
@@ -72,7 +73,7 @@ of the blocks.
 
 ### Overlap analysis
 
- The input is two wav files such that the last part (unknown how much)
+The input is two wav files such that the last part (unknown how much)
 of the first appears as the first part (also unknown how much) of the
 second file -- content-wise.  The input is two wav files of the same
 length (n), sample-rate, bit-rate and so on. The output is a length
@@ -84,6 +85,10 @@ usage is proportional to the size of the input files which is quite
 memory intensive compared to the input. The use case for this tool is
 to find small overlaps e.g. a few minutes.
 
+### Ismir
+
+The audio index tools were developed to search for a short sound bite (a jingle) in a large audio archive. The 
+implementation is derived from the paper "A Highly Robust Audio Fingerprinting System", Jaap Haitsma og Ton Kalker, ISMIR 2002.
 
 Publications
 ------------

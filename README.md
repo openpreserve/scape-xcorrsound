@@ -11,6 +11,7 @@ To install you need:
 * FFTW and
 * Boost
 * CMake
+* ronn
 
 ### Building from source
 
@@ -18,6 +19,7 @@ Acquire the source code (e.g. by cloning this repository). Go to the root folder
 
     cd scape-xcorrsound
     mkdir build
+    cd build
 
 Now let CMake do its job and create a build system and then start the compilation.
 

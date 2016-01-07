@@ -1,0 +1,20 @@
+ismir_build_index(1) -- A tool to create an index file from a list of wav files
+=============================================
+
+## SYNOPSIS
+ismir_build_index [PROGRAM OPTIONS] SETTINGS
+
+## DESCRIPTION
+ismir_build_index builds an index from a list of wav files (or a single wave file).
+
+## OPTIONS
+
+  -d [ --dbname ] arg   Database name
+  -f [ --file ] arg     File with names of wav files for bulk insertion, this
+                        ignores the --input option
+  -i [ --input ] arg    Single wav file, use '-' as this value if the file is
+                        given on stdin
+  -n [ --name ] arg     Name if input is on stdin
+
+## AUTHOR
+Jesper Sindahl Nielsen <jsn@statsbiblioteket.dk>
