@@ -3,15 +3,16 @@ addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
+    #define a yaml reference to the common packages, and use this in the matrix below. The matrix overwrites the local "addons" so this is nessesary
     packages: &trusty_packages
       - cmake
       - make
       - libfftw3-dev
       - libboost-all-dev
-      - ruby-rdiscount
-      - ruby-hpricot
-      - ruby-mustache
-      - ruby-ronn
+#      - ruby-rdiscount
+#      - ruby-hpricot
+#      - ruby-mustache
+#      - ruby-ronn
 matrix:
   include:
     # works on Precise and Trusty
@@ -21,8 +22,8 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - *trusty_packages
             - g++-4.8
+            - *trusty_packages
       env:
          - MATRIX_EVAL="CC=gcc-4.8 && CXX=g++-4.8"
 
@@ -33,8 +34,8 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - *trusty_packages
             - g++-4.9
+            - *trusty_packages
       env:
          - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
 
@@ -45,8 +46,8 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - *trusty_packages
             - g++-5
+            - *trusty_packages
       env:
          - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
 
@@ -57,8 +58,8 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - *trusty_packages
             - g++-6
+            - *trusty_packages
       env:
         - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
 
@@ -69,8 +70,8 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - *trusty_packages
             - g++-7
+            - *trusty_packages
       env:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
 
@@ -80,12 +81,9 @@ before_install:
 language: cpp
 compiler:
   - gcc
-#install:
+install:
 #  # the ubuntu ruby packages appear to be too old, so install via gem
-#  - gem install rdiscount
-#  - gem install hpricot
-#  - gem install mustache -v 0.99.6
-#  - gem install ronn
+  - gem install rdiscount hpricot mustache:0.99.6 ronn
 before_script:
   - mkdir build && cd build
   - cmake  -DBoost_NO_BOOST_CMAKE=ON ..
