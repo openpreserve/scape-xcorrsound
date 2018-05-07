@@ -8,10 +8,10 @@ addons:
       - make
       - libfftw3-dev
       - libboost-all-dev
-      - rdiscount
-      - hpricot
-      - mustache
-      - ronn
+      - ruby-rdiscount
+      - ruby-hpricot
+      - ruby-mustache
+      - ruby-ronn
 matrix:
   include:
     # works on Precise and Trusty
