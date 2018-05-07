@@ -47,11 +47,19 @@ matrix:
 
 before_install:
     - eval "${MATRIX_EVAL}"
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - cmake
+      - make
+      - libfftw3-dev
+      - libboost-all-dev
 language: cpp
 compiler:
   - gcc
 install: 
-  - "sudo apt-get install libfftw3-dev libboost-all-dev make cmake"
   # the ubuntu ruby packages appear to be too old, so install via gem
   - gem install rdiscount
   - gem install hpricot
