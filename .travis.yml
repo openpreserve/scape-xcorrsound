@@ -1,4 +1,17 @@
 dist: trusty
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - cmake
+      - make
+      - libfftw3-dev
+      - libboost-all-dev
+      - rdiscount
+      - hpricot
+      - mustache
+      - ronn
 matrix:
   include:
     # works on Precise and Trusty
@@ -47,19 +60,7 @@ matrix:
 
 before_install:
     - eval "${MATRIX_EVAL}"
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - cmake
-      - make
-      - libfftw3-dev
-      - libboost-all-dev
-      - rdiscount
-      - hpricot
-      - mustache
-      - ronn
+
 language: cpp
 compiler:
   - gcc
