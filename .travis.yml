@@ -56,15 +56,19 @@ addons:
       - make
       - libfftw3-dev
       - libboost-all-dev
+      - rdiscount
+      - hpricot
+      - mustache
+      - ronn
 language: cpp
 compiler:
   - gcc
-install: 
-  # the ubuntu ruby packages appear to be too old, so install via gem
-  - gem install rdiscount
-  - gem install hpricot
-  - gem install mustache -v 0.99.6
-  - gem install ronn
+#install:
+#  # the ubuntu ruby packages appear to be too old, so install via gem
+#  - gem install rdiscount
+#  - gem install hpricot
+#  - gem install mustache -v 0.99.6
+#  - gem install ronn
 before_script:
   - mkdir build && cd build
   - cmake  -DBoost_NO_BOOST_CMAKE=ON ..
